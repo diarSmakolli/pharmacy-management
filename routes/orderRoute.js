@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Order, Product, OrderProduct, Tax } = require('../models');
+const { Order, Product, OrderProduct, Tax, Category, Stock } = require('../models');
 
 // router.post('/', async (req, res) => {
 //     const { products } = req.body;
@@ -65,7 +65,10 @@ router.post('/', async (req, res) => {
 
         // Loop through products to calculate amounts
         for (const product of products) {
-            const productDetails = await Product.findByPk(product.productId);
+            const productDetails = await Product.findByPk(product.productId, {
+                include: [Tax, Category, Stock]
+            });
+
             if (!productDetails) {
                 return res.status(400).json({
                     status: 'error',
@@ -83,33 +86,59 @@ router.post('/', async (req, res) => {
                 });
             }
 
-            total_amount += product.unitPrice * product.quantity;
 
-            const productTotal = product.unitPrice * product.quantity;
+
+            const { price: unitPrice } = productDetails;
+
+            total_amount += unitPrice * product.quantity;
+
+            // Calculate tax amount
+            const productTotal = unitPrice * product.quantity;
             const taxAmount = (taxDetails.rate / 100) * productTotal;
-
             total_amount_excl_tax += productTotal;
             total_tax_amount += taxAmount;
+            total_amount_incl_tax = total_amount_excl_tax + total_tax_amount;
+
+            const stock = await Stock.findOne({
+                where: {
+                    productId: product.productId
+                }
+            });
+
+            if (!stock) {
+                return res.status(400).json({
+                    status: 'error',
+                    statusCode: 400,
+                    message: 'Stock not found'
+                });
+            }
+
+            if (stock.quantity < product.quantity) {
+                return res.status(400).json({
+                    status: 'error',
+                    statusCode: 400,
+                    message: 'Not enough stock'
+                });
+            }
+
+            stock.quantity -= product.quantity;
+            await stock.save();
         }
 
-        total_amount_incl_tax = total_amount_excl_tax + total_tax_amount;
-
-        // Create the order
         const order = await Order.create({
-            // total_amount_excl_tax,
-            // total_tax_amount,
-            // total_amount_incl_tax,
             total_amount,
             created_at: new Date()
         });
 
         // Add products to order
         await Promise.all(products.map(async product => {
+            const productDetails = await Product.findByPk(product.productId);
             await OrderProduct.create({
                 orderId: order.id,
                 productId: product.productId,
                 quantity: product.quantity,
-                unitPrice: product.unitPrice
+                // unitPrice: product.unitPrice
+                unitPrice: productDetails.price
             });
         }));
 
