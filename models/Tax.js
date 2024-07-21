@@ -9,7 +9,7 @@ const sequelize = new Sequelize(process.env.DATABASE, process.env.DIALECT, proce
     dialect: process.env.DIALECT
 })
 
-const Partner = sequelize.define('partners', {
+const Tax = sequelize.define('taxes', {
     id: {
         type: Sequelize.DataTypes.INTEGER,
         primaryKey: true,
@@ -18,25 +18,13 @@ const Partner = sequelize.define('partners', {
     name: {
         type: Sequelize.DataTypes.STRING
     },
-    businessNumber: {
-        type: Sequelize.DataTypes.STRING,
-    },
-    fiscalNumber: {
-        type: Sequelize.DataTypes.STRING,
-    },
-    commune: {
-        type: Sequelize.DataTypes.STRING,
-    },
-    address: {
-        type: Sequelize.DataTypes.STRING,
-    },
-    status: {
-        type: Sequelize.DataTypes.STRING,
+    rate: {
+        type: Sequelize.DataTypes.INTEGER
     },
 }, {
-    tableName: 'partners',
+    tableName: 'taxes',
     timestamps: false
 });
 
-module.exports = Partner;
+module.exports = Tax;
 

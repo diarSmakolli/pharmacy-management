@@ -1,23 +1,25 @@
 const express = require('express');
 const router = express.Router();
-// const Partner = require('../models/Partner');
-// const Product = require('../models/Product');
-const { Partner, Product } = require('../models');
+const { Partner, Product, Category, Tax, Stock } = require('../models');
 
 
 // create product
 router.post('/', async (req, res) => {
-    const { name, barcode, description, price, discount, quantity, partnerId } = req.body;
+    const { name, barcode, description, price, quantity, partnerId, status, categoryId, taxId, initialStock  } = req.body;
 
     const product = await Product.create({
         name,
         barcode,
         description,
-        price,
-        discount,
+        price, // unit price
         quantity,
         partnerId,
         status: 'active'
+    });
+
+    await Stock.create({
+        productId: product.id,
+        quantity: initialStock
     });
 
     return res.status(201).json({
@@ -35,7 +37,7 @@ router.get('/:id', async (req, res) => {
 
   // get product included the partner
     const product = await Product.findByPk(productId, {
-        include: [Partner]
+        include: [Partner, Tax, Category, Stock]
     });
 
     if(product.status === 'inactive') {

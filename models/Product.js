@@ -38,7 +38,13 @@ const Product = sequelize.define('products', {
     },
     status: {
         type: Sequelize.DataTypes.STRING
-    }
+    },
+    categoryId: {
+        type: Sequelize.DataTypes.INTEGER
+    },
+    taxId: {
+        type: Sequelize.DataTypes.INTEGER
+    },
 }, {
     tableName: 'products',
     timestamps: false

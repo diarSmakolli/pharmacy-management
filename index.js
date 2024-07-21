@@ -8,6 +8,10 @@ const path = require('path');
 const userRoute = require('./routes/userRoute');
 const partnerRoute = require('./routes/partnerRoute');
 const productRoute = require('./routes/productRoute');
+const categoryRoute = require('./routes/categoryRoute');
+const taxRoute = require('./routes/taxRoute');
+const orderRoute = require('./routes/orderRoute');
+const stockRoute = require('./routes/stockRoute');
 
 const app = express();
 dotenv.config();
@@ -37,6 +41,10 @@ sequelize.authenticate()
 app.use('/api/users', userRoute);
 app.use('/api/partners', partnerRoute);
 app.use('/api/products', productRoute);
+app.use('/api/categories', categoryRoute);
+app.use('/api/taxes', taxRoute);
+app.use('/api/orders', orderRoute);
+app.use('/api/stocks', stockRoute); 
 
 // Server
 
