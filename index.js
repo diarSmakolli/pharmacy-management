@@ -12,15 +12,18 @@ const categoryRoute = require('./routes/categoryRoute');
 const taxRoute = require('./routes/taxRoute');
 const orderRoute = require('./routes/orderRoute');
 const stockRoute = require('./routes/stockRoute');
+const invoiceRoute = require('./routes/invoiceRoute');
 
 const app = express();
 dotenv.config();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(express.json());
 
 
@@ -45,6 +48,7 @@ app.use('/api/categories', categoryRoute);
 app.use('/api/taxes', taxRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/stocks', stockRoute); 
+app.use('/api/invoices', invoiceRoute);
 
 // Server
 

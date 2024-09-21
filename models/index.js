@@ -15,6 +15,8 @@ const Tax = require('./Tax');
 const Order = require('./Order');
 const OrderProduct = require('./OrderProduct');
 const Stock = require('./Stock');
+const Invoice = require('./Invoice');
+const InvoiceProduct = require('./InvoiceProduct');
 
 
 // Set up associations
@@ -34,6 +36,12 @@ Product.belongsToMany(Order, { through: OrderProduct, foreignKey: 'productId' })
 Stock.belongsTo(Product, { foreignKey: 'productId' });
 Product.hasOne(Stock, { foreignKey: 'productId' });
 
+Invoice.belongsTo(Order, { foreignKey: 'order_id' });
+Order.hasOne(Invoice, { foreignKey: 'order_id' });
+
+Invoice.belongsToMany(Product, { through: InvoiceProduct, foreignKey: 'invoice_id' });
+Product.belongsToMany(Invoice, { through: InvoiceProduct, foreignKey: 'product_id' });
+
 
 const models = {
     Partner,
@@ -44,15 +52,8 @@ const models = {
     OrderProduct,
     Stock,
     sequelize,
+    Invoice,
+    InvoiceProduct,
 };
 
 module.exports = models;
-
-// const Partner = require('./Partner');
-// const Product = require('./Product');
-
-// // Set up associations
-// Partner.hasMany(Product, { foreignKey: 'partnerId' });
-// Product.belongsTo(Partner, { foreignKey: 'partnerId' });
-
-// module.exports = { Partner, Product };

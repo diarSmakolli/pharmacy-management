@@ -27,12 +27,9 @@ const Product = sequelize.define('products', {
     price: {
         type: Sequelize.DataTypes.DOUBLE
     },
-    discount: {
-        type: Sequelize.DataTypes.INTEGER
-    },
-    quantity: {
-        type: Sequelize.DataTypes.INTEGER
-    },
+    // discount: {
+    //     type: Sequelize.DataTypes.INTEGER
+    // },
     partnerId: {
         type: Sequelize.DataTypes.INTEGER,
     },

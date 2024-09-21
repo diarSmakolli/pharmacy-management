@@ -33,6 +33,12 @@ const Partner = sequelize.define('partners', {
     status: {
         type: Sequelize.DataTypes.STRING,
     },
+    phoneNumber: {
+        type: Sequelize.DataTypes.STRING,
+    },
+    email: {
+        type: Sequelize.DataTypes.STRING,
+    },
 }, {
     tableName: 'partners',
     timestamps: false

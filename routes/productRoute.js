@@ -2,18 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { Partner, Product, Category, Tax, Stock } = require('../models');
 
-
 // create product
 router.post('/', async (req, res) => {
-    const { name, barcode, description, price, quantity, partnerId, status, categoryId, taxId, initialStock  } = req.body;
+    const { name, barcode, description, price, discount, partnerId, status, categoryId, taxId, initialStock  } = req.body;
 
     const product = await Product.create({
         name,
         barcode,
         description,
-        price, // unit price
-        quantity,
+        price,
+        discount,
         partnerId,
+        categoryId,
+        taxId,
         status: 'active'
     });
 
@@ -28,7 +29,6 @@ router.post('/', async (req, res) => {
         data: product
     });
 });
-
 
 // get product by id
 router.get('/:id', async (req, res) => {
@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
     const products = await Product.findAll({
         where: { status: 'active' },
-        include: [Partner]
+        include: [Partner, Tax, Category, Stock]
     });
 
     if(products.length === 0) {
@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
 // update product
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, barcode, description, price, discount, quantity, partnerId, status } = req.body;
+    const { name, barcode, description, price, partnerId, status, categoryId, taxId } = req.body;
 
     const product = await Product.findOne({ where: { id } });
 
@@ -97,10 +97,10 @@ router.put('/:id', async (req, res) => {
         barcode,
         description,
         price,
-        discount,
-        quantity,
         partnerId,
-        status
+        status,
+        categoryId,
+        taxId
     });
     
 
@@ -132,6 +132,6 @@ router.delete('/:id', async (req, res) => {
         statusCode: 200,
         message: 'Product deleted successfully'
     });
-})
+});
 
 module.exports = router;

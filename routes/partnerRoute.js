@@ -5,7 +5,7 @@ const Partner = require('../models/Partner');
 
 // create an partner
 router.post('/', async (req, res) => {
-    const { name, businessNumber, fiscalNumber, commune, address, status } = req.body;
+    const { name, businessNumber, fiscalNumber, commune, address, status, phoneNumber, email  } = req.body;
     try {
         const existingPartner = await Partner.findOne({ where: { businessNumber } });
 
@@ -17,7 +17,7 @@ router.post('/', async (req, res) => {
             })
         }
 
-        const partner = await Partner.create({ name, businessNumber, fiscalNumber, commune, address, status });
+        const partner = await Partner.create({ name, businessNumber, fiscalNumber, commune, address, status: 'active', phoneNumber, email });
 
         return res.status(201).json({
             status: 'success',
@@ -126,7 +126,6 @@ router.delete('/:id', async (req, res) => {
             statusCode: 200,
             message: 'Partner deleted successfully'
         })
-
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -140,7 +139,7 @@ router.delete('/:id', async (req, res) => {
 // update the partner
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, businessNumber, fiscalNumber, commune, address } = req.body;
+    const { name, businessNumber, fiscalNumber, commune, address, phoneNumber, email } = req.body;
     try {
         const partner = await Partner.findOne({ where: { id } });
 
