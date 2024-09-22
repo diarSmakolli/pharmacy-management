@@ -34,6 +34,18 @@ import {
     Td,
     Input,
     Select,
+    Image,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody,
+    ModalFooter,
+    FormControl,
+    FormLabel,
+    Collapse,
+    Divider
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -49,15 +61,9 @@ import { IconType } from 'react-icons';
 import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
+import emonalogo from '../images/emona.png';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
 
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
@@ -76,145 +82,49 @@ export default function SidebarWithHeader({ children }) {
     const [employeersNumber, setEmployeersNumber] = useState(null);
     const [agentId, setAgentId] = useState('');
     const [department, setDepartment] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [stocks, setStocks] = useState([]);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [categoryName, setCategoryName] = useState('');
+    const [orders, setOrders] = useState([]);
+    const [expandedOrders, setExpandedOrders] = useState({});
 
-
-
-    useEffect(() => {
-        const fetchEmployers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`, {
-                    withCredentials: true
-                });
-
-                console.log('Response employeers: ', response);
-                setEmployers(response.data);
-            } catch (error) {
-                console.log('error employers: ', error);
-            }
-        };
-
-        const fetchCountDevices = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/devices/count`, {
-                    withCredentials: true
-                }
-                );
-
-                console.log(response.data);
-                setDevicesNumber(response.data.countDevices);
-            } catch (error) {
-                console.log('error devices: ', error);
-            }
-        };
-
-        const fetchNumberofEmployeers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/countEmployers`, {
-                    withCredentials: true
-                }
-                );
-
-                console.log(response.data);
-                setEmployeersNumber(response.data.countEmployers);
-            } catch (error) {
-                console.log('error: ', error);
-            }
-        }
-
-        fetchEmployers();
-        fetchCountDevices();
-        fetchNumberofEmployeers();
-    }, []);
-
-    const handleSearch = async () => {
+    const fetchOrders = async () => {
         setIsLoading(true);
         try {
-            if (keyword) {
-                // Search by name
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/search?keyword=${keyword}`,
-                    { withCredentials: true }
-                );
-                setSearchResults(response.data.rows);
-                if (response.data.rows.length === 0) {
-                    toast({
-                        title: "No results found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            } else if (agentId) {
-                // Search by agent ID
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/agent/${agentId}`,
-                    { withCredentials: true }
-                );
-                if (response.data) {
-                    setSearchResults([response.data]);
-                } else {
-                    setSearchResults([]);
-                    toast({
-                        title: "Employer not found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            }
-            else if (department) {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/department/${department}`,
-                    { withCredentials: true }
-                );
-                console.log(department);
-                setSearchResults(response.data.employeers);
-                if (response.data.rows.length === 0) {
-                    toast({
-                        title: "No results found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            }
-            else {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`,
-                    { withCredentials: true }
-                );
-                setSearchResults(response.data);
-            }
+            const response = await axios.get('http://localhost:6099/api/orders', {
+                withCredentials: true, // if you're using cookies or auth tokens
+            });
+            console.log(response.data);
+            setOrders(response.data.data); // assuming `data` is the orders array
         } catch (error) {
+            toast({
+                title: 'Error fetching orders',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
             console.log(error);
         } finally {
             setIsLoading(false);
         }
     };
 
+    // i have in products taxId categoryId and partnerId, how to get those id and fetch the data from the database\
+
+
+    const toggleOrderDetails = (orderId) => {
+        setExpandedOrders((prev) => ({
+            ...prev,
+            [orderId]: !prev[orderId],
+        }));
+    };
+
     useEffect(() => {
-        const retrieveEmployers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`, {
-                    withCredentials: true
-                });
-
-                console.log('Response employeers: ', response);
-                setSearchResults(response.data);
-            } catch (error) {
-                console.log('error employers: ', error);
-            }
-        };
-
-        retrieveEmployers();
+        fetchOrders();
     }, []);
-
-
-
     return (
         <Box minH="100vh" bg='gray.100'>
             <SidebarContent
@@ -239,174 +149,303 @@ export default function SidebarWithHeader({ children }) {
                 {children}
 
                 <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
-                    Porositë
+                    Porositë / Shitjet
                 </Text>
 
-
-                <Box mt={5}>
-                    <SimpleGrid columns={3} spacing='30px'>
+                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
 
 
-                        {/* <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri total i punetoreve te regjistruar
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {employeersNumber ? employeersNumber : 0}
-                                </Text>
-                            )}
-                        </Box>
-
-                        <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri i pajisjeve te regjistruara
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {devicesNumber ? devicesNumber : 0}
-                                </Text>
-                            )}
-                        </Box>
-
-                        <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri i punetoreve ne Administrate
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {administration ? administration : 0}
-                                </Text>
-                            )}
-                        </Box> */}
-
-                    </SimpleGrid>
-
-                    <SimpleGrid columns={4} spacing={'15px'}>
-                        <Input
-                            type="text"
-                            placeholder="Kerko me Emer dhe Mbiemer"
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            mt={4}
-                            bg='#fff'
-                        // border='1.5px solid red'
-                        />
-
-                        <Input
-                            type="text"
-                            placeholder="Kerko me Agent ID"
-                            value={agentId}
-                            onChange={(e) => setAgentId(e.target.value)}
-                            mt={4}
-                            // border='1.5px solid red'
-                            bg='#fff'
-                        />
-
-
-                        <Select
-                            placeholder='Kerko sipas departamentit'
-                            value={department}
-                            onChange={(e) => setDepartment(e.target.value)}
-                            mt={4}
-                            // border='1.5px solid red'
-                            bg='#fff'
-                        >
-                            <option value='INB'>Inbound (INB)</option>
-                            <option value='TM'>Telemarketing (TM)</option>
-                            <option value='AD'>Administration (AD)</option>
-                            <option value='CCD'>CCD (CCD)</option>
-                            <option value='IT'>IT (IT)</option>
-                            <option value='SH'>Shop</option>
-                        </Select>
-
-                        <Button onClick={handleSearch} mt={4} bg='black'
-                            color='white' _hover={{ bg: 'black' }}>
-                            Kerko
-                        </Button>
-
-
-
-                    </SimpleGrid>
-
-
-
-
-                    <Table size='lg' mt={8}>
+                {/*
+                {isLoading ? (
+                    <Spinner />
+                ) : (
+                    <Table variant="simple">
                         <Thead>
                             <Tr>
-                                <Th>
-                                    Id
-                                </Th>
-                                <Th>Emri</Th>
-                                <Th>Mbiemri</Th>
-                                <Th>Agent Id</Th>
-                                <Th>Pozita</Th>
-                                <Th>Shteti</Th>
-                                <Th>Kompania</Th>
-                                <Th>Departamenti</Th>
-                                <Th>Veprime</Th>
+                                <Th>Porosia ID</Th>
+                                <Th>Krijuar më</Th>
+                                <Th>Qmimi total</Th>
+                                <Th>Product ID</Th>
+                                <Th>Emri produktit</Th>
+                                <Th>Barkodi produktit</Th>
+                                <Th>Qmimi produktit</Th>
+                                <Th>Sasia</Th>
+                                <Th>Qmimi per njesi</Th>
+                                <Th>Fatura ID</Th>
+                                <Th>Qmimi total i fatures</Th>
+                                <Th>Taksa</Th>
+                                <Th>Metoda e pageses</Th>
+                                <Th>Krijuar më</Th> 
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {searchResults.length > 0 ? (
-                                searchResults.map((employer) => (
-                                    <Tr key={employer.id}>
-                                        <Td>{employer.id}</Td>
-                                        <Td>{employer.name}</Td>
-                                        <Td>{employer.surname}</Td>
-                                        <Td>{employer.agentId}</Td>
-                                        <Td>{employer.position}</Td>
-                                        <Td>{employer.countryCode}</Td>
-                                        <Td>{employer.company}</Td>
-                                        <Td>{employer.department}</Td>
-                                        <Button as='a' href={`/employeer-details/${employer.id}`}
-                                            bg='black' size='sm' color={'white'} _hover={{ bg: 'black' }}>
-                                            Detajet
-                                        </Button>
+                                {orders.map((order) => (
+                                    <Tr key={order.id}>
+                                        <Td>{order.id}</Td>
+                                        <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
+                                        <Td>{order.total_amount}</Td>
+                                        {order.products && order.products.map(product => (
+                                            <Td key={product.id}>
+                                                <Td>{product.id}</Td>
+                                                <Td>{product.name}</Td>
+                                                <Td>{product.barcode}</Td>
+                                                <Td>{product.price}</Td>
+                                                <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
+                                                <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
+                                            </Td>
+                                        ))}
+                                        <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
+                                        <Td>{order.invoice ? order.invoice.total_amount : 'N/A'}</Td>
+                                        <Td>{order.invoice ? order.tax_amount : 'N/A'}</Td>
+                                        <Td>{order.invoice ? order.payment_mode : 'N/A'}</Td>
+                                        <Td>{order.invoice ? order.created_at : 'N/A'}</Td>
 
-                                        <Button as='a' mt={1} size='sm' href={`/employeers/update/${employer.id}`}
-                                            bg='black' color='white' _hover={{ bg: 'black' }}>
-                                            Perditeso
-                                        </Button>
+
+
                                     </Tr>
-                                ))
-                            ) : searchResults.length === 0 ? (
-                                <Tr>
-                                    <Td colSpan="9" textAlign="center">
-                                        Nuk u gjet asnje rezultat.
-                                    </Td>
-                                </Tr>
-                            ) : (
-                                <Tr>
-                                    <Td colSpan="9" textAlign="center">
-                                        Duke ngarkuar...
-                                    </Td>
-                                </Tr>
-                            )}
+                                ))}
                         </Tbody>
                     </Table>
+                )}
+                */}
+
+                {isLoading ? (
+                    <Spinner />
+                ) : (
+                    <Table variant="simple">
+                        <Thead>
+                            <Tr>
+                                <Th>Porosia ID</Th>
+                                <Th>Krijuar më</Th>
+                                <Th>Qmimi total</Th>
+                                <Th>Nr. Produkteve</Th>
+                                <Th>Fatura ID</Th>
+                                <Th>Detajet e Produkteve</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {orders.map((order) => (
+                                <React.Fragment key={order.id}>
+                                    <Tr>
+                                        <Td>{order.id}</Td>
+                                        <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
+                                        <Td>{order.total_amount}</Td>
+                                        <Td>{order.products ? order.products.length : 0}</Td>
+                                        <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
+                                        <Td>
+                                            <IconButton
+                                                icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                                onClick={() => toggleOrderDetails(order.id)}
+                                                size="sm"
+                                            />
+                                        </Td>
+                                    </Tr>
+                                    <Tr>
+                                        <Td colSpan={6} p={0}>
+                                            <Collapse in={expandedOrders[order.id]} animateOpacity>
+                                                <Box p={4} bg="gray.50">
+                                                    <Text fontWeight="bold" mb={2}>Produktet e Porosisë:</Text>
+                                                    <Table size="sm" variant="unstyled">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th>Product ID</Th>
+                                                                <Th>Emri</Th>
+                                                                <Th>Barkodi</Th>
+                                                                <Th>Qmimi</Th>
+                                                                <Th>Partner</Th>
+                                                                <Th>Category</Th>
+                                                                <Th>Tax</Th>
+                                                                <Th>Sasia</Th>
+                                                                <Th>Qmimi për Njësi</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            {order.products && order.products.map((product) => (
+                                                                <Tr key={product.id}>
+                                                                    <Td>{product.id}</Td>
+                                                                    <Td>{product.name}</Td>
+                                                                    <Td>{product.barcode}</Td>
+                                                                    <Td>{product.price}</Td>
+                                                                    <Td>{product.partner ? product.partner.name : 'N/A'}</Td>
+                                                                    <Td>{product.category ? product.category.name : 'N/A'}</Td>
+                                                                    <Td>{product.tax ? product.tax.name : 'N/A'}</Td>
+                                                                    <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
+                                                                    <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
+                                                                </Tr>
+                                                            ))}
+                                                        </Tbody>
 
 
 
 
-                </Box>
+
+
+                                                    </Table>
+                                                    {/* <Text>Krijuar me: {order.created_at}</Text>
+                                                        <Text>Total: {order.total_amount.toFixed(2)} $</Text>
+                                                        <Text>Tax amount: {order.invoice ? order.tax_amount : 'N/A'}</Text> */}
+
+                                                    <Text fontWeight="bold" mb={2}>Faturimi</Text>
+
+                                                    <Table size="sm" variant="unstyled">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th>Porosia ID</Th>
+                                                                <Th>Data</Th>
+                                                                <Th>Qmimi total</Th>
+                                                                <Th>Qmimi TVSH</Th>
+                                                                <Th>Fatura ID</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            <Tr>
+                                                                <Th>{order.id}</Th>
+                                                                <Th>{order.created_at}</Th>
+                                                                <Th>{order.total_amount}</Th>
+                                                                <Th>{order.invoice ? order.invoice.tax_amount : 'N/A'}</Th>
+                                                                <Th>{order.invoice ? order.invoice.id : 'N/A'}</Th>
+                                                            </Tr>
+                                                        </Tbody>
+                                                        <br />
+                                                        <Text fontWeight="bold" mb={2}>
+                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A' }
+                                                        </Text>
 
 
 
+
+                                                    </Table>
+                                                </Box>
+                                            </Collapse>
+                                        </Td>
+                                    </Tr>
+                                </React.Fragment>
+                            ))}
+                        </Tbody>
+                    </Table>
+                )}
             </Box>
         </Box>
     );
 }
+
+// export default function SidebarWithHeader({ children }) {
+//     const toast = useToast();
+//     const [isLoading, setIsLoading] = useState(false);
+//     const [orders, setOrders] = useState([]);
+//     const [expandedOrders, setExpandedOrders] = useState({});
+
+//     const fetchOrders = async () => {
+//         setIsLoading(true);
+//         try {
+//             const response = await axios.get('http://localhost:6099/api/orders', { withCredentials: true });
+//             setOrders(response.data.data);
+//         } catch (error) {
+//             toast({
+//                 title: 'Error fetching orders',
+//                 status: 'error',
+//                 duration: 3000,
+//                 isClosable: true,
+//             });
+//             console.log(error);
+//         } finally {
+//             setIsLoading(false);
+//         }
+//     };
+
+//     useEffect(() => {
+//         fetchOrders();
+//     }, []);
+
+//     const toggleOrderDetails = (orderId) => {
+//         setExpandedOrders((prev) => ({
+//             ...prev,
+//             [orderId]: !prev[orderId],
+//         }));
+//     };
+
+//     return (
+//         <Box minH="100vh" bg='gray.100'>
+//             <Box ml={{ base: 0, md: 60 }} p="4">
+//                 {children}
+
+//                 <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+//                     Porositë / Shitjet
+//                 </Text>
+
+//                 {isLoading ? (
+//                     <Spinner />
+//                 ) : (
+//                     <Table variant="simple">
+//                         <Thead>
+//                             <Tr>
+//                                 <Th>Porosia ID</Th>
+//                                 <Th>Krijuar më</Th>
+//                                 <Th>Qmimi total</Th>
+//                                 <Th>Nr. Produkteve</Th>
+//                                 <Th>Fatura ID</Th>
+//                                 <Th>Detajet e Produkteve</Th>
+//                             </Tr>
+//                         </Thead>
+//                         <Tbody>
+//                             {orders.map((order) => (
+//                                 <React.Fragment key={order.id}>
+//                                     <Tr>
+//                                         <Td>{order.id}</Td>
+//                                         <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
+//                                         <Td>{order.total_amount}</Td>
+//                                         <Td>{order.products ? order.products.length : 0}</Td>
+//                                         <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
+//                                         <Td>
+//                                             <IconButton
+//                                                 icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+//                                                 onClick={() => toggleOrderDetails(order.id)}
+//                                                 size="sm"
+//                                             />
+//                                         </Td>
+//                                     </Tr>
+//                                     <Tr>
+//                                         <Td colSpan={6} p={0}>
+//                                             <Collapse in={expandedOrders[order.id]} animateOpacity>
+//                                                 <Box p={4} bg="gray.50">
+//                                                     <Text fontWeight="bold" mb={2}>Produktet e Porosisë:</Text>
+//                                                     <Table size="sm" variant="unstyled">
+//                                                         <Thead>
+//                                                             <Tr>
+//                                                                 <Th>Product ID</Th>
+//                                                                 <Th>Emri</Th>
+//                                                                 <Th>Barkodi</Th>
+//                                                                 <Th>Qmimi</Th>
+//                                                                 <Th>Sasia</Th>
+//                                                                 <Th>Qmimi për Njësi</Th>
+//                                                             </Tr>
+//                                                         </Thead>
+//                                                         <Tbody>
+//                                                             {order.products && order.products.map((product) => (
+//                                                                 <Tr key={product.id}>
+//                                                                     <Td>{product.id}</Td>
+//                                                                     <Td>{product.name}</Td>
+//                                                                     <Td>{product.barcode}</Td>
+//                                                                     <Td>{product.price}</Td>
+//                                                                     <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
+//                                                                     <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
+//                                                                 </Tr>
+//                                                             ))}
+//                                                         </Tbody>
+//                                                     </Table>
+//                                                 </Box>
+//                                             </Collapse>
+//                                         </Td>
+//                                     </Tr>
+//                                 </React.Fragment>
+//                             ))}
+//                         </Tbody>
+//                     </Table>
+//                 )}
+//             </Box>
+//         </Box>
+//     );
+// }
 
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -419,6 +458,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
+        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
     ];
 
     // if(user && isAdmin()) {
@@ -523,11 +563,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             transition="all 0.3s"
                             _focus={{ boxShadow: 'none' }}>
                             <HStack>
-                                <Avatar
-                                    size={'sm'}
-                                    src={
-                                        'https://www.studio-moderna.com/img/logos/studio_moderna_logo.png'
-                                    }
+                                <Image
+                                    src={emonalogo}
+                                    alt="logo"
+                                    width="150px"
+                                    height="auto"
+                                    rounded='lg'
                                 />
                                 <VStack
                                     display={{ base: 'none', md: 'flex' }}

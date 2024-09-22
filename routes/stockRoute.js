@@ -104,4 +104,17 @@ router.put('/:id', async (req, res) => {
 //     return res.status(204).json();
 // });
 
+
+
+// total products in stock
+router.get('/reports/total-products-in-stock', async (req, res) => {
+    try {
+        const totalProductsInStock = await Stock.sum('quantity');
+        res.json({ totalProductsInStock });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch total products in stock' });
+    }
+});
+
+
 module.exports = router;

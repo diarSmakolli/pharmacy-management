@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProduct } = require('../models');
+const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProduct, Partner } = require('../models');
 
 
 // router.post('/', async (req, res) => {
@@ -108,7 +108,7 @@ const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProd
 //             });
 //         }));
 
-        
+
 
 //         return res.status(201).json({
 //             status: 'success',
@@ -279,7 +279,7 @@ router.post('/', async (req, res) => {
             if (taxes) {
                 const productTaxAmount = (taxes.rate / 100) * productTotal;
                 total_taxAmount += productTaxAmount;
-                taxRate = taxes.rate; 
+                taxRate = taxes.rate;
             }
 
             const stock = await Stock.findOne({
@@ -347,7 +347,7 @@ router.post('/', async (req, res) => {
             payment_mode: 'pending', // Adjust as needed
             created_at: new Date()
         });
-        
+
 
         // Add invoice products
         await Promise.all(orderProducts.map(async orderProduct => {
@@ -356,8 +356,8 @@ router.post('/', async (req, res) => {
             const discountedPrice = orderProduct.unitPrice - discountAmount; // Move this inside the map
 
             // Calculate total value for the product
-            const productTotalValue = discountedPrice * orderProduct.quantity;            
-        
+            const productTotalValue = discountedPrice * orderProduct.quantity;
+
             await InvoiceProduct.create({
                 invoice_id: invoice.id,
                 product_id: orderProduct.productId,
@@ -391,8 +391,6 @@ router.post('/', async (req, res) => {
 });
 
 
-
-
 router.get('/:id', async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id, {
@@ -418,8 +416,22 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const orders = await Order.findAll({
-            include: Product
+            include: [
+                {
+                    model: Invoice,
+                },
+                {
+                    model: Product,
+                    include: [
+                        { model: Category },
+                        { model: Partner },
+                        { model: Tax }
+                    ]
+                },
+            ]
         });
+
+
 
         return res.status(200).json({
             status: 'success',
@@ -433,6 +445,15 @@ router.get('/', async (req, res) => {
             statusCode: 500,
             message: error.message
         });
+    }
+});
+
+router.get('/reports/total-revenue', async (req, res) => {
+    try {
+        const totalRevenue = await Order.sum('total_amount');
+        res.json({ totalRevenue });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch total revenue' });
     }
 });
 

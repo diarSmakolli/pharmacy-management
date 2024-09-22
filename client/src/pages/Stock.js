@@ -34,6 +34,16 @@ import {
     Td,
     Input,
     Select,
+    Image,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody,
+    ModalFooter,
+    FormControl,
+    FormLabel,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -49,6 +59,7 @@ import { IconType } from 'react-icons';
 import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
+import emonalogo from '../images/emona.png';
 
 // const LinkItems = [
 //     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
@@ -76,145 +87,91 @@ export default function SidebarWithHeader({ children }) {
     const [employeersNumber, setEmployeersNumber] = useState(null);
     const [agentId, setAgentId] = useState('');
     const [department, setDepartment] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [stocks, setStocks] = useState([]);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [categoryName, setCategoryName] = useState('');
 
-
-
-    useEffect(() => {
-        const fetchEmployers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`, {
-                    withCredentials: true
-                });
-
-                console.log('Response employeers: ', response);
-                setEmployers(response.data);
-            } catch (error) {
-                console.log('error employers: ', error);
-            }
-        };
-
-        const fetchCountDevices = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/devices/count`, {
-                    withCredentials: true
-                }
-                );
-
-                console.log(response.data);
-                setDevicesNumber(response.data.countDevices);
-            } catch (error) {
-                console.log('error devices: ', error);
-            }
-        };
-
-        const fetchNumberofEmployeers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/countEmployers`, {
-                    withCredentials: true
-                }
-                );
-
-                console.log(response.data);
-                setEmployeersNumber(response.data.countEmployers);
-            } catch (error) {
-                console.log('error: ', error);
-            }
-        }
-
-        fetchEmployers();
-        fetchCountDevices();
-        fetchNumberofEmployeers();
-    }, []);
-
-    const handleSearch = async () => {
+    const fetchTaxes = async () => {
         setIsLoading(true);
         try {
-            if (keyword) {
-                // Search by name
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/search?keyword=${keyword}`,
-                    { withCredentials: true }
-                );
-                setSearchResults(response.data.rows);
-                if (response.data.rows.length === 0) {
-                    toast({
-                        title: "No results found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            } else if (agentId) {
-                // Search by agent ID
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/agent/${agentId}`,
-                    { withCredentials: true }
-                );
-                if (response.data) {
-                    setSearchResults([response.data]);
-                } else {
-                    setSearchResults([]);
-                    toast({
-                        title: "Employer not found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            }
-            else if (department) {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers/department/${department}`,
-                    { withCredentials: true }
-                );
-                console.log(department);
-                setSearchResults(response.data.employeers);
-                if (response.data.rows.length === 0) {
-                    toast({
-                        title: "No results found",
-                        status: "warning",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            }
-            else {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`,
-                    { withCredentials: true }
-                );
-                setSearchResults(response.data);
-            }
+            const response = await axios.get('http://localhost:6099/api/stocks', {
+                withCredentials: true,
+            });
+            console.log(response.data);
+            setStocks(response.data.data);
         } catch (error) {
+            toast({
+                title: 'Error në marrjen e taksave',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
             console.log(error);
         } finally {
             setIsLoading(false);
         }
     };
 
+    // const addCategory = async () => {
+    //     if (!categoryName) {
+    //         toast({
+    //             title: 'Emri i kategorisë nuk mund të jetë bosh',
+    //             status: 'error',
+    //             duration: 3000,
+    //             isClosable: true,
+    //         });
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await axios.post('http://localhost:6099/api/categories', { name: categoryName });
+    //         setCategories([...categories, response.data]);
+    //         toast({
+    //             title: 'Kategoria u shtua me sukses',
+    //             status: 'success',
+    //             duration: 3000,
+    //             isClosable: true,
+    //         });
+    //         setCategoryName('');
+    //         setIsAddModalOpen(false);
+    //     } catch (error) {
+    //         toast({
+    //             title: 'Error në shtimin e kategorisë',
+    //             status: 'error',
+    //             duration: 3000,
+    //             isClosable: true,
+    //         });
+    //     }
+    // };
+
+    // const deleteCategory = async () => {
+    //     try {
+    //         await axios.delete(`http://localhost:6099/api/categories/${selectedCategory.id}`);
+    //         setCategories(categories.filter((category) => category.id !== selectedCategory.id));
+    //         toast({
+    //             title: 'Kategoria u fshi',
+    //             status: 'success',
+    //             duration: 3000,
+    //             isClosable: true,
+    //         });
+    //         setIsDeleteModalOpen(false);
+    //     } catch (error) {
+    //         toast({
+    //             title: 'Error në fshirjen e kategorisë',
+    //             status: 'error',
+    //             duration: 3000,
+    //             isClosable: true,
+    //         });
+    //     }
+    // };
+
+
     useEffect(() => {
-        const retrieveEmployers = async () => {
-            try {
-                const response = await axios.get(
-                    `https://cm-dp-backend.onrender.com/api/employeers`, {
-                    withCredentials: true
-                });
-
-                console.log('Response employeers: ', response);
-                setSearchResults(response.data);
-            } catch (error) {
-                console.log('error employers: ', error);
-            }
-        };
-
-        retrieveEmployers();
+        fetchTaxes();
     }, []);
-
-
-
     return (
         <Box minH="100vh" bg='gray.100'>
             <SidebarContent
@@ -239,174 +196,107 @@ export default function SidebarWithHeader({ children }) {
                 {children}
 
                 <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
-                    Stoku / Sasitë
+                    Gjendja e stokut
                 </Text>
 
-
-                <Box mt={5}>
-                    <SimpleGrid columns={3} spacing='30px'>
-
-
-                        {/* <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri total i punetoreve te regjistruar
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {employeersNumber ? employeersNumber : 0}
-                                </Text>
-                            )}
-                        </Box>
-
-                        <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri i pajisjeve te regjistruara
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {devicesNumber ? devicesNumber : 0}
-                                </Text>
-                            )}
-                        </Box>
-
-                        <Box bg='#000' p={5} rounded='2xl'>
-                            <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'xl'}>
-                                Numri i punetoreve ne Administrate
-                            </Text>
-
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <Text fontFamily={'Bricolage Grotesque'} color='white' fontSize={'2xl'}>
-                                    {administration ? administration : 0}
-                                </Text>
-                            )}
-                        </Box> */}
-
-                    </SimpleGrid>
-
-                    <SimpleGrid columns={4} spacing={'15px'}>
-                        <Input
-                            type="text"
-                            placeholder="Kerko me Emer dhe Mbiemer"
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            mt={4}
-                            bg='#fff'
-                        // border='1.5px solid red'
-                        />
-
-                        <Input
-                            type="text"
-                            placeholder="Kerko me Agent ID"
-                            value={agentId}
-                            onChange={(e) => setAgentId(e.target.value)}
-                            mt={4}
-                            // border='1.5px solid red'
-                            bg='#fff'
-                        />
-
-
-                        <Select
-                            placeholder='Kerko sipas departamentit'
-                            value={department}
-                            onChange={(e) => setDepartment(e.target.value)}
-                            mt={4}
-                            // border='1.5px solid red'
-                            bg='#fff'
-                        >
-                            <option value='INB'>Inbound (INB)</option>
-                            <option value='TM'>Telemarketing (TM)</option>
-                            <option value='AD'>Administration (AD)</option>
-                            <option value='CCD'>CCD (CCD)</option>
-                            <option value='IT'>IT (IT)</option>
-                            <option value='SH'>Shop</option>
-                        </Select>
-
-                        <Button onClick={handleSearch} mt={4} bg='black'
-                            color='white' _hover={{ bg: 'black' }}>
-                            Kerko
-                        </Button>
+                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
 
 
 
-                    </SimpleGrid>
-
-
-
-
-                    <Table size='lg' mt={8}>
+                {isLoading ? (
+                    <Spinner />
+                ) : (
+                    <Table variant="simple">
                         <Thead>
                             <Tr>
-                                <Th>
-                                    Id
-                                </Th>
-                                <Th>Emri</Th>
-                                <Th>Mbiemri</Th>
-                                <Th>Agent Id</Th>
-                                <Th>Pozita</Th>
-                                <Th>Shteti</Th>
-                                <Th>Kompania</Th>
-                                <Th>Departamenti</Th>
-                                <Th>Veprime</Th>
+                                <Th>Stock ID</Th>
+                                <Th>Sasia</Th>
+                                <Th>Produkt ID</Th>
+                                <Th>Emri i produktit</Th>
+                                <Th>Barkodi</Th>
+                                <Th>Description</Th>
+                                <Th>Qmimi</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {searchResults.length > 0 ? (
-                                searchResults.map((employer) => (
-                                    <Tr key={employer.id}>
-                                        <Td>{employer.id}</Td>
-                                        <Td>{employer.name}</Td>
-                                        <Td>{employer.surname}</Td>
-                                        <Td>{employer.agentId}</Td>
-                                        <Td>{employer.position}</Td>
-                                        <Td>{employer.countryCode}</Td>
-                                        <Td>{employer.company}</Td>
-                                        <Td>{employer.department}</Td>
-                                        <Button as='a' href={`/employeer-details/${employer.id}`}
-                                            bg='black' size='sm' color={'white'} _hover={{ bg: 'black' }}>
-                                            Detajet
+                            {stocks.map((stock) => (
+                                <Tr key={stock.id}>
+                                    <Td>{stock.id}</Td>
+                                    <Td>{stock.quantity}</Td>
+                                    <Td>{stock.productId}</Td>
+                                    <Td>{stock.product ? stock.product.name : 'N/A'}</Td>
+                                    <Td>{stock.product ? stock.product.barcode : 'N/A'}</Td>
+                                    <Td>{stock.product ? stock.product.description : 'N/A'}</Td>
+                                    <Td>{stock.product ? stock.product.price : 'N/A'}</Td>
+                                    {/* <Td>
+                                        <Button
+                                            bg='black' color='white' _hover={{ bg: 'black' }}
+                                            onClick={() => {
+                                                setSelectedCategory(stock);
+                                                setIsDeleteModalOpen(true);
+                                            }}
+                                        >
+                                            Fshij
                                         </Button>
-
-                                        <Button as='a' mt={1} size='sm' href={`/employeers/update/${employer.id}`}
-                                            bg='black' color='white' _hover={{ bg: 'black' }}>
-                                            Perditeso
-                                        </Button>
-                                    </Tr>
-                                ))
-                            ) : searchResults.length === 0 ? (
-                                <Tr>
-                                    <Td colSpan="9" textAlign="center">
-                                        Nuk u gjet asnje rezultat.
-                                    </Td>
+                                    </Td> */}
                                 </Tr>
-                            ) : (
-                                <Tr>
-                                    <Td colSpan="9" textAlign="center">
-                                        Duke ngarkuar...
-                                    </Td>
-                                </Tr>
-                            )}
+                            ))}
                         </Tbody>
                     </Table>
-
-
-
-
-                </Box>
-
-
+                )}
 
             </Box>
+
+            {/* Add Category Modal */}
+            {/* <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Shto një kategori të re</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <FormControl>
+                            <FormLabel>Emri i kategorisë</FormLabel>
+                            <Input
+                                value={categoryName}
+                                onChange={(e) => setCategoryName(e.target.value)}
+                                placeholder="Shkruaj emrin e kategorisë"
+                            />
+                        </FormControl>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
+                            Shto
+                        </Button>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                            Anulo
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Fshij kategorinë</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
+                        <strong>{selectedCategory?.name}</strong>?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
+                            Fshij
+                        </Button>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                            Anulo
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal> */}
+
         </Box>
     );
-}
+} 
 
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -419,6 +309,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
+        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
     ];
 
     // if(user && isAdmin()) {
@@ -523,11 +414,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             transition="all 0.3s"
                             _focus={{ boxShadow: 'none' }}>
                             <HStack>
-                                <Avatar
-                                    size={'sm'}
-                                    src={
-                                        'https://www.studio-moderna.com/img/logos/studio_moderna_logo.png'
-                                    }
+                                <Image
+                                    src={emonalogo}
+                                    alt="logo"
+                                    width="150px"
+                                    height="auto"
+                                    rounded='lg'
                                 />
                                 <VStack
                                     display={{ base: 'none', md: 'flex' }}

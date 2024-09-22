@@ -44,6 +44,7 @@ import {
     ModalFooter,
     FormControl,
     FormLabel,
+    Stack,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -380,6 +381,8 @@ export default function SidebarWithHeader({ children }) {
                                     <Td>{product.category ? product.category.name : 'N/A'}</Td>
                                     <Td>{product.stock ? product.stock.quantity : 'N/A'}</Td>
                                     <Td>
+                                        
+                                        <Stack direction='row'>
                                         <Button
                                             bg='black' color='white' _hover={{ bg: 'black' }}
                                             size='sm'
@@ -400,6 +403,7 @@ export default function SidebarWithHeader({ children }) {
                                         >
                                             Fshij
                                         </Button>
+                                        </Stack>
                                         
                                     </Td>
                                 </Tr>
@@ -500,6 +504,7 @@ export default function SidebarWithHeader({ children }) {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
             {/* Delete Product Modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
                 <ModalOverlay />
@@ -520,8 +525,9 @@ export default function SidebarWithHeader({ children }) {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
             {/* Update modal */}
-            <Modal isOpen={Boolean(selectedProduct)} onClose={() => setSelectedProduct(null)}>
+            <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)}>
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader>Perditeso Produktin</ModalHeader>
@@ -625,10 +631,10 @@ export default function SidebarWithHeader({ children }) {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={updateProduct}>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} mr={3} onClick={updateProduct}>
                             Perditeso Produktin
                         </Button>
-                        <Button variant="ghost" onClick={() => setSelectedProduct(null)}>
+                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsUpdateModalOpen(false)}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -650,6 +656,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
+        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
     ];
 
     // if(user && isAdmin()) {

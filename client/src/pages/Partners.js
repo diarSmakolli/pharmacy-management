@@ -158,6 +158,7 @@ export default function SidebarWithHeader({ children }) {
                 duration: 3000,
                 isClosable: true,
             });
+            console.log("err: ", error);
         }
     };
 
@@ -402,6 +403,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
+        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
     ];
 
     // if(user && isAdmin()) {
