@@ -14,12 +14,11 @@ router.get('/:id', async (req, res) => {
             {
                 model: Order
             },
-            
+
         ]
     });
 
     res.json(invoice);
-}
-);
+});
 
 module.exports = router;

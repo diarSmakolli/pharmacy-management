@@ -344,7 +344,7 @@ router.post('/', async (req, res) => {
             order_id: order.id,
             total_amount,
             tax_amount: total_taxAmount,
-            payment_mode: 'pending', // Adjust as needed
+            payment_mode: 'Kesh', 
             created_at: new Date()
         });
 

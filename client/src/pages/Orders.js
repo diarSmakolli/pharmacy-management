@@ -65,31 +65,29 @@ import emonalogo from '../images/emona.png';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 
+// v2 
+
+
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { user, loading, logout, isAdmin } = useAuth();
-    const [countryCode, setCountryCode] = useState('');
-    const [count, setCount] = useState(null);
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [callCenter, setCallCenter] = useState(null);
-    const [administration, setAdministration] = useState(null);
-    const [employers, setEmployers] = useState([]);
-    const [devicesNumber, setDevicesNumber] = useState(null);
-    const [keyword, setKeyword] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [employeersNumber, setEmployeersNumber] = useState(null);
-    const [agentId, setAgentId] = useState('');
-    const [department, setDepartment] = useState('');
-    const [categories, setCategories] = useState([]);
-    const [stocks, setStocks] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categoryName, setCategoryName] = useState('');
     const [orders, setOrders] = useState([]);
     const [expandedOrders, setExpandedOrders] = useState({});
+    const [products, setProducts] = useState([{ productId: '', quantity: '', discount: '' }]);
+    const [overallDiscount, setOverallDiscount] = useState(0);
+    const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchedProducts, setSearchedProducts] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalBeforeDiscount, setTotalBeforeDiscount] = useState(0);  // Total price before discount
+    const [totalDiscountSaved, setTotalDiscountSaved] = useState(0);    // Amount saved from discounts
+
 
     const fetchOrders = async () => {
         setIsLoading(true);
@@ -112,8 +110,110 @@ export default function SidebarWithHeader({ children }) {
         }
     };
 
-    // i have in products taxId categoryId and partnerId, how to get those id and fetch the data from the database\
+    const fetchProducts = async (keyword) => {
+        if (keyword) {
+            try {
+                const response = await axios.get(`http://localhost:6099/api/products/search?keyword=${keyword}`, {
+                    withCredentials: true,
+                });
+                setSearchedProducts(response.data.rows);
+            } catch (error) {
+                toast({
+                    title: 'Error fetching products',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } else {
+            setSearchedProducts([]);
+        }
+    };
 
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchKeyword(value);
+        fetchProducts(value);
+    };
+    
+    const addProductField = () => {
+        setProducts([...products, { productId: '', quantity: '', discount: '' }]);
+    };
+
+    const handleProductChange = (index, field, value) => {
+        const newProducts = [...products];
+        newProducts[index][field] = value;
+        setProducts(newProducts);
+
+        console.log(products);
+
+        
+    };
+
+    const calculateTotalPrice = () => {
+        let totalBeforeDiscount = 0;
+        let totalAfterDiscount = 0;
+        let totalDiscountSaved = 0;
+        products.forEach((product) => {
+            const price = parseFloat(product.price) || 0;  // Get the price from the product
+            const quantity = parseFloat(product.quantity) || 0;
+            const discount = parseFloat(product.discount) || 0;
+
+            const productTotalBeforeDiscount = price * quantity;
+
+            const productTotalAfterDiscount = price * quantity * (1 - discount / 100);
+
+            const productDiscountSaved = productTotalBeforeDiscount - productTotalAfterDiscount;
+
+            totalBeforeDiscount += productTotalBeforeDiscount;
+            totalAfterDiscount += productTotalAfterDiscount;
+            totalDiscountSaved += productDiscountSaved;
+            // Apply discount and calculate the total price for the product
+            // const productTotal = price * quantity * (1 - discount / 100);
+            // total += productTotal;
+        });
+    
+
+        const finalTotalAfterOverallDiscount = totalAfterDiscount * (1 - overallDiscount / 100);
+
+        // Calculate how much the overall discount saved
+        const overallDiscountSaved = totalAfterDiscount - finalTotalAfterOverallDiscount;
+
+        // Update the state values
+        setTotalPrice(finalTotalAfterOverallDiscount);          // Total price after all discounts
+        setTotalBeforeDiscount(totalBeforeDiscount);            // Total price before any discount
+        setTotalDiscountSaved(totalDiscountSaved + overallDiscountSaved);  
+
+
+        // Apply overall discount if any
+        // const finalTotal = total * (1 - overallDiscount / 100);
+        // setTotalPrice(finalTotal);
+        // console.log("total price: ", totalPrice);
+    };
+
+    // const handleSelectProduct = (index, product) => {
+    //     const newProducts = [...products];
+    //     newProducts[index].productId = product.id; // Assuming product has an `id` field
+    //     setProducts(newProducts);
+    //     setSearchedProducts([]); // Clear search results after selection
+    //     setSearchKeyword(''); // Clear search input
+    // };
+    
+    const handleSelectProduct = (index, product) => {
+        const newProducts = [...products];
+        
+        // Store productId and price when selecting a product
+        newProducts[index] = { 
+            productId: product.id, 
+            price: product.price, // Store the price of the selected product
+            quantity: '', 
+            discount: '' 
+        };
+        
+        setProducts(newProducts);
+        setSearchedProducts([]); // Clear search results after selection
+        setSearchKeyword(''); // Clear search input
+    };
 
     const toggleOrderDetails = (orderId) => {
         setExpandedOrders((prev) => ({
@@ -122,9 +222,44 @@ export default function SidebarWithHeader({ children }) {
         }));
     };
 
+    const createOrder = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.post('http://localhost:6099/api/orders', {
+                products,
+                overallDiscount
+            }, { withCredentials: true });
+
+            toast({
+                title: 'Order created successfully',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+            setIsAddOrderModalOpen(false);
+            // Reset fields or perform any additional actions after creating an order
+        } catch (error) {
+            toast({
+                title: 'Error creating order',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchOrders();
     }, []);
+
+    useEffect(() => {
+        calculateTotalPrice();
+    }, [products, overallDiscount]);
+
+    
     return (
         <Box minH="100vh" bg='gray.100'>
             <SidebarContent
@@ -152,63 +287,11 @@ export default function SidebarWithHeader({ children }) {
                     Porositë / Shitjet
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
+                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddOrderModalOpen(true)} mt={4}>
+                    Shto një porosi
+                </Button>
 
-
-                {/*
-                {isLoading ? (
-                    <Spinner />
-                ) : (
-                    <Table variant="simple">
-                        <Thead>
-                            <Tr>
-                                <Th>Porosia ID</Th>
-                                <Th>Krijuar më</Th>
-                                <Th>Qmimi total</Th>
-                                <Th>Product ID</Th>
-                                <Th>Emri produktit</Th>
-                                <Th>Barkodi produktit</Th>
-                                <Th>Qmimi produktit</Th>
-                                <Th>Sasia</Th>
-                                <Th>Qmimi per njesi</Th>
-                                <Th>Fatura ID</Th>
-                                <Th>Qmimi total i fatures</Th>
-                                <Th>Taksa</Th>
-                                <Th>Metoda e pageses</Th>
-                                <Th>Krijuar më</Th> 
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                                {orders.map((order) => (
-                                    <Tr key={order.id}>
-                                        <Td>{order.id}</Td>
-                                        <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
-                                        <Td>{order.total_amount}</Td>
-                                        {order.products && order.products.map(product => (
-                                            <Td key={product.id}>
-                                                <Td>{product.id}</Td>
-                                                <Td>{product.name}</Td>
-                                                <Td>{product.barcode}</Td>
-                                                <Td>{product.price}</Td>
-                                                <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
-                                                <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
-                                            </Td>
-                                        ))}
-                                        <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
-                                        <Td>{order.invoice ? order.invoice.total_amount : 'N/A'}</Td>
-                                        <Td>{order.invoice ? order.tax_amount : 'N/A'}</Td>
-                                        <Td>{order.invoice ? order.payment_mode : 'N/A'}</Td>
-                                        <Td>{order.invoice ? order.created_at : 'N/A'}</Td>
-
-
-
-                                    </Tr>
-                                ))}
-                        </Tbody>
-                    </Table>
-                )}
-                */}
-
+                <br /><br />
                 {isLoading ? (
                     <Spinner />
                 ) : (
@@ -275,15 +358,8 @@ export default function SidebarWithHeader({ children }) {
                                                             ))}
                                                         </Tbody>
 
-
-
-
-
-
                                                     </Table>
-                                                    {/* <Text>Krijuar me: {order.created_at}</Text>
-                                                        <Text>Total: {order.total_amount.toFixed(2)} $</Text>
-                                                        <Text>Tax amount: {order.invoice ? order.tax_amount : 'N/A'}</Text> */}
+
 
                                                     <Text fontWeight="bold" mb={2}>Faturimi</Text>
 
@@ -308,7 +384,7 @@ export default function SidebarWithHeader({ children }) {
                                                         </Tbody>
                                                         <br />
                                                         <Text fontWeight="bold" mb={2}>
-                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A' }
+                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
                                                         </Text>
 
 
@@ -325,127 +401,100 @@ export default function SidebarWithHeader({ children }) {
                     </Table>
                 )}
             </Box>
+
+            {/* v3 */}
+            <Modal isOpen={isAddOrderModalOpen} onClose={() => setIsAddOrderModalOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Shto një porosi të re</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        {products.map((product, index) => (
+                            <Box key={index} mb={4}>
+                                <FormControl>
+                                    <FormLabel>Kerko produktin</FormLabel>
+                                    <Input
+                                        value={searchKeyword}
+                                        onChange={handleSearchChange}
+                                        placeholder="Kërko produktin..."
+                                        mt={2}
+                                    />
+                                    {searchedProducts.length > 0 && (
+                                        <Box border="1px solid gray" bg="white" mt={1}>
+                                            {searchedProducts.map((searchedProduct) => (
+                                                <Box key={searchedProduct.id} p={2} cursor="pointer" onClick={() => handleSelectProduct(index, searchedProduct)}>
+                                                    {searchedProduct.name} (ID: {searchedProduct.id}) Qmimi: {searchedProduct.price}
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    )}
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Produkti</FormLabel>
+                                    <Input
+                                        value={product.productId} // Use productId for the input
+                                        onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
+                                        placeholder="Shkruaj ID-në e produktit"
+                                    />
+
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Sasia</FormLabel>
+                                    <Input
+                                        type="number"
+                                        value={product.quantity}
+                                        onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                                        placeholder="Shkruaj sasinë"
+                                    />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel>Discount</FormLabel>
+                                    <Input
+                                        type="number"
+                                        value={product.discount}
+                                        onChange={(e) => handleProductChange(index, 'discount', e.target.value)}
+                                        placeholder="Shkruaj discount-in"
+                                    />
+                                </FormControl>
+                            </Box>
+                        ))}
+                        <Button onClick={addProductField} bg='black' color='white' _hover={{ bg: 'black' }} mb={4}>Shto produkt tjetër</Button>
+
+                        <FormControl>
+                            <FormLabel>Discount i përgjithshëm</FormLabel>
+                            <Input
+                                type="number"
+                                value={overallDiscount}
+                                onChange={(e) => setOverallDiscount(e.target.value)}
+                                placeholder="Shkruaj discount-in e përgjithshëm"
+                            />
+                        </FormControl>
+
+                        
+                        <Text mt={5} fontWeight={'bold'}>
+                            Çmimi total pa zbritje: {totalBeforeDiscount.toFixed(2)} EUR
+                        </Text>
+
+                        <Text mt={5} fontWeight={'bold'}>
+                            Çmimi total me zbritje: {totalPrice.toFixed(2)} EUR
+                        </Text>
+
+                        <Text mt={5} fontWeight={'bold'}>
+                            Shuma e kursyer nga zbritjet: {totalDiscountSaved.toFixed(2)} EUR
+                        </Text>
+
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button onClick={createOrder} bg='black' color='white' _hover={{ bg: 'black' }} isLoading={isLoading}>Shto</Button>
+                        <Button onClick={() => setIsAddOrderModalOpen(false)} bg='black' color='white' _hover={{ bg: 'black' }} ml={3}>Anulo</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+
         </Box>
     );
 }
-
-// export default function SidebarWithHeader({ children }) {
-//     const toast = useToast();
-//     const [isLoading, setIsLoading] = useState(false);
-//     const [orders, setOrders] = useState([]);
-//     const [expandedOrders, setExpandedOrders] = useState({});
-
-//     const fetchOrders = async () => {
-//         setIsLoading(true);
-//         try {
-//             const response = await axios.get('http://localhost:6099/api/orders', { withCredentials: true });
-//             setOrders(response.data.data);
-//         } catch (error) {
-//             toast({
-//                 title: 'Error fetching orders',
-//                 status: 'error',
-//                 duration: 3000,
-//                 isClosable: true,
-//             });
-//             console.log(error);
-//         } finally {
-//             setIsLoading(false);
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchOrders();
-//     }, []);
-
-//     const toggleOrderDetails = (orderId) => {
-//         setExpandedOrders((prev) => ({
-//             ...prev,
-//             [orderId]: !prev[orderId],
-//         }));
-//     };
-
-//     return (
-//         <Box minH="100vh" bg='gray.100'>
-//             <Box ml={{ base: 0, md: 60 }} p="4">
-//                 {children}
-
-//                 <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
-//                     Porositë / Shitjet
-//                 </Text>
-
-//                 {isLoading ? (
-//                     <Spinner />
-//                 ) : (
-//                     <Table variant="simple">
-//                         <Thead>
-//                             <Tr>
-//                                 <Th>Porosia ID</Th>
-//                                 <Th>Krijuar më</Th>
-//                                 <Th>Qmimi total</Th>
-//                                 <Th>Nr. Produkteve</Th>
-//                                 <Th>Fatura ID</Th>
-//                                 <Th>Detajet e Produkteve</Th>
-//                             </Tr>
-//                         </Thead>
-//                         <Tbody>
-//                             {orders.map((order) => (
-//                                 <React.Fragment key={order.id}>
-//                                     <Tr>
-//                                         <Td>{order.id}</Td>
-//                                         <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
-//                                         <Td>{order.total_amount}</Td>
-//                                         <Td>{order.products ? order.products.length : 0}</Td>
-//                                         <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
-//                                         <Td>
-//                                             <IconButton
-//                                                 icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
-//                                                 onClick={() => toggleOrderDetails(order.id)}
-//                                                 size="sm"
-//                                             />
-//                                         </Td>
-//                                     </Tr>
-//                                     <Tr>
-//                                         <Td colSpan={6} p={0}>
-//                                             <Collapse in={expandedOrders[order.id]} animateOpacity>
-//                                                 <Box p={4} bg="gray.50">
-//                                                     <Text fontWeight="bold" mb={2}>Produktet e Porosisë:</Text>
-//                                                     <Table size="sm" variant="unstyled">
-//                                                         <Thead>
-//                                                             <Tr>
-//                                                                 <Th>Product ID</Th>
-//                                                                 <Th>Emri</Th>
-//                                                                 <Th>Barkodi</Th>
-//                                                                 <Th>Qmimi</Th>
-//                                                                 <Th>Sasia</Th>
-//                                                                 <Th>Qmimi për Njësi</Th>
-//                                                             </Tr>
-//                                                         </Thead>
-//                                                         <Tbody>
-//                                                             {order.products && order.products.map((product) => (
-//                                                                 <Tr key={product.id}>
-//                                                                     <Td>{product.id}</Td>
-//                                                                     <Td>{product.name}</Td>
-//                                                                     <Td>{product.barcode}</Td>
-//                                                                     <Td>{product.price}</Td>
-//                                                                     <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
-//                                                                     <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
-//                                                                 </Tr>
-//                                                             ))}
-//                                                         </Tbody>
-//                                                     </Table>
-//                                                 </Box>
-//                                             </Collapse>
-//                                         </Td>
-//                                     </Tr>
-//                                 </React.Fragment>
-//                             ))}
-//                         </Tbody>
-//                     </Table>
-//                 )}
-//             </Box>
-//         </Box>
-//     );
-// }
 
 
 const SidebarContent = ({ onClose, ...rest }) => {
