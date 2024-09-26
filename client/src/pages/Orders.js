@@ -45,7 +45,8 @@ import {
     FormControl,
     FormLabel,
     Collapse,
-    Divider
+    Divider,
+    Stack
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -87,28 +88,98 @@ export default function SidebarWithHeader({ children }) {
     const [totalPrice, setTotalPrice] = useState(0);
     const [totalBeforeDiscount, setTotalBeforeDiscount] = useState(0);  // Total price before discount
     const [totalDiscountSaved, setTotalDiscountSaved] = useState(0);    // Amount saved from discounts
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [sortByDate, setSortByDate] = useState('desc');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [searchProductId, setSearchProductId] = useState('');
+    const [searchOrderId, setSearchOrderId] = useState('');
+    const [searchMinTotal, setSearchMinTotal] = useState('');
+    const [searchMaxTotal, setSearchMaxTotal] = useState('');
 
 
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get('http://localhost:6099/api/orders', {
+                params: { page, limit, sortByDate, startDate, endDate, productId: searchProductId, orderId: searchOrderId, minTotalAmount: searchMinTotal, maxTotalAmount: searchMaxTotal },
                 withCredentials: true, // if you're using cookies or auth tokens
             });
             console.log(response.data);
-            setOrders(response.data.data); // assuming `data` is the orders array
+            setOrders(response.data.data.orders);
+            setTotal(response.data.data.total);
+
+            console.log("total orders: ", response.data.data.total);
+
+            const tp = Math.ceil(response.data.data.total / limit);
+            setTotalPages(tp);
+
+            console.log("total pages: ", tp);
+
+            console.log("Object: ", response);
+
+            setCurrentPage(response.data.data.page);
+
         } catch (error) {
-            toast({
-                title: 'Error fetching orders',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log(error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     const fetchProducts = async (keyword) => {
         if (keyword) {
@@ -135,7 +206,7 @@ export default function SidebarWithHeader({ children }) {
         setSearchKeyword(value);
         fetchProducts(value);
     };
-    
+
     const addProductField = () => {
         setProducts([...products, { productId: '', quantity: '', discount: '' }]);
     };
@@ -147,7 +218,7 @@ export default function SidebarWithHeader({ children }) {
 
         console.log(products);
 
-        
+
     };
 
     const calculateTotalPrice = () => {
@@ -172,7 +243,7 @@ export default function SidebarWithHeader({ children }) {
             // const productTotal = price * quantity * (1 - discount / 100);
             // total += productTotal;
         });
-    
+
 
         const finalTotalAfterOverallDiscount = totalAfterDiscount * (1 - overallDiscount / 100);
 
@@ -182,7 +253,7 @@ export default function SidebarWithHeader({ children }) {
         // Update the state values
         setTotalPrice(finalTotalAfterOverallDiscount);          // Total price after all discounts
         setTotalBeforeDiscount(totalBeforeDiscount);            // Total price before any discount
-        setTotalDiscountSaved(totalDiscountSaved + overallDiscountSaved);  
+        setTotalDiscountSaved(totalDiscountSaved + overallDiscountSaved);
 
 
         // Apply overall discount if any
@@ -198,18 +269,19 @@ export default function SidebarWithHeader({ children }) {
     //     setSearchedProducts([]); // Clear search results after selection
     //     setSearchKeyword(''); // Clear search input
     // };
-    
+
     const handleSelectProduct = (index, product) => {
         const newProducts = [...products];
-        
+
         // Store productId and price when selecting a product
-        newProducts[index] = { 
-            productId: product.id, 
-            price: product.price, // Store the price of the selected product
-            quantity: '', 
-            discount: '' 
+        newProducts[index] = {
+            ...newProducts[index],
+            productId: product.id,
+            price: product.price,
+            quantity: '',
+            discount: '',
         };
-        
+
         setProducts(newProducts);
         setSearchedProducts([]); // Clear search results after selection
         setSearchKeyword(''); // Clear search input
@@ -239,13 +311,66 @@ export default function SidebarWithHeader({ children }) {
             setIsAddOrderModalOpen(false);
             // Reset fields or perform any additional actions after creating an order
         } catch (error) {
-            toast({
-                title: 'Error creating order',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log(error);
+            // toast({
+            //     title: 'Error!',
+            //     description: errorData.message,
+            //     status: errorData.status == 400 ? 'warning' : 'error',
+            //     duration: 3000,
+            //     isClosable: true,
+            // })
+            console.log("error: ", error.response);
+
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -253,13 +378,20 @@ export default function SidebarWithHeader({ children }) {
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [page, limit]);
 
     useEffect(() => {
         calculateTotalPrice();
     }, [products, overallDiscount]);
 
-    
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchProducts();
+    };
+
+
+
+
     return (
         <Box minH="100vh" bg='gray.100'>
             <SidebarContent
@@ -291,6 +423,97 @@ export default function SidebarWithHeader({ children }) {
                     Shto një porosi
                 </Button>
 
+                <SimpleGrid columns={3} spacing={1} direction='row'>
+
+                    <Box>
+                        <FormLabel mt={4}>Kerko sipas produktit Idse</FormLabel>
+                        <Input
+                            placeholder='Kerko sipas produktit Idse'
+                            value={searchProductId}
+                            onChange={(e) => setSearchProductId(e.target.value)}
+                            bg='#fff'
+                        />
+                    </Box>
+
+                    <Box>
+                        <FormLabel mt={4}>Kerko sipas Order ID</FormLabel>
+                        <Input
+                            placeholder='Kerko sipas order Idse'
+                            value={searchOrderId}
+                            onChange={(e) => setSearchOrderId(e.target.value)}
+                            bg='#fff'
+                        />
+                    </Box>
+
+                    <Box>
+                        <Stack direction='row'>
+                            <Box>
+                                <FormLabel mt={4}>Minimumi totalit</FormLabel>
+                                <Input
+                                    placeholder='Minimumit te shumes totale'
+                                    value={searchMinTotal}
+                                    onChange={(e) => setSearchMinTotal(e.target.value)}
+                                    bg='#fff'
+                                />
+                            </Box>
+                            <Box>
+                                <FormLabel mt={4}>Maksimumi totalit</FormLabel>
+                                <Input
+                                    placeholder='Maksimumit te shumes totale'
+                                    value={searchMaxTotal}
+                                    onChange={(e) => setSearchMaxTotal(e.target.value)}
+
+                                    bg='#fff'
+                                />
+                            </Box>
+
+                        </Stack>
+                    </Box>
+
+                    <Box>
+                        <Stack direction='row'>
+                            <Box w='50%'>
+                                <FormLabel mt={4}>Nga data</FormLabel>
+                                <Input
+                                    placeholder='Nga data'
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    type='date'
+                                    bg='#fff'
+                                />
+                            </Box>
+                            <Box w='50%'>
+                                <FormLabel mt={4}>Deri me daten</FormLabel>
+                                <Input
+                                    placeholder='Deri me daten'
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    type='date'
+                                    bg='#fff'
+                                />
+                            </Box>
+
+
+                        </Stack>
+                    </Box>
+
+                    <Box>
+                        <Button
+                            bg='black'
+                            color='white'
+                            _hover={{ bg: 'black' }}
+                            onClick={fetchOrders}
+                            direction='row'
+                            mt={12}
+                        >
+                            Kërko
+                        </Button>
+                    </Box>
+
+
+
+                </SimpleGrid>
+
                 <br /><br />
                 {isLoading ? (
                     <Spinner />
@@ -312,48 +535,53 @@ export default function SidebarWithHeader({ children }) {
                                     <Tr>
                                         <Td>{order.id}</Td>
                                         <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
-                                        <Td>{order.total_amount}</Td>
+                                        <Td>{order.total_amount.toFixed(2)}€</Td>
                                         <Td>{order.products ? order.products.length : 0}</Td>
                                         <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
                                         <Td>
-                                            <IconButton
+                                            {/* <IconButton
                                                 icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
                                                 onClick={() => toggleOrderDetails(order.id)}
                                                 size="sm"
-                                            />
+                                            /> */}
+                                            <Button bg='black' color='white' _hover={{ bg: 'black' }} size='sm' ml={2}
+                                                onClick={() => toggleOrderDetails(order.id)}
+                                            >
+                                                Detajet {expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            </Button>
                                         </Td>
                                     </Tr>
                                     <Tr>
                                         <Td colSpan={6} p={0}>
                                             <Collapse in={expandedOrders[order.id]} animateOpacity>
-                                                <Box p={4} bg="gray.50">
-                                                    <Text fontWeight="bold" mb={2}>Produktet e Porosisë:</Text>
+                                                <Box p={4} bg="#000" rounded='lg'>
+                                                    <Text fontWeight="bold" mb={2} color='white'>Produktet e Porosisë:</Text>
                                                     <Table size="sm" variant="unstyled">
                                                         <Thead>
                                                             <Tr>
-                                                                <Th>Product ID</Th>
-                                                                <Th>Emri</Th>
-                                                                <Th>Barkodi</Th>
-                                                                <Th>Qmimi</Th>
-                                                                <Th>Partner</Th>
-                                                                <Th>Category</Th>
-                                                                <Th>Tax</Th>
-                                                                <Th>Sasia</Th>
-                                                                <Th>Qmimi për Njësi</Th>
+                                                                <Th color='white'>Product ID</Th>
+                                                                <Th color='white'>Emri</Th>
+                                                                <Th color='white'>Barkodi</Th>
+                                                                <Th color='white'>Qmimi</Th>
+                                                                <Th color='white'>Partner</Th>
+                                                                <Th color='white'>Category</Th>
+                                                                <Th color='white'>Tax</Th>
+                                                                <Th color='white'>Sasia</Th>
+                                                                <Th color='white'>Qmimi për Njësi</Th>
                                                             </Tr>
                                                         </Thead>
                                                         <Tbody>
                                                             {order.products && order.products.map((product) => (
                                                                 <Tr key={product.id}>
-                                                                    <Td>{product.id}</Td>
-                                                                    <Td>{product.name}</Td>
-                                                                    <Td>{product.barcode}</Td>
-                                                                    <Td>{product.price}</Td>
-                                                                    <Td>{product.partner ? product.partner.name : 'N/A'}</Td>
-                                                                    <Td>{product.category ? product.category.name : 'N/A'}</Td>
-                                                                    <Td>{product.tax ? product.tax.name : 'N/A'}</Td>
-                                                                    <Td>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
-                                                                    <Td>{product.order_details ? product.order_details.unitPrice : 'N/A'}</Td>
+                                                                    <Td color='white'>{product.id}</Td>
+                                                                    <Td color='white'>{product.name}</Td>
+                                                                    <Td color='white'>{product.barcode}</Td>
+                                                                    <Td color='white'>{product.price.toFixed(2)}€</Td>
+                                                                    <Td color='white'>{product.partner ? product.partner.name : 'N/A'}</Td>
+                                                                    <Td color='white'>{product.category ? product.category.name : 'N/A'}</Td>
+                                                                    <Td color='white'>{product.tax ? product.tax.name : 'N/A'}</Td>
+                                                                    <Td color='white'>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
+                                                                    <Td color='white'>{product.order_details ? product.order_details.unitPrice.toFixed(2) : 'N/A'}</Td>
                                                                 </Tr>
                                                             ))}
                                                         </Tbody>
@@ -361,29 +589,29 @@ export default function SidebarWithHeader({ children }) {
                                                     </Table>
 
 
-                                                    <Text fontWeight="bold" mb={2}>Faturimi</Text>
+                                                    <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text>
 
                                                     <Table size="sm" variant="unstyled">
                                                         <Thead>
                                                             <Tr>
-                                                                <Th>Porosia ID</Th>
-                                                                <Th>Data</Th>
-                                                                <Th>Qmimi total</Th>
-                                                                <Th>Qmimi TVSH</Th>
-                                                                <Th>Fatura ID</Th>
+                                                                <Th color='white'>Porosia ID</Th>
+                                                                <Th color='white'>Data</Th>
+                                                                <Th color='white'>Qmimi total</Th>
+                                                                <Th color='white'>Qmimi TVSH</Th>
+                                                                <Th color='white'>Fatura ID</Th>
                                                             </Tr>
                                                         </Thead>
                                                         <Tbody>
                                                             <Tr>
-                                                                <Th>{order.id}</Th>
-                                                                <Th>{order.created_at}</Th>
-                                                                <Th>{order.total_amount}</Th>
-                                                                <Th>{order.invoice ? order.invoice.tax_amount : 'N/A'}</Th>
-                                                                <Th>{order.invoice ? order.invoice.id : 'N/A'}</Th>
+                                                                <Th color='white'>{order.id}</Th>
+                                                                <Th color='white'>{order.created_at}</Th>
+                                                                <Th color='white'>{order.total_amount.toFixed(2)}</Th>
+                                                                <Th color='white'>{order.invoice ? order.invoice.tax_amount.toFixed(2) : 'N/A'}</Th>
+                                                                <Th color='white'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
                                                             </Tr>
                                                         </Tbody>
                                                         <br />
-                                                        <Text fontWeight="bold" mb={2}>
+                                                        <Text fontWeight="bold" mb={2} color='white'>
                                                             Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
                                                         </Text>
 
@@ -400,7 +628,44 @@ export default function SidebarWithHeader({ children }) {
                         </Tbody>
                     </Table>
                 )}
+
+
+                <Stack direction='row' spacing={4} mt={4}>
+                    <Button
+                        onClick={() => handlePageChange(page - 1)}
+                        isDisabled={page === 1}
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                    >
+                        {'<'}
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Button
+                            bg={index + 1 === page ? 'black' : 'white'}
+                            color={index + 1 === page ? 'white' : 'black'}
+                            _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
+                            size='sm'
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                        // variant={index + 1 === page ? 'solid' : 'outline'}
+                        >
+                            {index + 1}
+                        </Button>
+                    ))}
+                    <Button
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                        onClick={() => handlePageChange(page + 1)}
+                        isDisabled={page === totalPages}
+                    >
+                        {'>'}
+                    </Button>
+                </Stack>
+
+
             </Box>
+
+
 
             {/* v3 */}
             <Modal isOpen={isAddOrderModalOpen} onClose={() => setIsAddOrderModalOpen(false)}>
@@ -470,7 +735,7 @@ export default function SidebarWithHeader({ children }) {
                             />
                         </FormControl>
 
-                        
+
                         <Text mt={5} fontWeight={'bold'}>
                             Çmimi total pa zbritje: {totalBeforeDiscount.toFixed(2)} EUR
                         </Text>

@@ -62,32 +62,11 @@ import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
-
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { user, loading, logout, isAdmin } = useAuth();
-    const [countryCode, setCountryCode] = useState('');
-    const [count, setCount] = useState(null);
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [callCenter, setCallCenter] = useState(null);
-    const [administration, setAdministration] = useState(null);
-    const [employers, setEmployers] = useState([]);
-    const [devicesNumber, setDevicesNumber] = useState(null);
-    const [keyword, setKeyword] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [employeersNumber, setEmployeersNumber] = useState(null);
-    const [agentId, setAgentId] = useState('');
-    const [department, setDepartment] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -104,32 +83,88 @@ export default function SidebarWithHeader({ children }) {
     const [categories, setCategories] = useState([]);
     const [taxes, setTaxes] = useState([]);
     const [initialStock, setInitialStock] = useState('');
+    const [total, setTotal] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
+    const [totalPages, setTotalPages] = useState(0);
+    const [idFilter, setIdFilter] = useState('desc');
+    const [priceFilter, setPriceFilter] = useState('');
 
     // fetch products as list
     const fetchProducts = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get('http://localhost:6099/api/products', {
+                params: { search, page, limit, categoryId, partnerId, taxId, idFilter, priceFilter },
                 withCredentials: true,
             });
             console.log(response.data);
-            setProducts(response.data.data);
+            setProducts(response.data.data.products);
+            setTotal(response.data.data.total);
 
-            // toast({
-            //     title: 'Produktet u morën me sukses',
-            //     status: 'success',
-            //     duration: 3000,
-            //     isClosable: true,
-            // });
+            console.log("Total products: ", response.data.data.total);
+
+            // Calculate total pages
+            const tp = Math.ceil(response.data.data.total / limit);
+            setTotalPages(tp);
+
+            console.log('Total pages:', tp);
+
+            console.log("Object: ", response);
 
         } catch (error) {
-            // toast({
-            //     title: 'Error në marrjen e produkteve',
-            //     status: 'error',
-            //     duration: 3000,
-            //     isClosable: true,
-            // });
-            console.log(error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -184,7 +219,7 @@ export default function SidebarWithHeader({ children }) {
                 withCredentials: true,
             });
 
-            setPartners(response.data.data);
+            setPartners(response.data.partners);
 
             // toast({
             //     title: 'Partneret u morën me sukses',
@@ -218,6 +253,8 @@ export default function SidebarWithHeader({ children }) {
             //     duration: 3000,
             //     isClosable: true,
             // });
+
+            console.log("Categories: ", response.data.data);
         } catch (error) {
             console.log(error);
             toast({
@@ -245,6 +282,8 @@ export default function SidebarWithHeader({ children }) {
             //     duration: 3000,
             //     isClosable: true,
             // });
+
+            console.log("Taxes: ", response.data.data); 
         } catch (error) {
             console.log(error);
             toast({
@@ -314,7 +353,22 @@ export default function SidebarWithHeader({ children }) {
         fetchPartners();
         fetchCategories();
         fetchTaxes();
-    }, []);
+    }, [page, limit]);
+
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+        setPage(1);
+    };
+
+    const handlePriceChange = (e) => {
+        setPriceFilter(e.target.value);
+        setPage(1);
+    };
+
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchProducts();
+    };
 
 
     return (
@@ -345,6 +399,84 @@ export default function SidebarWithHeader({ children }) {
                 </Text>
 
                 <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një produkt</Button>
+                <br />
+
+                <SimpleGrid columns={4} spacing={5} direction='row'>
+                    <Box>
+                        <FormLabel mt={4}>Kërko përmes search të avansuar</FormLabel>
+                        <Input
+                            placeholder='Kërko produkte permes search te avansuar'
+                            value={search}
+                            onChange={handleSearchChange}
+                            mt={0}
+                            maxW='400px'
+                            bg='#fff'
+                        />
+                    </Box>
+
+                    <Box>
+                        <FormLabel mt={4}>Selekto kategorinë</FormLabel>
+                        <Stack direction='row'>
+                            <Select
+                                placeholder="Selekto një kategori"
+                                value={categoryId}
+                                onChange={(e) => setCategoryId(e.target.value)} // Update the selected category
+                                bg='#fff'
+                            >
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </Select>
+
+
+                        </Stack>
+                    </Box>
+
+                    <Box>
+                        <FormLabel mt={4}>Kërko përmes partnerit</FormLabel>
+                        <Select
+                            placeholder="Selekto një partner"
+                            value={partnerId}
+                            onChange={(e) => setPartnerId(e.target.value)} // Update the selected category
+                            bg='#fff'
+                        >
+                            {partners.map((partner) => (
+                                <option key={partner.id} value={partner.id}>
+                                    {partner.name}
+                                </option>
+                            ))}
+                        </Select>
+                    </Box>
+
+                    <Box>
+                        <FormLabel mt={4}>Filtrime tjera</FormLabel>
+                        <Stack direction='row'>
+                            <Select
+                                placeholder="Selekto njërën"
+                                value={priceFilter}
+                                onChange={handlePriceChange}
+                                bg='#fff'
+                            >
+                                <option value="asc">Cmimi: I ulët tek i lartë</option>
+                                <option value="desc">Cmimi: I lartë tek i ulët</option>
+                            </Select>
+
+                            <Button
+                                bg='black'
+                                color='white'
+                                _hover={{ bg: 'black' }}
+                                onClick={fetchProducts}
+                                direction='row'
+                            >
+                                Kërko
+                            </Button>
+                        </Stack>
+                    </Box>
+
+
+                </SimpleGrid>
 
 
 
@@ -374,43 +506,75 @@ export default function SidebarWithHeader({ children }) {
                                     <Td>{product.name}</Td>
                                     <Td>{product.barcode}</Td>
                                     <Td>{product.description}</Td>
-                                    <Td>{product.price}</Td>
+                                    <Td>{product.price.toFixed(2)}€</Td>
                                     <Td>{product.partner ? product.partner.name : 'N/A'}</Td>
                                     <Td>{product.status}</Td>
-                                    <Td>{product.tax ? product.tax.rate : 'N/A'}</Td>
+                                    <Td>{product.tax ? product.tax.rate + "%" : 'N/A'}</Td>
                                     <Td>{product.category ? product.category.name : 'N/A'}</Td>
                                     <Td>{product.stock ? product.stock.quantity : 'N/A'}</Td>
                                     <Td>
-                                        
+
                                         <Stack direction='row'>
-                                        <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
-                                            size='sm'
-                                            onClick={() => {
-                                                setSelectedProduct(product);  // Set the selected category
-                                                setIsUpdateModalOpen(true);     // Open the delete modal
-                                            }}
-                                        >
-                                            Përditëso
-                                        </Button>
-                                        <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
-                                            size='sm'
-                                            onClick={() => {
-                                                setSelectedProduct(product);  // Set the selected category
-                                                setIsDeleteModalOpen(true);     // Open the delete modal
-                                            }}
-                                        >
-                                            Fshij
-                                        </Button>
+                                            <Button
+                                                bg='black' color='white' _hover={{ bg: 'black' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedProduct(product);  // Set the selected category
+                                                    setIsUpdateModalOpen(true);     // Open the delete modal
+                                                }}
+                                            >
+                                                Përditëso
+                                            </Button>
+                                            <Button
+                                                bg='black' color='white' _hover={{ bg: 'black' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedProduct(product);  // Set the selected category
+                                                    setIsDeleteModalOpen(true);     // Open the delete modal
+                                                }}
+                                            >
+                                                Fshij
+                                            </Button>
                                         </Stack>
-                                        
+
                                     </Td>
                                 </Tr>
                             ))}
                         </Tbody>
                     </Table>
                 )}
+
+                <Stack direction='row' spacing={4} mt={4}>
+                    <Button
+                        onClick={() => handlePageChange(page - 1)}
+                        isDisabled={page === 1}
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                    >
+                        {'<'}
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Button
+                            bg={index + 1 === page ? 'black' : 'white'} 
+                            color={index + 1 === page ? 'white' : 'black'}
+                            _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
+                            size='sm'
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                            // variant={index + 1 === page ? 'solid' : 'outline'}
+                        >
+                            {index + 1}
+                        </Button>
+                    ))}
+                    <Button
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                        onClick={() => handlePageChange(page + 1)}
+                        isDisabled={page === totalPages}
+                    >
+                        {'>'}
+                    </Button>
+                </Stack>
 
             </Box>
 

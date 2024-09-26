@@ -44,6 +44,7 @@ import {
     ModalFooter,
     FormControl,
     FormLabel,
+    Stack,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -60,15 +61,6 @@ import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
-
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
 
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
@@ -91,17 +83,41 @@ export default function SidebarWithHeader({ children }) {
     const [stocks, setStocks] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedStock, setSelectedStock] = useState(null);
     const [categoryName, setCategoryName] = useState('');
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [total, setTotal] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [quantityToAdd, setQuantityToAdd] = useState(null);
+    const [sortById, setSortById] = useState('desc');
+    const [searchStockId, setSearchStockId] = useState('');
+    const [searchProductId, setSearchProductId] = useState('');
+    const [searchMinQuantity, setSearchMinQuantity] = useState('');
+    const [searchMaxQuantity, setSearchMaxQuantity] = useState('');
 
-    const fetchTaxes = async () => {
+
+    const fetchStocks = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get('http://localhost:6099/api/stocks', {
+                params: { page, limit, sortById, stockId: searchStockId, productId: searchProductId, minQuantity: searchMinQuantity, maxQuantity: searchMaxQuantity },
                 withCredentials: true,
             });
+
             console.log(response.data);
-            setStocks(response.data.data);
+            setStocks(response.data.data.stocks);
+
+            console.log("Total stocks: ", response.data.data.total);
+            const tp = Math.ceil(response.data.data.total / limit);
+            setTotalPages(tp);
+
+            console.log("Total pages: ", tp);
+
+            console.log("Object: ", response);
+
         } catch (error) {
             toast({
                 title: 'Error në marrjen e taksave',
@@ -115,63 +131,35 @@ export default function SidebarWithHeader({ children }) {
         }
     };
 
-    // const addCategory = async () => {
-    //     if (!categoryName) {
-    //         toast({
-    //             title: 'Emri i kategorisë nuk mund të jetë bosh',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         return;
-    //     }
+    const updateStock = async () => {
+        try {
+            await axios.put(`http://localhost:6099/api/stocks/add-stock/${selectedStock.id}`, {
+                quantityToAdd
+            } , { withCredentials: true });
 
-    //     try {
-    //         const response = await axios.post('http://localhost:6099/api/categories', { name: categoryName });
-    //         setCategories([...categories, response.data]);
-    //         toast({
-    //             title: 'Kategoria u shtua me sukses',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setCategoryName('');
-    //         setIsAddModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në shtimin e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
+            toast({
+                title: 'Sasia u shtua me sukses',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
 
-    // const deleteCategory = async () => {
-    //     try {
-    //         await axios.delete(`http://localhost:6099/api/categories/${selectedCategory.id}`);
-    //         setCategories(categories.filter((category) => category.id !== selectedCategory.id));
-    //         toast({
-    //             title: 'Kategoria u fshi',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setIsDeleteModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në fshirjen e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
+            setQuantityToAdd('');
+            fetchStocks();
+            setIsUpdateModalOpen(false);
+    } catch(error) {
+        console.log("err: ", error);
+    }
+    }
 
     useEffect(() => {
-        fetchTaxes();
-    }, []);
+        fetchStocks();
+    }, [page, limit]);
+
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchStocks();
+    };
     return (
         <Box minH="100vh" bg='gray.100'>
             <SidebarContent
@@ -199,14 +187,71 @@ export default function SidebarWithHeader({ children }) {
                     Gjendja e stokut
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
+                <SimpleGrid columns={4} spacing={1} direction='row'>
 
+                    <Box>
+                        <FormLabel mt={4}>Kerko sipas Stock Idse</FormLabel>
+                        <Input
+                            value={searchStockId}
+                            onChange={(e) => setSearchStockId(e.target.value)}
+                            placeholder="Shkruaj Stock Id"
+                        />
+                    </Box>
+
+
+                    <Box>
+                        <FormLabel mt={4}>Kerko sipas produktit Idse</FormLabel>
+                        <Input
+                            value={searchProductId}
+                            onChange={(e) => setSearchProductId(e.target.value)}
+                            placeholder="Shkruaj produkt Id"
+                        />
+                    </Box>
+
+                    <Box>
+                        <Stack direction='row'>
+                            <Box>
+                                <FormLabel mt={4}>Sasia minimale</FormLabel>
+                                <Input
+                                    value={searchMinQuantity}
+                                    onChange={(e) => setSearchMinQuantity(e.target.value)}
+                                    placeholder="Shkruaj sasin minimale"
+                                />
+                            </Box>
+
+                            <Box>
+                                <FormLabel mt={4}>Sasia maksimale</FormLabel>
+                                <Input
+                                    value={searchMaxQuantity}
+                                    onChange={(e) => setSearchMaxQuantity(e.target.value)}
+                                    placeholder="Shkruaj sasin maksimale"
+                                />
+                            </Box>
+                        </Stack>
+                    </Box>
+
+                    <Box>
+                    <Button
+                            bg='black'
+                            color='white'
+                            _hover={{ bg: 'black' }}
+                            onClick={fetchStocks}
+                            direction='row'
+                            mt={12}
+                            w='100%'
+                        >
+                            Kërko
+                        </Button>
+                    </Box>
+
+
+                </SimpleGrid>
 
 
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple">
+                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
                         <Thead>
                             <Tr>
                                 <Th>Stock ID</Th>
@@ -216,6 +261,7 @@ export default function SidebarWithHeader({ children }) {
                                 <Th>Barkodi</Th>
                                 <Th>Description</Th>
                                 <Th>Qmimi</Th>
+                                <Th>Actions</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -228,24 +274,84 @@ export default function SidebarWithHeader({ children }) {
                                     <Td>{stock.product ? stock.product.barcode : 'N/A'}</Td>
                                     <Td>{stock.product ? stock.product.description : 'N/A'}</Td>
                                     <Td>{stock.product ? stock.product.price : 'N/A'}</Td>
-                                    {/* <Td>
+                                    <Td>
                                         <Button
                                             bg='black' color='white' _hover={{ bg: 'black' }}
+                                            size='sm'
                                             onClick={() => {
-                                                setSelectedCategory(stock);
-                                                setIsDeleteModalOpen(true);
+                                                setSelectedStock(stock);
+                                                setIsUpdateModalOpen(true);
                                             }}
                                         >
-                                            Fshij
+                                            Shto sasi
                                         </Button>
-                                    </Td> */}
+                                    </Td>
+                                    
                                 </Tr>
                             ))}
                         </Tbody>
                     </Table>
                 )}
 
+                <Stack direction='row' spacing={4} mt={4}>
+                    <Button
+                        onClick={() => handlePageChange(page - 1)}
+                        isDisabled={page === 1}
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                    >
+                        {'<'}
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Button
+                            bg={index + 1 === page ? 'black' : 'white'}
+                            color={index + 1 === page ? 'white' : 'black'}
+                            _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
+                            size='sm'
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                        // variant={index + 1 === page ? 'solid' : 'outline'}
+                        >
+                            {index + 1}
+                        </Button>
+                    ))}
+                    <Button
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                        onClick={() => handlePageChange(page + 1)}
+                        isDisabled={page === totalPages}
+                    >
+                        {'>'}
+                    </Button>
+                </Stack>
+
             </Box>
+
+            <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Shto sasi per kete stock</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <FormControl>
+                            <FormLabel>Sasia aktuale plus sasia e shkruar</FormLabel>
+                            <Input
+                                value={quantityToAdd}
+                                onChange={(e) => setQuantityToAdd(e.target.value)}
+                                placeholder="Shkruaj numrin e sasise"
+                            />
+                        </FormControl>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button bg="black" color="white" _hover={{ bg: 'black' }} onClick={updateStock}>
+                            Shto
+                        </Button>
+                        <Button bg="black" color="white" _hover={{ bg: 'black' }} onClick={onClose} ml={3}>
+                            Anulo
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
 
             {/* Add Category Modal */}
             {/* <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
@@ -296,7 +402,7 @@ export default function SidebarWithHeader({ children }) {
 
         </Box>
     );
-} 
+}
 
 
 const SidebarContent = ({ onClose, ...rest }) => {

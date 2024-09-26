@@ -44,6 +44,7 @@ import {
     ModalFooter,
     FormControl,
     FormLabel,
+    Stack,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -99,23 +100,84 @@ export default function SidebarWithHeader({ children }) {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState('');
+    const [total, setTotal] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState('');
+    const [totalPages, setTotalPages] = useState(0);
+    const [idFilter, setIdFilter] = useState('desc');
+    const [searchPartnerId, setSearchPartnerId] = useState('');
 
     const fetchPartners = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get('http://localhost:6099/api/partners', {
+                params: { search, page, limit, idFilter, search, partnerId: searchPartnerId },
                 withCredentials: true,
             });
             console.log(response.data);
-            setPartners(response.data.data);
+            setPartners(response.data.partners);
+            setTotal(response.data.total);
+
+            console.log("Total Partners: ", response.data.total);
+
+            const tp = Math.ceil(response.data.total / limit);
+            setTotalPages(tp);
+
+            console.log("Total Pages: ", tp);
+
         } catch (error) {
-            toast({
-                title: 'Error në marrjen e partnereve',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log(error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
@@ -208,7 +270,12 @@ export default function SidebarWithHeader({ children }) {
 
     useEffect(() => {
         fetchPartners();
-    }, []);
+    }, [page, limit]);
+
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        fetchPartners();
+    };
 
 
     return (
@@ -242,12 +309,51 @@ export default function SidebarWithHeader({ children }) {
                     Shto një partner
                 </Button>
 
+                <SimpleGrid columns={4} spacing={5} direction='row'>
+                    <Box>
+                        <FormLabel mt={4}>Kërko përmes search të avansuar</FormLabel>
+                        <Input
+                            placeholder='Kërko përmes search të avansuar'
+                            // value={search}
+                            // onChange={handleSearchChange}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            mt={0}
+                            maxW='400px'
+                            bg='#fff'
+                        />
+                    </Box>
 
+                    <Box>
+                        <FormLabel mt={4}>Kërko përmes ID</FormLabel>
+                        <Input
+                            placeholder='Kërko përmes ID'
+                            // value={search}
+                            // onChange={handleSearchChange}
+                            value={searchPartnerId} 
+                            onChange={(e) => setSearchPartnerId(e.target.value)}
+                            mt={0}
+                            maxW='400px'
+                            bg='#fff'
+                        />
+                    </Box>
+
+                    <Button
+                        mt={12}
+                        bg='black'
+                        color='white'
+                        _hover={{ bg: 'black' }}
+                        onClick={fetchPartners}
+                        direction='row'
+                    >
+                        Kërko
+                    </Button>
+                </SimpleGrid>
 
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple">
+                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
                         <Thead>
                             <Tr>
                                 <Th>Partner ID</Th>
@@ -275,6 +381,7 @@ export default function SidebarWithHeader({ children }) {
                                     <Td>
                                         <Button
                                             bg='black' color='white' _hover={{ bg: 'black' }}
+                                            size='sm'
                                             onClick={() => {
                                                 setSelectedPartner(partner);  // Set the selected category
                                                 setIsDeleteModalOpen(true);     // Open the delete modal
@@ -288,6 +395,38 @@ export default function SidebarWithHeader({ children }) {
                         </Tbody>
                     </Table>
                 )}
+
+                <Stack direction='row' spacing={4} mt={4}>
+                    <Button
+                        onClick={() => handlePageChange(page - 1)}
+                        isDisabled={page === 1}
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                    >
+                        {'<'}
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <Button
+                            bg={index + 1 === page ? 'black' : 'white'} 
+                            color={index + 1 === page ? 'white' : 'black'}
+                            _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
+                            size='sm'
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                            // variant={index + 1 === page ? 'solid' : 'outline'}
+                        >
+                            {index + 1}
+                        </Button>
+                    ))}
+                    <Button
+                        bg='black' _hover={{ bg: 'black' }} color='white'
+                        size='sm'
+                        onClick={() => handlePageChange(page + 1)}
+                        isDisabled={page === totalPages}
+                    >
+                        {'>'}
+                    </Button>
+                </Stack>
 
             </Box>
 
