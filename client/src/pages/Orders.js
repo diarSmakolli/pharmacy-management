@@ -535,7 +535,8 @@ export default function SidebarWithHeader({ children }) {
                                     <Tr>
                                         <Td>{order.id}</Td>
                                         <Td>{new Date(order.created_at).toLocaleDateString()}</Td>
-                                        <Td>{order.total_amount.toFixed(2)}€</Td>
+                                        <Td>{order && typeof order.total_amount === 'number' && order.total_amount != null
+                                            ? order.total_amount.toFixed(2) : '0.00'}€</Td>
                                         <Td>{order.products ? order.products.length : 0}</Td>
                                         <Td>{order.invoice ? order.invoice.id : 'N/A'}</Td>
                                         <Td>
@@ -576,12 +577,15 @@ export default function SidebarWithHeader({ children }) {
                                                                     <Td color='white'>{product.id}</Td>
                                                                     <Td color='white'>{product.name}</Td>
                                                                     <Td color='white'>{product.barcode}</Td>
-                                                                    <Td color='white'>{product.price.toFixed(2)}€</Td>
+                                                                    <Td color='white'>{product && typeof product.price === 'number' && product.price != null
+                                                                        ? product.price.toFixed(2) : '0.00'}€</Td>
                                                                     <Td color='white'>{product.partner ? product.partner.name : 'N/A'}</Td>
                                                                     <Td color='white'>{product.category ? product.category.name : 'N/A'}</Td>
                                                                     <Td color='white'>{product.tax ? product.tax.name : 'N/A'}</Td>
                                                                     <Td color='white'>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
-                                                                    <Td color='white'>{product.order_details ? product.order_details.unitPrice.toFixed(2) : 'N/A'}</Td>
+                                                                    {/* <Td color='white'>{product.order_details ? product.order_details.unitPrice.toFixed(2) : 'N/A'}</Td> */}
+                                                                    <Td color='white'>{product.order_details && typeof product.order_details.unitPrice === 'number' && product.order_details.unitPrice != null
+                                                                        ? product.order_details.unitPrice.toFixed(2) : '0.00'}€</Td>
                                                                 </Tr>
                                                             ))}
                                                         </Tbody>
@@ -605,8 +609,12 @@ export default function SidebarWithHeader({ children }) {
                                                             <Tr>
                                                                 <Th color='white'>{order.id}</Th>
                                                                 <Th color='white'>{order.created_at}</Th>
-                                                                <Th color='white'>{order.total_amount.toFixed(2)}</Th>
-                                                                <Th color='white'>{order.invoice ? order.invoice.tax_amount.toFixed(2) : 'N/A'}</Th>
+                                                                {/* <Th color='white'>{order.total_amount ? order.total_amount.toFixed(2) : '0.00'}</Th> */}
+                                                                <Td color='white'>{order && typeof order.total_amount === 'number' && order.total_amount != null
+                                                                    ? order.total_amount.toFixed(2) : '0.00'}€</Td>
+                                                                {/* <Th color='white'>{order.invoice ? order.invoice.tax_amount.toFixed(2) : 'N/A'}</Th> */}
+                                                                <Td color='white'>{order.invoice && typeof order.invoice.tax_amount === 'number' && order.invoice.tax_amount != null
+                                                                    ? order.invoice.tax_amount.toFixed(2) : '0.00'}€</Td>
                                                                 <Th color='white'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
                                                             </Tr>
                                                         </Tbody>
@@ -737,15 +745,24 @@ export default function SidebarWithHeader({ children }) {
 
 
                         <Text mt={5} fontWeight={'bold'}>
-                            Çmimi total pa zbritje: {totalBeforeDiscount.toFixed(2)} EUR
+                            Çmimi total pa zbritje: {' '}
+                            {totalBeforeDiscount && typeof totalBeforeDiscount == 'number' && totalBeforeDiscount != null
+                                ? totalBeforeDiscount.toFixed(2) : '0.00'} EUR
+                            EUR
                         </Text>
 
                         <Text mt={5} fontWeight={'bold'}>
-                            Çmimi total me zbritje: {totalPrice.toFixed(2)} EUR
+                            Çmimi total me zbritje: {' '}
+                            {totalPrice && typeof totalPrice == 'number' && totalPrice != null
+                                ? totalPrice.toFixed(2) : '0.00'} EUR
+
                         </Text>
 
                         <Text mt={5} fontWeight={'bold'}>
-                            Shuma e kursyer nga zbritjet: {totalDiscountSaved.toFixed(2)} EUR
+                            Shuma e kursyer nga zbritjet: {' '}
+                            {totalDiscountSaved && typeof totalDiscountSaved == 'number' && totalDiscountSaved != null
+                                ? totalDiscountSaved.toFixed(2) : '0.00'}
+                            EUR
                         </Text>
 
                     </ModalBody>
@@ -772,7 +789,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
-        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
+        { name: 'Faturat', icon: FiCompass, href: '/invoices' },
     ];
 
     // if(user && isAdmin()) {

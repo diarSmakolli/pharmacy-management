@@ -45,6 +45,7 @@ import {
     FormControl,
     FormLabel,
     Stack,
+    Collapse
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -56,11 +57,13 @@ import {
     FiBell,
     FiChevronDown,
 } from 'react-icons/fi';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { IconType } from 'react-icons';
 import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
+
 
 // const LinkItems = [
 //     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
@@ -107,24 +110,34 @@ export default function SidebarWithHeader({ children }) {
     const [totalPages, setTotalPages] = useState(0);
     const [idFilter, setIdFilter] = useState('desc');
     const [searchPartnerId, setSearchPartnerId] = useState('');
+    const [invoices, setInvoices] = useState([]);
+    const [expandedInvoices, setExpandedInvoices] = useState({});
+    const [currentPage, setCurrentPage] = useState(0);
 
-    const fetchPartners = async () => {
+
+    const fetchInvoices = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get('http://localhost:6099/api/partners', {
-                params: { search, page, limit, idFilter, search, partnerId: searchPartnerId },
+            const response = await axios.get(`http://localhost:6099/api/invoices`, {
+                params: { page, limit },
                 withCredentials: true,
             });
-            console.log(response.data);
-            setPartners(response.data.partners);
-            setTotal(response.data.total);
 
-            console.log("Total Partners: ", response.data.total);
+            console.log(response.data.data);
+            setInvoices(response.data.data.invoices);
+            setTotal(response.data.data.total);
 
-            const tp = Math.ceil(response.data.total / limit);
+            console.log("total invoices: ", response.data.data.total);
+
+            const tp = Math.ceil(response.data.data.total / limit);
             setTotalPages(tp);
 
-            console.log("Total Pages: ", tp);
+            console.log("total pages: ", tp);
+
+            console.log("Object: ", response);
+
+            setCurrentPage(response.data.data.page);
+
 
         } catch (error) {
             const { response } = error;
@@ -177,106 +190,28 @@ export default function SidebarWithHeader({ children }) {
                     });
                     break;
             }
-
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const addPartner = async () => {
-        if (!partnerName || !businessNumber || !fiscalNumber || !commune || !address || !phoneNumber || !email) {
-            toast({
-                title: 'Ju lutem plotësoni të gjitha fushat',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            return;
-        }
-
-        try {
-            const response = await axios.post('http://localhost:6099/api/partners',
-                { name: partnerName, businessNumber, fiscalNumber, commune, address, phoneNumber, email },);
-            setPartners([...partners, response.data]);
-            toast({
-                title: 'Partneri u shtua me sukses',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            });
-            setPartnerName('');
-            setBusinessNumber('');
-            setFiscalNumber('');
-            setCommune('');
-            setAddress('');
-            setPhoneNumber('');
-            setEmail('');
-            setStatus('');
-            setIsAddModalOpen(false);
-        } catch (error) {
-            toast({
-                title: 'Error në shtimin e partnerit',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log("err: ", error);
-        }
-    };
-
-    // const deleteCategory = async () => {
-    //     try {
-    //         await axios.delete(`http://localhost:6099/api/categories/${selectedCategory.id}`);
-    //         setCategories(categories.filter((category) => category.id !== selectedCategory.id));
-    //         toast({
-    //             title: 'Kategoria u fshi',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setIsDeleteModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në fshirjen e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
-    const deletePartner = async () => {
-        try {
-            await axios.delete(`http://localhost:6099/api/partners/${selectedPartner.id}`);
-            setPartners(partners.filter((partner) => partner.id !== selectedPartner.id));
-            toast({
-                title: 'Partneri u fshi',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            });
-            setIsDeleteModalOpen(false);
-
-        } catch (error) {
-            toast({
-                title: 'Error në fshirjen e kategorisë',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
         }
     }
 
 
+
     useEffect(() => {
-        fetchPartners();
+        fetchInvoices();
     }, [page, limit]);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
-        fetchPartners();
+        fetchInvoices();
     };
 
+    const toggleInvoiceDetails = (invoiceId) => {
+        setExpandedInvoices((prev) => ({
+            ...prev,
+            [invoiceId]: !prev[invoiceId],
+        }));
+    };
 
     return (
         <Box minH="100vh" bg='gray.100'>
@@ -302,95 +237,159 @@ export default function SidebarWithHeader({ children }) {
                 {children}
 
                 <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
-                    Partnerët
+                    Faturat
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>
-                    Shto një partner
-                </Button>
-
-                <SimpleGrid columns={4} spacing={5} direction='row'>
-                    <Box>
-                        <FormLabel mt={4}>Kërko përmes search të avansuar</FormLabel>
-                        <Input
-                            placeholder='Kërko përmes search të avansuar'
-                            // value={search}
-                            // onChange={handleSearchChange}
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            mt={0}
-                            maxW='400px'
-                            bg='#fff'
-                        />
-                    </Box>
-
-                    <Box>
-                        <FormLabel mt={4}>Kërko përmes ID</FormLabel>
-                        <Input
-                            placeholder='Kërko përmes ID'
-                            // value={search}
-                            // onChange={handleSearchChange}
-                            value={searchPartnerId} 
-                            onChange={(e) => setSearchPartnerId(e.target.value)}
-                            mt={0}
-                            maxW='400px'
-                            bg='#fff'
-                        />
-                    </Box>
-
-                    <Button
-                        mt={12}
-                        bg='black'
-                        color='white'
-                        _hover={{ bg: 'black' }}
-                        onClick={fetchPartners}
-                        direction='row'
-                    >
-                        Kërko
-                    </Button>
-                </SimpleGrid>
-
+                <br /><br />
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
+                    <Table variant="simple">
                         <Thead>
                             <Tr>
-                                <Th>Partner ID</Th>
-                                <Th>Numri i biznesit</Th>
-                                <Th>Numri fiskal</Th>
-                                <Th>Komuna</Th>
-                                <Th>Adresa</Th>
-                                <Th>Numri i telefonit</Th>
-                                <Th>Email</Th>
-                                <Th>Status</Th>
-                                <Th>Operacione</Th>
+                                <Th>Fatura ID</Th>
+                                <Th>Porosia ID</Th>
+                                <Th>Qmimi i takses</Th>
+                                <Th>Qmimi total</Th>
+                                <Th>Metoda e pageses</Th>
+                                <Th>Krijuar me</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {partners.map((partner) => (
-                                <Tr key={partner.id}>
-                                    <Td>{partner.id}</Td>
-                                    <Td>{partner.name}</Td>
-                                    <Td>{partner.fiscalNumber}</Td>
-                                    <Td>{partner.commune}</Td>
-                                    <Td>{partner.address}</Td>
-                                    <Td>{partner.phoneNumber}</Td>
-                                    <Td>{partner.email}</Td>
-                                    <Td>{partner.status}</Td>
-                                    <Td>
-                                        <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
-                                            size='sm'
-                                            onClick={() => {
-                                                setSelectedPartner(partner);  // Set the selected category
-                                                setIsDeleteModalOpen(true);     // Open the delete modal
-                                            }}
-                                        >
-                                            Fshij
-                                        </Button>
-                                    </Td>
-                                </Tr>
+                            {invoices.map((invoice) => (
+                                <React.Fragment key={invoice.id}>
+                                    <Tr>
+                                        <Td>{invoice.id}</Td>
+                                        <Td>{invoice.order_id}</Td>
+                                        <Td>{invoice.tax_amount}</Td>
+                                        <Td>{invoice.total_amount}</Td>
+                                        <Td>{invoice.payment_mode}</Td>
+                                        <Td>{invoice.created_at}</Td>
+
+                                        <Td>
+                                            {/* <IconButton
+                                                icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                                onClick={() => toggleOrderDetails(order.id)}
+                                                size="sm"
+                                            /> */}
+                                            <Button bg='black' color='white' _hover={{ bg: 'black' }} size='sm' ml={2}
+                                                onClick={() => toggleInvoiceDetails(invoice.id)}
+                                            >
+                                                Detajet {expandedInvoices[invoice.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                            </Button>
+                                        </Td>
+                                    </Tr>
+                                    <Tr>
+                                        <Td colSpan={6} p={0}>
+                                            <Collapse in={expandedInvoices[invoice.id]} animateOpacity>
+                                                <Box p={4} bg="#000" rounded='lg'>
+                                                    <Text fontWeight="bold" mb={2} color='white'>Produktet e Porosisë:</Text>
+                                                    <Table size="sm" variant="unstyled">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th color='white'>Product ID</Th>
+                                                                <Th color='white'>Emri</Th>
+                                                                <Th color='white'>Barkodi</Th>
+                                                                <Th color='white'>Qmimi</Th>
+                                                                <Th color='white'>Tax</Th>
+                                                                <Th color='white'>Sasia</Th>
+                                                                <Th color='white'>Qmimi per njesi</Th>
+                                                                <Th color='white'>Discount %</Th>
+                                                                <Th color='white'>Discount €</Th>
+                                                                <Th color='white'>Totali</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            {invoice.products && invoice.products.map((product) => (
+                                                                <Tr key={product.id}>
+                                                                    <Td color='white'>{product.id}</Td>
+                                                                    <Td color='white'>{product.name}</Td>
+                                                                    <Td color='white'>{product.barcode}</Td>
+                                                                    <Td color='white'>{product.price}€</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.tax_rate}</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.quantity}</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.unit_price}</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.discount_percentage}</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.discount_price}€</Td>
+                                                                    <Td color='white'>{product.invoicesProduct.total_value}</Td>
+                                                                </Tr>
+                                                            ))}
+                                                        </Tbody>
+
+                                                    </Table>
+
+                                                    <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text>
+
+                                                    <Table size="sm" variant="unstyled">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th color='white'>Porosia ID</Th>
+                                                                <Th color='white'>Fatura ID</Th>
+                                                                <Th color='white'>Qmimi total</Th>
+                                                                <Th color='white'>Taksa</Th>
+                                                                <Th color='white'>Menyra e pageses</Th>
+                                                                <Th color='white'>Data</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            <Tr>
+                                                                <Th color='white'>{invoice.order_id}</Th>
+                                                                <Th color='white'>{invoice.id}</Th>
+                                                                <Th color='white'>{invoice.total_amount}</Th>
+                                                                <Th color='white'>{invoice.tax_amount}</Th>
+                                                                <Th color='white'>{invoice.payment_mode}</Th>
+                                                                <Th color='white'>{invoice.created_at}</Th>
+                                                            </Tr>
+                                                        </Tbody>
+                                                        <br />
+
+                                                        <Button
+                                                            bg='white'
+                                                            color='black'
+                                                            _hover={{ bg: 'gray.300' }}
+                                                            size='sm'
+                                                        >
+                                                            Printo faturen
+                                                        </Button>
+
+                                                    </Table>
+
+
+                                                    {/* <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text> */}
+
+                                                    {/* <Table size="sm" variant="unstyled">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th color='white'>Porosia ID</Th>
+                                                                <Th color='white'>Data</Th>
+                                                                <Th color='white'>Qmimi total</Th>
+                                                                <Th color='white'>Qmimi TVSH</Th>
+                                                                <Th color='white'>Fatura ID</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            <Tr>
+                                                                <Th color='white'>{order.id}</Th>
+                                                                <Th color='white'>{order.created_at}</Th>
+                                                                <Th color='white'>{order.total_amount.toFixed(2)}</Th>
+                                                                <Th color='white'>{order.invoice ? order.invoice.tax_amount.toFixed(2) : 'N/A'}</Th>
+                                                                <Th color='white'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
+                                                            </Tr>
+                                                        </Tbody>
+                                                        <br />
+                                                        <Text fontWeight="bold" mb={2} color='white'>
+                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
+                                                        </Text>
+
+
+
+
+                                                    </Table> */}
+                                                </Box>
+                                            </Collapse>
+                                        </Td>
+                                    </Tr>
+                                </React.Fragment>
                             ))}
                         </Tbody>
                     </Table>
@@ -407,13 +406,13 @@ export default function SidebarWithHeader({ children }) {
                     </Button>
                     {Array.from({ length: totalPages }, (_, index) => (
                         <Button
-                            bg={index + 1 === page ? 'black' : 'white'} 
+                            bg={index + 1 === page ? 'black' : 'white'}
                             color={index + 1 === page ? 'white' : 'black'}
                             _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
                             size='sm'
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
-                            // variant={index + 1 === page ? 'solid' : 'outline'}
+                        // variant={index + 1 === page ? 'solid' : 'outline'}
                         >
                             {index + 1}
                         </Button>
@@ -430,102 +429,6 @@ export default function SidebarWithHeader({ children }) {
 
             </Box>
 
-            {/* Add Partner Modal */}
-             <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto një partner të ri</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <FormControl>
-                            <FormLabel>Emri i partnerit</FormLabel>
-                            <Input
-                                value={partnerName}
-                                onChange={(e) => setPartnerName(e.target.value)}
-                                placeholder="Shkruaj emrin e partnerit"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Numri i biznesit</FormLabel>
-                            <Input
-                                value={businessNumber}
-                                onChange={(e) => setBusinessNumber(e.target.value)}
-                                placeholder="Shkruaj numrin e biznesit"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Numri fiskal</FormLabel>
-                            <Input
-                                value={fiscalNumber}
-                                onChange={(e) => setFiscalNumber(e.target.value)}
-                                placeholder="Shkruaj numrin fiskal"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Komuna</FormLabel>
-                            <Input
-                                value={commune}
-                                onChange={(e) => setCommune(e.target.value)}
-                                placeholder="Shkruaj komunën"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Adresa</FormLabel>
-                            <Input
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Shkruaj adresën"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Numri i telefonit</FormLabel>
-                            <Input
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="Shkruaj numrin e telefonit"
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Email</FormLabel>
-                            <Input
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Shkruaj emailin"
-                            />
-                        </FormControl>
-                        
-                    
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addPartner}>
-                            Shto
-                        </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij partnerin</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        A jeni të sigurtë që dëshironi ta fshini këtë partner{' '}
-                        <strong>{selectedPartner?.partnerName}</strong>?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deletePartner}>
-                            Fshij
-                        </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> 
 
         </Box>
     );

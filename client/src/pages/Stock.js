@@ -135,7 +135,7 @@ export default function SidebarWithHeader({ children }) {
         try {
             await axios.put(`http://localhost:6099/api/stocks/add-stock/${selectedStock.id}`, {
                 quantityToAdd
-            } , { withCredentials: true });
+            }, { withCredentials: true });
 
             toast({
                 title: 'Sasia u shtua me sukses',
@@ -147,9 +147,9 @@ export default function SidebarWithHeader({ children }) {
             setQuantityToAdd('');
             fetchStocks();
             setIsUpdateModalOpen(false);
-    } catch(error) {
-        console.log("err: ", error);
-    }
+        } catch (error) {
+            console.log("err: ", error);
+        }
     }
 
     useEffect(() => {
@@ -192,6 +192,7 @@ export default function SidebarWithHeader({ children }) {
                     <Box>
                         <FormLabel mt={4}>Kerko sipas Stock Idse</FormLabel>
                         <Input
+                            bg='#fff'
                             value={searchStockId}
                             onChange={(e) => setSearchStockId(e.target.value)}
                             placeholder="Shkruaj Stock Id"
@@ -202,6 +203,7 @@ export default function SidebarWithHeader({ children }) {
                     <Box>
                         <FormLabel mt={4}>Kerko sipas produktit Idse</FormLabel>
                         <Input
+                            bg='#fff'
                             value={searchProductId}
                             onChange={(e) => setSearchProductId(e.target.value)}
                             placeholder="Shkruaj produkt Id"
@@ -213,6 +215,7 @@ export default function SidebarWithHeader({ children }) {
                             <Box>
                                 <FormLabel mt={4}>Sasia minimale</FormLabel>
                                 <Input
+                                    bg='#fff'
                                     value={searchMinQuantity}
                                     onChange={(e) => setSearchMinQuantity(e.target.value)}
                                     placeholder="Shkruaj sasin minimale"
@@ -222,6 +225,7 @@ export default function SidebarWithHeader({ children }) {
                             <Box>
                                 <FormLabel mt={4}>Sasia maksimale</FormLabel>
                                 <Input
+                                    bg='#fff'
                                     value={searchMaxQuantity}
                                     onChange={(e) => setSearchMaxQuantity(e.target.value)}
                                     placeholder="Shkruaj sasin maksimale"
@@ -231,7 +235,7 @@ export default function SidebarWithHeader({ children }) {
                     </Box>
 
                     <Box>
-                    <Button
+                        <Button
                             bg='black'
                             color='white'
                             _hover={{ bg: 'black' }}
@@ -286,7 +290,7 @@ export default function SidebarWithHeader({ children }) {
                                             Shto sasi
                                         </Button>
                                     </Td>
-                                    
+
                                 </Tr>
                             ))}
                         </Tbody>
@@ -415,7 +419,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
-        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
+        { name: 'Faturat', icon: FiCompass, href: '/invoices' },
     ];
 
     // if(user && isAdmin()) {

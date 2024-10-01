@@ -5,11 +5,9 @@ const { Op } = require('sequelize');
 
 router.post('/', async (req, res) => {
     const { products, overallDiscount } = req.body;
-
     try {
         let total_amount = 0;
         let total_taxAmount = 0;
-
         const orderProducts = [];
 
         for (const product of products) {
@@ -26,9 +24,8 @@ router.post('/', async (req, res) => {
             }
 
             const { price: unitPrice } = productDetails;
-            const productDiscountPercentage = product.discount || 0;
 
-            if(productDiscountPercentage > 100) {
+            if (productDiscountPercentage > 100) {
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -76,7 +73,7 @@ router.post('/', async (req, res) => {
                 });
             }
 
-            if(stock.quantity <= 0) {
+            if (stock.quantity <= 0) {
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -126,7 +123,7 @@ router.post('/', async (req, res) => {
             order_id: order.id,
             total_amount,
             tax_amount: total_taxAmount,
-            payment_mode: 'Kesh',
+            payment_mode: 'Cash',
             created_at: new Date()
         });
 
@@ -178,7 +175,7 @@ router.get('/:id', async (req, res) => {
             include: [Invoice, Product]
         });
 
-        if(!order) {
+        if (!order) {
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -205,17 +202,17 @@ router.get('/:id', async (req, res) => {
 // get all orders include the products
 router.get('/', async (req, res) => {
     try {
-        let { 
-            page = 1, 
-            limit = 10, 
-            sortByDate, 
-            productId, 
-            startDate, 
-            endDate, 
-            minTotalAmount, 
+        let {
+            page = 1,
+            limit = 10,
+            sortByDate,
+            productId,
+            startDate,
+            endDate,
+            minTotalAmount,
             maxTotalAmount,
             minQuantity,
-            maxQuantity,  
+            maxQuantity,
             orderId
         } = req.query;
 
@@ -230,11 +227,11 @@ router.get('/', async (req, res) => {
 
         if (sortByDate === 'asc') {
             orderClause.push(['created_at', 'ASC']);
-        } else if(sortByDate === 'desc') {
+        } else if (sortByDate === 'desc') {
             orderClause.push(['created_at', 'DESC']);
         }
 
-    
+
         if (productId) {
             productWhereClause.id = productId;
         }
@@ -245,13 +242,13 @@ router.get('/', async (req, res) => {
             };
         }
 
-        if(minTotalAmount && maxTotalAmount) {
+        if (minTotalAmount && maxTotalAmount) {
             whereClause.total_amount = {
                 [Op.between]: [minTotalAmount, maxTotalAmount]
             };
         }
 
-        if(orderId) {
+        if (orderId) {
             whereClause.id = orderId;
         }
 
@@ -271,42 +268,42 @@ router.get('/', async (req, res) => {
             };
         }
 
-       
+
         totalOrders = await Order.count({
-                where: whereClause,
-                include: [
-                    {
-                        model: Invoice,
+            where: whereClause,
+            include: [
+                {
+                    model: Invoice,
+                },
+                {
+                    model: Product,
+                    where: productWhereClause,
+                    through: {
+                        attributes: ['quantity', 'unitPrice'],
+                        where: orderDetailsWhereClause
                     },
-                    {
-                        model: Product,
-                        where: productWhereClause,
-                        through: {
-                            attributes: ['quantity', 'unitPrice'],
-                            where: orderDetailsWhereClause
-                        },
-                        include: [
-                            { model: Category },
-                            { model: Partner },
-                            { model: Tax },
-                        ]
-                    },
-                ]
+                    include: [
+                        { model: Category },
+                        { model: Partner },
+                        { model: Tax },
+                    ]
+                },
+            ]
         });
 
-        if(!minQuantity && !maxQuantity) {
+        if (!minQuantity && !maxQuantity) {
             totalOrders = await Order.count({
                 where: whereClause,
             });
         }
 
-        if(!minTotalAmount && !maxTotalAmount) {
+        if (!minTotalAmount && !maxTotalAmount) {
             totalOrders = await Order.count({
                 where: whereClause,
             });
         }
 
-        if(!startDate && !endDate) {
+        if (!startDate && !endDate) {
             totalOrders = await Order.count({
                 where: whereClause,
             });
@@ -346,7 +343,7 @@ router.get('/', async (req, res) => {
             ],
             offset: (page - 1) * limit,
             limit: limit,
-            order: orderClause, 
+            order: orderClause,
         });
 
         if (orders.length === 0) {

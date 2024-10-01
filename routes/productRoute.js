@@ -6,7 +6,7 @@ const sequelize = require('sequelize');
 
 // create product
 router.post('/', async (req, res) => {
-    const { name, barcode, description, price, discount, partnerId, status, categoryId, taxId, initialStock  } = req.body;
+    const { name, barcode, description, price, discount, partnerId, status, categoryId, taxId, initialStock } = req.body;
 
     const product = await Product.create({
         name,
@@ -67,15 +67,15 @@ router.get('/search', async (req, res) => {
 
 // get product by id
 router.get('/:id', async (req, res) => {
-    
+
     const productId = req.params.id;
 
-  // get product included the partner
+    // get product included the partner
     const product = await Product.findByPk(productId, {
         include: [Partner, Tax, Category, Invoice]
     });
 
-    if(product.status === 'inactive') {
+    if (product.status === 'inactive') {
         return res.status(404).json({
             status: 'error',
             statusCode: 404,
@@ -134,13 +134,13 @@ router.get('/', async (req, res) => {
             whereClause.status = status; // Optionally filter by status
         }
 
-        if(taxId) {
+        if (taxId) {
             whereClause.taxId = taxId;
         }
 
         if (search) {
             whereClause[Op.or] = [
-                { name: { [Op.iLike]: `%${search}%` } },  
+                { name: { [Op.iLike]: `%${search}%` } },
                 { barcode: { [Op.iLike]: `%${search}%` } },
                 { description: { [Op.iLike]: `%${search}%` } },
             ];
@@ -155,9 +155,9 @@ router.get('/', async (req, res) => {
         }
 
 
-        if(idFilter === 'asc') {
+        if (idFilter === 'asc') {
             orderClause.push(['id', 'ASC']);
-        } else if(idFilter === 'desc') {
+        } else if (idFilter === 'desc') {
             orderClause.push(['id', 'DESC']);
         }
 
@@ -171,7 +171,7 @@ router.get('/', async (req, res) => {
             order: orderClause
         });
 
-    
+
 
         // Check if products were found
         if (rows.length === 0) {
@@ -205,7 +205,7 @@ router.put('/:id', async (req, res) => {
 
     const product = await Product.findOne({ where: { id } });
 
-    if(!product) {
+    if (!product) {
         return res.status(404).json({
             status: 'error',
             statusCode: 404,
@@ -223,7 +223,7 @@ router.put('/:id', async (req, res) => {
         categoryId,
         taxId
     });
-    
+
 
     return res.status(200).json({
         status: 'success',
@@ -235,10 +235,10 @@ router.put('/:id', async (req, res) => {
 // delete the product
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
-    
+
     const product = await Product.findOne({ where: { id } });
 
-    if(!product) {
+    if (!product) {
         return res.status(404).json({
             status: 'error',
             statusCode: 404,

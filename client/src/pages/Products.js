@@ -201,6 +201,7 @@ export default function SidebarWithHeader({ children }) {
             setCategoryId('');
             setInitialStock('');
             setIsAddModalOpen(false);
+            fetchProducts();
         } catch (error) {
             toast({
                 title: 'Error në shtimin e produktit',
@@ -506,7 +507,8 @@ export default function SidebarWithHeader({ children }) {
                                     <Td>{product.name}</Td>
                                     <Td>{product.barcode}</Td>
                                     <Td>{product.description}</Td>
-                                    <Td>{product.price.toFixed(2)}€</Td>
+                                    <Td>{product && typeof product.price === 'number' && product.price != null ?
+                                    product.price.toFixed(2) : 'N/A'}€</Td>
                                     <Td>{product.partner ? product.partner.name : 'N/A'}</Td>
                                     <Td>{product.status}</Td>
                                     <Td>{product.tax ? product.tax.rate + "%" : 'N/A'}</Td>
@@ -820,7 +822,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
         { name: 'Produktet', icon: FiCompass, href: '/products' },
         { name: 'Stock', icon: FiCompass, href: '/stocks' },
         { name: 'Taksat', icon: FiCompass, href: '/taxes' },
-        { name: 'Faturat', icon: FiCompass, href: '/dashboard' },
+        { name: 'Faturat', icon: FiCompass, href: '/invoices' },
     ];
 
     // if(user && isAdmin()) {

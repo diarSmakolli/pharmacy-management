@@ -13,6 +13,7 @@ import Partners from './pages/Partners';
 import Products from './pages/Products';
 import Stocks from './pages/Stock';
 import Taxes from './pages/Tax';
+import Invoices from './pages/Invoices';
 
 function App() {
   return (
@@ -59,6 +60,12 @@ function App() {
             <Route path='/taxes' element={
               <PrivateRoute>
                 <Taxes />
+              </PrivateRoute>
+            } />
+
+            <Route path='/invoices' element={
+              <PrivateRoute>
+                <Invoices />
               </PrivateRoute>
             } />
 
