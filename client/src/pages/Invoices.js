@@ -65,15 +65,6 @@ import axios from 'axios';
 import emonalogo from '../images/emona.png';
 
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
-
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -113,6 +104,7 @@ export default function SidebarWithHeader({ children }) {
     const [invoices, setInvoices] = useState([]);
     const [expandedInvoices, setExpandedInvoices] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
 
 
     const fetchInvoices = async () => {
@@ -193,9 +185,38 @@ export default function SidebarWithHeader({ children }) {
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
-
+    const handleFetchInvoiceById = async (invoiceId) => {
+        try {
+            const response = await axios.get(`http://localhost:6099/api/invoices/${invoiceId}`);
+            if (response.status === 200) {
+                toast({
+                    title: 'Printing...',
+                    description: `Fatura ${invoiceId} u printua`,
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+            } else {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to print the invoice.',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'There was an error printing the invoice.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    };
 
     useEffect(() => {
         fetchInvoices();
@@ -348,43 +369,15 @@ export default function SidebarWithHeader({ children }) {
                                                             color='black'
                                                             _hover={{ bg: 'gray.300' }}
                                                             size='sm'
+                                                            onClick={() => handleFetchInvoiceById(invoice.id)}
                                                         >
-                                                            Printo faturen
+                                                            Printo faturen me ID: {invoice.id}
                                                         </Button>
 
                                                     </Table>
 
 
-                                                    {/* <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text> */}
-
-                                                    {/* <Table size="sm" variant="unstyled">
-                                                        <Thead>
-                                                            <Tr>
-                                                                <Th color='white'>Porosia ID</Th>
-                                                                <Th color='white'>Data</Th>
-                                                                <Th color='white'>Qmimi total</Th>
-                                                                <Th color='white'>Qmimi TVSH</Th>
-                                                                <Th color='white'>Fatura ID</Th>
-                                                            </Tr>
-                                                        </Thead>
-                                                        <Tbody>
-                                                            <Tr>
-                                                                <Th color='white'>{order.id}</Th>
-                                                                <Th color='white'>{order.created_at}</Th>
-                                                                <Th color='white'>{order.total_amount.toFixed(2)}</Th>
-                                                                <Th color='white'>{order.invoice ? order.invoice.tax_amount.toFixed(2) : 'N/A'}</Th>
-                                                                <Th color='white'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
-                                                            </Tr>
-                                                        </Tbody>
-                                                        <br />
-                                                        <Text fontWeight="bold" mb={2} color='white'>
-                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
-                                                        </Text>
-
-
-
-
-                                                    </Table> */}
+                                              
                                                 </Box>
                                             </Collapse>
                                         </Td>

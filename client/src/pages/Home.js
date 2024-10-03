@@ -12,7 +12,7 @@ function Home() {
   const { user, loading, logout } = useAuth();
   return (
     <Box bg='gray.100'>
-            <Container maxW='8xl'>
+            {/* <Container> */}
                 
                 <Box>
                     <SidebarWithHeader />
@@ -22,7 +22,7 @@ function Home() {
                     Hello {user && user.name}
                 </Text>                 */}
 
-            </Container>
+            {/* </Container> */}
         </Box>
   )
 }

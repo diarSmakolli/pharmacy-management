@@ -373,7 +373,7 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#95a7bd'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -399,7 +399,14 @@ export default function SidebarWithHeader({ children }) {
                     Produktet
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një produkt</Button>
+                <Button
+                    bg='#0176d3'
+                    color='white'
+                    _hover={{ bg: '#0176d3' }}
+                    onClick={() => setIsAddModalOpen(true)}
+                    mt={4}>
+                    Shto një produkt
+                </Button>
                 <br />
 
                 <SimpleGrid columns={4} spacing={5} direction='row'>
@@ -465,9 +472,9 @@ export default function SidebarWithHeader({ children }) {
                             </Select>
 
                             <Button
-                                bg='black'
+                                bg='#0176d3'
                                 color='white'
-                                _hover={{ bg: 'black' }}
+                                _hover={{ bg: '#0176d3' }}
                                 onClick={fetchProducts}
                                 direction='row'
                             >
@@ -484,7 +491,7 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
+                    <Table variant="simple" minW={'100%'} size={'sm'} mt={5} p={5} bg='#fff' rounded='md'>
                         <Thead>
                             <Tr>
                                 <Th>Produkt ID</Th>
@@ -518,7 +525,7 @@ export default function SidebarWithHeader({ children }) {
 
                                         <Stack direction='row'>
                                             <Button
-                                                bg='black' color='white' _hover={{ bg: 'black' }}
+                                                bg='#0176d3' color='white' _hover={{ bg: 'black' }}
                                                 size='sm'
                                                 onClick={() => {
                                                     setSelectedProduct(product);  // Set the selected category
@@ -528,7 +535,7 @@ export default function SidebarWithHeader({ children }) {
                                                 Përditëso
                                             </Button>
                                             <Button
-                                                bg='black' color='white' _hover={{ bg: 'black' }}
+                                                bg='#0176d3' color='white' _hover={{ bg: 'black' }}
                                                 size='sm'
                                                 onClick={() => {
                                                     setSelectedProduct(product);  // Set the selected category

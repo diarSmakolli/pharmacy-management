@@ -4,9 +4,9 @@ const Partner = require('./Partner');
 
 dotenv.config();
 
-const sequelize = new Sequelize(process.env.DATABASE, process.env.DIALECT, process.env.PASSWORD, {
-    host: process.env.HOST,
-    dialect: process.env.DIALECT
+const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_DIALECT, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT
 })
 
 const Product = sequelize.define('products', {

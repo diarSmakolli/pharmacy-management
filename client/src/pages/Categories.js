@@ -44,6 +44,11 @@ import {
     ModalFooter,
     FormControl,
     FormLabel,
+    DrawerOverlay,
+    DrawerCloseButton,
+    DrawerHeader,
+    DrawerBody,
+    DrawerFooter,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -174,12 +179,12 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#17191e'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
             />
-            <Drawer
+            <Drawer border='0'
                 autoFocus={false}
                 isOpen={isOpen}
                 placement="left"
@@ -193,36 +198,48 @@ export default function SidebarWithHeader({ children }) {
             </Drawer>
 
             <MobileNav onOpen={onOpen} />
-            <Box ml={{ base: 0, md: 60 }} p="4">
+            <Box ml={{ base: 0, md: 60 }} p="4" >
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='white' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
                     Kategoritë
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
+                <Button
+                    bg='#242731'
+                    border='1px solid #30393d'
+                    rounded='2xl'
+                    color='white'
+                    _hover={{ bg: '#242731' }}
+                    onClick={() => setIsAddModalOpen(true)} mt={4}>
+                    Shto një kategori
+                </Button>
 
 
 
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple">
-                        <Thead>
-                            <Tr>
-                                <Th>Kategoria ID</Th>
-                                <Th>Emri kategorisë</Th>
-                                <Th>Operacione</Th>
+                    <Table variant="simple" border='0'>
+                        <Thead border='0'>
+                            <Tr border='0'>
+                                <Th color='gray.400' border='0'>Kategoria ID</Th>
+                                <Th color='gray.400' border='0'>Emri kategorisë</Th>
+                                <Th color='gray.400' border='0'>Operacione</Th>
                             </Tr>
                         </Thead>
-                        <Tbody>
+                        <Tbody border='0'>
                             {categories.map((category) => (
-                                <Tr key={category.id}>
-                                    <Td>{category.id}</Td>
-                                    <Td>{category.name}</Td>
-                                    <Td>
+                                <Tr key={category.id} border='0'>
+                                    <Td color='gray.400' border='0'>{category.id}</Td>
+                                    <Td color='gray.400' border='0'>{category.name}</Td>
+                                    <Td color='gray.400' border='0'>
                                         <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
+                                            bg='#242731'
+                                            border='1px solid #30393d'
+                                            rounded='2xl'
+                                            color='white'
+                                            _hover={{ bg: '#242731' }}
                                             onClick={() => {
                                                 setSelectedCategory(category);  // Set the selected category
                                                 setIsDeleteModalOpen(true);     // Open the delete modal
@@ -238,53 +255,94 @@ export default function SidebarWithHeader({ children }) {
                 )}
 
             </Box>
+            {/* bg={'#242731'} border='1px solid #30393d' */}
 
             {/* Add Category Modal */}
-            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto një kategori të re</ModalHeader>
-                    <ModalCloseButton />
+            <Modal
+                bg={'#242731'}
+                border='1px solid #30393d'
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                position='right'
+            >
+                <ModalOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
+                <ModalContent bg={'#242731'} rounded='2xl'  border='1px solid #30393d' >
+                    <ModalHeader color='gray.200'>Shto një kategori të re</ModalHeader>
+                    <ModalCloseButton bg='transparent' color='white' />
                     <ModalBody>
                         <FormControl>
-                            <FormLabel>Emri i kategorisë</FormLabel>
+                            <FormLabel color='gray.200'>Emri i kategorisë</FormLabel>
                             <Input
                                 value={categoryName}
+                                background='gray.900'
+                                color='gray.50'
+                                border='1px solid #30393d'
+                                _hover={{ border: '1px solid #30393d' }}
                                 onChange={(e) => setCategoryName(e.target.value)}
                                 placeholder="Shkruaj emrin e kategorisë"
                             />
                         </FormControl>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
                             Shto
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
 
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij kategorinë</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
+
+
+
+            <Modal bg={'#252529'} border='1px solid #30393d' isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <ModalOverlay  backdropFilter='blur(10px) hue-rotate(90deg)'/>
+                <ModalContent bg={'#252529'} rounded='2xl'>
+                    <ModalHeader color='gray.200'>Fshij kategorinë</ModalHeader>
+                    <ModalCloseButton bg='transparent' color='white' />
+                    <ModalBody color='gray.200'>
                         A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
                         <strong>{selectedCategory?.name}</strong>?
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
                             Fshij
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            {/* <Drawer
+                placement='right'
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                size='xl'
+            >
+                <DrawerOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
+                <DrawerContent bg={'#252529'} rounded='2xl'>
+                    <DrawerCloseButton bg='transparent' color='white' />
+                    <DrawerHeader color='gray.200'>Fshij kategorinë</DrawerHeader>
+
+                    <DrawerBody color='gray.200'>
+                        A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
+                        <strong>{selectedCategory?.name}</strong>?
+                    </DrawerBody>
+
+                    <DrawerFooter>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
+                            Fshij
+                        </Button>
+                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                            Anulo
+                        </Button>
+                    </DrawerFooter>
+                </DrawerContent>
+            </Drawer> */}
 
         </Box>
     );
@@ -312,20 +370,20 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
@@ -348,8 +406,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -378,6 +437,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -395,7 +455,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -418,8 +478,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -429,11 +489,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

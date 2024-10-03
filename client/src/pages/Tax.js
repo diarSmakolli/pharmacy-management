@@ -61,14 +61,6 @@ import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
 
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();

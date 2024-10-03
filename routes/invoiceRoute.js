@@ -3,7 +3,6 @@ const router = express.Router();
 const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProduct } = require('../models');
 const path = require('path');
 const fs = require('fs');
-const SerialPort = require('serialport');
 
 
 const generateInpContent = (invoice) => {
@@ -16,16 +15,11 @@ const generateInpContent = (invoice) => {
         const { name, price } = product;
         const { quantity, discount_percentage, discount_price, tax_rate } = product.invoicesProduct;
 
-        // Format the article sale line2
-        const line = `S,${logicalNumber},______,_,__;${name.padEnd(32)};${price.toFixed(2)};${quantity};1;1;${tax_rate};0;${product.barcode};${discount_percentage};${discount_price}\n`;
+        const line = `S,${logicalNumber},______,_,__;${name};${price.toFixed(2)};${quantity};1;1;5;0;${product.barcode};${discount_percentage};\n`;
         content += line;
     });
 
-    // Add the end of bill line
     content += `T,${logicalNumber},______,_,__;\n`;
-    // Add the payment line
-    content += `T,${logicalNumber},______,_,__;${paymentModeCode};${invoice.total_amount.toFixed(2)}\n`;
-
     return content;
 };
 
@@ -49,12 +43,21 @@ router.get('/:id', async (req, res) => {
     }
 
     // Generate the content
-    // const inpContent = generateInpContent(invoice);
+    const inpContent = generateInpContent(invoice);
 
     // const filePath = path.join(__dirname, `../invoices/invoice_${invoice.id}.inp`);
     // fs.writeFileSync(filePath, inpContent);
+    const tempDir = "C:\\Temp";
+    if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir); // Ensure the directory exists
+    }
 
-    // console.log(filePath);
+    const filePath = path.join(tempDir, `invoice_${invoice.id}.inp`);
+
+    // Write the .inp file
+    fs.writeFileSync(filePath, inpContent);
+
+    console.log("File generated in path: ", filePath);
 
     res.status(200).json({
         status: 'success',

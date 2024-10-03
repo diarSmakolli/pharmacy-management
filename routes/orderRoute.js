@@ -24,6 +24,7 @@ router.post('/', async (req, res) => {
             }
 
             const { price: unitPrice } = productDetails;
+            let productDiscountPercentage = product.discount || 0;
 
             if (productDiscountPercentage > 100) {
                 return res.status(400).json({
@@ -89,16 +90,14 @@ router.post('/', async (req, res) => {
                 quantity: product.quantity,
                 unitPrice: unitPrice,
                 discount: productDiscountPercentage,
-                taxRate // Store the tax rate in the orderProducts array
+                taxRate 
             });
         }
 
-        // Apply overall discount if provided (as a percentage)
         if (overallDiscount) {
             total_amount -= (overallDiscount / 100) * total_amount;
         }
 
-        // Ensure total_amount is not negative
         total_amount = Math.max(total_amount, 0);
 
         const order = await Order.create({
@@ -107,7 +106,6 @@ router.post('/', async (req, res) => {
             created_at: new Date()
         });
 
-        // how to handle when the discount is greater than 100 to avoid negative total_amount
 
         await Promise.all(orderProducts.map(async orderProduct => {
             await OrderProduct.create({
@@ -128,13 +126,10 @@ router.post('/', async (req, res) => {
         });
 
 
-        // Add invoice products
         await Promise.all(orderProducts.map(async orderProduct => {
-            // orderProduct.discount is an percentage discount value calculate then to discount amount in price
             const discountAmount = (orderProduct.discount / 100) * orderProduct.unitPrice;
             const discountedPrice = orderProduct.unitPrice - discountAmount; // Move this inside the map
 
-            // Calculate total value for the product
             const productTotalValue = discountedPrice * orderProduct.quantity;
 
             await InvoiceProduct.create({

@@ -279,7 +279,7 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#17191e'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -301,17 +301,21 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='white' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
                     Partnerët
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>
+                <Button bg='#242731'
+                    border='1px solid #30393d'
+                    rounded='2xl'
+                    color='white'
+                    _hover={{ bg: '#242731' }}onClick={() => setIsAddModalOpen(true)} mt={4}>
                     Shto një partner
                 </Button>
 
                 <SimpleGrid columns={4} spacing={5} direction='row'>
                     <Box>
-                        <FormLabel mt={4}>Kërko përmes search të avansuar</FormLabel>
+                        <FormLabel mt={4} color='white'>Kërko përmes search të avansuar</FormLabel>
                         <Input
                             placeholder='Kërko përmes search të avansuar'
                             // value={search}
@@ -319,13 +323,16 @@ export default function SidebarWithHeader({ children }) {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             mt={0}
-                            maxW='400px'
-                            bg='#fff'
+                            bg='#242731'
+                                    border='1px solid #30393d'
+                                    rounded='md'
+                                    color='white'
+                                    _hover={{ bg: '#242731' }}
                         />
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4}>Kërko përmes ID</FormLabel>
+                        <FormLabel mt={4} color='white'>Kërko përmes ID</FormLabel>
                         <Input
                             placeholder='Kërko përmes ID'
                             // value={search}
@@ -334,15 +341,21 @@ export default function SidebarWithHeader({ children }) {
                             onChange={(e) => setSearchPartnerId(e.target.value)}
                             mt={0}
                             maxW='400px'
-                            bg='#fff'
+                            bg='#242731'
+                            border='1px solid #30393d'
+                            rounded='md'
+                            color='white'
+                            _hover={{ bg: '#242731' }}
                         />
                     </Box>
 
                     <Button
                         mt={12}
-                        bg='black'
+                        bg='#242731'
+                        border='1px solid #30393d'
+                        rounded='md'
                         color='white'
-                        _hover={{ bg: 'black' }}
+                        _hover={{ bg: '#242731' }}
                         onClick={fetchPartners}
                         direction='row'
                     >
@@ -353,35 +366,40 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
-                        <Thead>
-                            <Tr>
-                                <Th>Partner ID</Th>
-                                <Th>Numri i biznesit</Th>
-                                <Th>Numri fiskal</Th>
-                                <Th>Komuna</Th>
-                                <Th>Adresa</Th>
-                                <Th>Numri i telefonit</Th>
-                                <Th>Email</Th>
-                                <Th>Status</Th>
-                                <Th>Operacione</Th>
+                    <Table variant="simple" border='0' minW={'100%'} size={'sm'} mt={5} p={5}>
+                        <Thead border='0' >
+                            <Tr border='0' >
+                                <Th border='0'>Partner ID</Th>
+                                <Th border='0'>Numri i biznesit</Th>
+                                <Th border='0'>Numri fiskal</Th>
+                                <Th border='0'>Komuna</Th>
+                                <Th border='0'>Adresa</Th>
+                                <Th border='0'>Numri i telefonit</Th>
+                                <Th border='0'>Email</Th>
+                                <Th border='0'>Status</Th>
+                                <Th border='0'>Operacione</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {partners.map((partner) => (
                                 <Tr key={partner.id}>
-                                    <Td>{partner.id}</Td>
-                                    <Td>{partner.name}</Td>
-                                    <Td>{partner.fiscalNumber}</Td>
-                                    <Td>{partner.commune}</Td>
-                                    <Td>{partner.address}</Td>
-                                    <Td>{partner.phoneNumber}</Td>
-                                    <Td>{partner.email}</Td>
-                                    <Td>{partner.status}</Td>
-                                    <Td>
+                                    <Td border='0' color='white'>{partner.id}</Td>
+                                    <Td border='0' color='white'>{partner.name}</Td>
+                                    <Td border='0' color='white'>{partner.fiscalNumber}</Td>
+                                    <Td border='0' color='white'>{partner.commune}</Td>
+                                    <Td border='0' color='white'>{partner.address}</Td>
+                                    <Td border='0' color='white'>{partner.phoneNumber}</Td>
+                                    <Td border='0' color='white'>{partner.email}</Td>
+                                    <Td border='0' color='white'>{partner.status}</Td>
+                                    <Td border='0' color='white'>
                                         <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
+                                            bg='#242731'
+                                            border='1px solid #30393d'
+                                            rounded='2xl'
+                                            color='white'
+                                            _hover={{ bg: '#242731' }}
                                             size='sm'
+                                            ml={2}
                                             onClick={() => {
                                                 setSelectedPartner(partner);  // Set the selected category
                                                 setIsDeleteModalOpen(true);     // Open the delete modal
@@ -431,9 +449,9 @@ export default function SidebarWithHeader({ children }) {
             </Box>
 
             {/* Add Partner Modal */}
-             <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+             <Modal size='3xl' isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
                 <ModalOverlay />
-                <ModalContent>
+                <ModalContent >
                     <ModalHeader>Shto një partner të ri</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
@@ -553,20 +571,20 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
@@ -589,8 +607,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -619,6 +638,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -636,7 +656,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -659,8 +679,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -670,11 +690,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>
