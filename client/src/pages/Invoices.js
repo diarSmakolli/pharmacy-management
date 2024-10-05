@@ -105,13 +105,18 @@ export default function SidebarWithHeader({ children }) {
     const [expandedInvoices, setExpandedInvoices] = useState({});
     const [currentPage, setCurrentPage] = useState(0);
     const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [searchSortByDate, setSearchSortByDate] = useState('desc');
+    const [searchStartDate, setSearchStartDate] = useState('');
+    const [searchEndDate, setSearchEndDate] = useState('');
+    const [searchInvoiceId, setSearchInvoiceId] = useState('');
+    const [searchOrderId, setSearchOrderId] = useState('');
 
 
     const fetchInvoices = async () => {
         setIsLoading(true);
         try {
             const response = await axios.get(`http://localhost:6099/api/invoices`, {
-                params: { page, limit },
+                params: { page, limit, sortByDate: searchSortByDate, invoiceId: searchInvoiceId, orderId: searchOrderId, startDate: searchStartDate, endDate: searchEndDate },
                 withCredentials: true,
             });
 
@@ -235,7 +240,7 @@ export default function SidebarWithHeader({ children }) {
     };
 
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -257,135 +262,224 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Faturat
                 </Text>
 
-                <br /><br />
+                <SimpleGrid columns={4} spacing={5} direction='row'>
+                    <Box>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko përmes ID</FormLabel>
+                        <Input
+                            placeholder='Kërko përmes ID'
+                            // value={search}
+                            // onChange={handleSearchChange}
+                            value={searchInvoiceId}
+                            onChange={(e) => setSearchInvoiceId(e.target.value)}
+                            mt={0}
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A'}}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko permes Porosia ID</FormLabel>
+                        <Input
+                            placeholder='Kërko përmes Porosia ID'
+                            // value={search}
+                            // onChange={handleSearchChange}
+                            value={searchOrderId} 
+                            onChange={(e) => setSearchOrderId(e.target.value)}
+                            mt={0}
+                            maxW='400px'
+                            bg='transparent'
+                                size='sm'
+                                border='1px solid #7A869A'
+                                rounded={'md'}
+                                color='white'
+                                _hover={{ border: '1px solid #7A869A'}}
+                        />
+                    </Box>
+
+                    <Box>
+                        <Stack direction='row'>
+                            <Box w='50%'>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Nga data</FormLabel>
+                                <Input
+                                    placeholder='Nga data'
+                                    value={searchStartDate}
+                                    onChange={(e) => setSearchStartDate(e.target.value)}
+                                    type='date'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    color='white'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                />
+                            </Box>
+                            <Box w='50%'>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Deri me daten</FormLabel>
+                                <Input
+                                    placeholder='Deri me daten'
+                                    value={searchEndDate}
+                                    onChange={(e) => setSearchEndDate(e.target.value)}
+                                    type='date'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    color='white'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                />
+                            </Box>
+
+
+                        </Stack>
+                    </Box>
+                    
+
+                    <Box mt={1}>
+                    <Button
+                        mt={10}
+                        bg='#A1BDD914'
+                        color='gray.300'
+                        _hover={{ bg: '#A1BDD914' }}
+                        onClick={fetchInvoices}
+                        direction='row'
+                        size='sm'
+                        w='40%'
+                    >
+                        Kërko
+                    </Button>
+                    </Box>
+                </SimpleGrid>
+
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple">
-                        <Thead>
-                            <Tr>
-                                <Th>Fatura ID</Th>
-                                <Th>Porosia ID</Th>
-                                <Th>Qmimi i takses</Th>
-                                <Th>Qmimi total</Th>
-                                <Th>Metoda e pageses</Th>
-                                <Th>Krijuar me</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {invoices.map((invoice) => (
-                                <React.Fragment key={invoice.id}>
-                                    <Tr>
-                                        <Td>{invoice.id}</Td>
-                                        <Td>{invoice.order_id}</Td>
-                                        <Td>{invoice.tax_amount}</Td>
-                                        <Td>{invoice.total_amount}</Td>
-                                        <Td>{invoice.payment_mode}</Td>
-                                        <Td>{invoice.created_at}</Td>
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Fatura ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Porosia ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Qmimi i takses</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Qmimi total</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Metoda e pageses</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Krijuar me</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {invoices.map((invoice) => (
+                                    <React.Fragment key={invoice.id}>
+                                        <Tr>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.id}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.order_id}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.tax_amount}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.total_amount}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.payment_mode}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{invoice.created_at}</Td>
 
-                                        <Td>
-                                            {/* <IconButton
-                                                icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                                                onClick={() => toggleOrderDetails(order.id)}
-                                                size="sm"
-                                            /> */}
-                                            <Button bg='black' color='white' _hover={{ bg: 'black' }} size='sm' ml={2}
-                                                onClick={() => toggleInvoiceDetails(invoice.id)}
-                                            >
-                                                Detajet {expandedInvoices[invoice.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                                            </Button>
-                                        </Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td colSpan={6} p={0}>
-                                            <Collapse in={expandedInvoices[invoice.id]} animateOpacity>
-                                                <Box p={4} bg="#000" rounded='lg'>
-                                                    <Text fontWeight="bold" mb={2} color='white'>Produktet e Porosisë:</Text>
-                                                    <Table size="sm" variant="unstyled">
-                                                        <Thead>
-                                                            <Tr>
-                                                                <Th color='white'>Product ID</Th>
-                                                                <Th color='white'>Emri</Th>
-                                                                <Th color='white'>Barkodi</Th>
-                                                                <Th color='white'>Qmimi</Th>
-                                                                <Th color='white'>Tax</Th>
-                                                                <Th color='white'>Sasia</Th>
-                                                                <Th color='white'>Qmimi per njesi</Th>
-                                                                <Th color='white'>Discount %</Th>
-                                                                <Th color='white'>Discount €</Th>
-                                                                <Th color='white'>Totali</Th>
-                                                            </Tr>
-                                                        </Thead>
-                                                        <Tbody>
-                                                            {invoice.products && invoice.products.map((product) => (
-                                                                <Tr key={product.id}>
-                                                                    <Td color='white'>{product.id}</Td>
-                                                                    <Td color='white'>{product.name}</Td>
-                                                                    <Td color='white'>{product.barcode}</Td>
-                                                                    <Td color='white'>{product.price}€</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.tax_rate}</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.quantity}</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.unit_price}</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.discount_percentage}</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.discount_price}€</Td>
-                                                                    <Td color='white'>{product.invoicesProduct.total_value}</Td>
+                                            <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                                <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} size='sm' ml={2}
+                                                    onClick={() => toggleInvoiceDetails(invoice.id)}
+                                                >
+                                                    Detajet {expandedInvoices[invoice.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                                </Button>
+                                            </Td>
+                                        </Tr>
+                                        <Tr>
+                                            <Td colSpan={6} p={0} border='0'>
+                                                <Collapse in={expandedInvoices[invoice.id]} animateOpacity>
+                                                    <Box p={4} bg="transparent" rounded='lg'>
+                                                        <Text fontWeight="bold" mb={2} color='gray.300'>Produktet e Porosisë:</Text>
+                                                        <Table size="sm" variant="unstyled">
+                                                            <Thead border='0'>
+                                                                <Tr border='0'>
+                                                                    <Th color='gray.300' border='0'>Product ID</Th>
+                                                                    <Th color='gray.300' border='0'>Emri</Th>
+                                                                    <Th color='gray.300' border='0'>Barkodi</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi</Th>
+                                                                    <Th color='gray.300' border='0'>Tax</Th>
+                                                                    <Th color='gray.300' border='0'>Sasia</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi per njesi</Th>
+                                                                    <Th color='gray.300' border='0'>Discount %</Th>
+                                                                    <Th color='gray.300' border='0'>Discount €</Th>
+                                                                    <Th color='gray.300' border='0'>Totali</Th>
                                                                 </Tr>
-                                                            ))}
-                                                        </Tbody>
+                                                            </Thead>
+                                                            <Tbody>
+                                                                {invoice.products && invoice.products.map((product) => (
+                                                                    <Tr key={product.id}>
+                                                                        <Td color='gray.300' border='0'>{product.id}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.name}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.barcode}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.price}€</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.tax_rate}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.quantity}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.unit_price}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.discount_percentage}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.discount_price}€</Td>
+                                                                        <Td color='gray.300' border='0'>{product.invoicesProduct.total_value}</Td>
+                                                                    </Tr>
+                                                                ))}
+                                                            </Tbody>
 
-                                                    </Table>
+                                                        </Table>
 
-                                                    <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text>
+                                                        <Text fontWeight="bold" mb={2} color='gray.300' border='0'>Faturimi</Text>
 
-                                                    <Table size="sm" variant="unstyled">
-                                                        <Thead>
-                                                            <Tr>
-                                                                <Th color='white'>Porosia ID</Th>
-                                                                <Th color='white'>Fatura ID</Th>
-                                                                <Th color='white'>Qmimi total</Th>
-                                                                <Th color='white'>Taksa</Th>
-                                                                <Th color='white'>Menyra e pageses</Th>
-                                                                <Th color='white'>Data</Th>
-                                                            </Tr>
-                                                        </Thead>
-                                                        <Tbody>
-                                                            <Tr>
-                                                                <Th color='white'>{invoice.order_id}</Th>
-                                                                <Th color='white'>{invoice.id}</Th>
-                                                                <Th color='white'>{invoice.total_amount}</Th>
-                                                                <Th color='white'>{invoice.tax_amount}</Th>
-                                                                <Th color='white'>{invoice.payment_mode}</Th>
-                                                                <Th color='white'>{invoice.created_at}</Th>
-                                                            </Tr>
-                                                        </Tbody>
-                                                        <br />
+                                                        <Table size="sm" variant="unstyled">
+                                                            <Thead>
+                                                                <Tr>
+                                                                    <Th color='gray.300' border='0'>Porosia ID</Th>
+                                                                    <Th color='gray.300' border='0'>Fatura ID</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi total</Th>
+                                                                    <Th color='gray.300' border='0'>Taksa</Th>
+                                                                    <Th color='gray.300' border='0'>Menyra e pageses</Th>
+                                                                    <Th color='gray.300' border='0'>Data</Th>
+                                                                </Tr>
+                                                            </Thead>
+                                                            <Tbody>
+                                                                <Tr>
+                                                                    <Th color='gray.300' border='0'>{invoice.order_id}</Th>
+                                                                    <Th color='gray.300' border='0'>{invoice.id}</Th>
+                                                                    <Th color='gray.300' border='0'>{invoice.total_amount}</Th>
+                                                                    <Th color='gray.300' border='0'>{invoice.tax_amount}</Th>
+                                                                    <Th color='gray.300' border='0'>{invoice.payment_mode}</Th>
+                                                                    <Th color='gray.300' border='0'>{invoice.created_at}</Th>
+                                                                </Tr>
+                                                            </Tbody>
+                                                            <br />
 
-                                                        <Button
-                                                            bg='white'
-                                                            color='black'
-                                                            _hover={{ bg: 'gray.300' }}
-                                                            size='sm'
-                                                            onClick={() => handleFetchInvoiceById(invoice.id)}
-                                                        >
-                                                            Printo faturen me ID: {invoice.id}
-                                                        </Button>
+                                                            <Button
+                                                                size='sm'
+                                                                bg='#579DFF'
+                                                                color='black'
+                                                                _hover={{ bg: '#579DFF' }}
+                                                                onClick={() => handleFetchInvoiceById(invoice.id)}
+                                                            >
+                                                                Printo faturen me ID: {invoice.id}
+                                                            </Button>
 
-                                                    </Table>
+                                                        </Table>
 
 
-                                              
-                                                </Box>
-                                            </Collapse>
-                                        </Td>
-                                    </Tr>
-                                </React.Fragment>
-                            ))}
-                        </Tbody>
-                    </Table>
+
+                                                    </Box>
+                                                </Collapse>
+                                            </Td>
+                                        </Tr>
+                                    </React.Fragment>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
                 )}
 
                 <Stack direction='row' spacing={4} mt={4}>
@@ -449,20 +543,20 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
@@ -485,8 +579,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -515,6 +610,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -532,7 +628,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -555,8 +651,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -566,11 +662,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

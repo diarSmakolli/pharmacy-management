@@ -68,7 +68,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronUpIcon, EditIcon } from '@chakra-ui/icons';
 
 
 // v2 
@@ -89,8 +89,8 @@ export default function SidebarWithHeader({ children }) {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchedProducts, setSearchedProducts] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [totalBeforeDiscount, setTotalBeforeDiscount] = useState(0);  // Total price before discount
-    const [totalDiscountSaved, setTotalDiscountSaved] = useState(0);    // Amount saved from discounts
+    const [totalBeforeDiscount, setTotalBeforeDiscount] = useState(0);  
+    const [totalDiscountSaved, setTotalDiscountSaved] = useState(0);    
     const [total, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
@@ -385,7 +385,7 @@ export default function SidebarWithHeader({ children }) {
     };
 
     return (
-        <Box minH="100vh" bg='#17191e'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -408,161 +408,49 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='white' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Porositë
                 </Text>
 
                 <Button
-                    bg='#242731'
-                    border='1px solid #30393d'
-                    rounded='md'
-                    color='white'
-                    _hover={{ bg: '#242731' }} onClick={() => setIsAddOrderModalOpen(true)} mt={4}>
+                    size='sm'
+                    bg='#579DFF'
+                    color='black'
+                    _hover={{ bg: '#579DFF' }} onClick={() => setIsAddOrderModalOpen(true)} mt={4}>
                     Shto një porosi
                 </Button>
 
-                {/* <SimpleGrid columns={3} spacing={1} direction='row'>
 
-                    <Box>
-                        <FormLabel mt={4} color='white'>Kerko sipas produktit Idse</FormLabel>
-                        <Input
-                            placeholder='Kerko sipas produktit Idse'
-                            value={searchProductId}
-                            onChange={(e) => setSearchProductId(e.target.value)}
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='2xl'
-                            color='white'
-                            _hover={{ bg: '#242731' }}
-                        />
-                    </Box>
-
-                    <Box>
-                        <FormLabel mt={4} color='white'>Kerko sipas Order ID</FormLabel>
-                        <Input
-                            placeholder='Kerko sipas order Idse'
-                            value={searchOrderId}
-                            onChange={(e) => setSearchOrderId(e.target.value)}
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='2xl'
-                            color='white'
-                            _hover={{ bg: '#242731' }}
-                        />
-                    </Box>
-
-                    <Box>
-                        <Stack direction='row'>
-                            <Box>
-                                <FormLabel mt={4} color='white'>Minimumi totalit</FormLabel>
-                                <Input
-                                    placeholder='Minimumit te shumes totale'
-                                    value={searchMinTotal}
-                                    onChange={(e) => setSearchMinTotal(e.target.value)}
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='2xl'
-                                    color='white'
-                                    _hover={{ bg: '#242731' }}
-                                />
-                            </Box>
-                            <Box>
-                                <FormLabel mt={4} color='white'>Maksimumi totalit</FormLabel>
-                                <Input
-                                    placeholder='Maksimumit te shumes totale'
-                                    value={searchMaxTotal}
-                                    onChange={(e) => setSearchMaxTotal(e.target.value)}
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='2xl'
-                                    color='white'
-                                    _hover={{ bg: '#242731' }}
-                                />
-                            </Box>
-
-                        </Stack>
-                    </Box>
-
-                    <Box>
-                        <Stack direction='row'>
-                            <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Nga data</FormLabel>
-                                <Input
-                                    placeholder='Nga data'
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    type='date'
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='2xl'
-                                    color='white'
-                                    _hover={{ bg: '#242731' }}
-                                />
-                            </Box>
-                            <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Deri me daten</FormLabel>
-                                <Input
-                                    placeholder='Deri me daten'
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    type='date'
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='2xl'
-                                    color='white'
-                                    _hover={{ bg: '#242731' }}
-                                />
-                            </Box>
-
-
-                        </Stack>
-                    </Box>
-
-                    <Box>
-                        <Button
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='2xl'
-                            color='white'
-                            _hover={{ bg: '#242731' }}
-                            onClick={fetchOrders}
-                            direction='row'
-                            mt={12}
-                        >
-                            Kërko
-                        </Button>
-                    </Box>
-
-
-
-                </SimpleGrid> */}
 
                 <SimpleGrid columns={6} spacing='5' direction='row'>
                     <Box>
-                        <FormLabel mt={4} color='white'>Kerko sipas produkt ID</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kerko me produkt ID</FormLabel>
                         <Input
                             placeholder='Kerko sipas produktit Idse'
                             value={searchProductId}
                             onChange={(e) => setSearchProductId(e.target.value)}
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='md'
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            p={4}
+                            _hover={{ border: '1px solid #7A869A' }}
                             color='white'
-                            _hover={{ bg: '#242731' }}
                         />
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4} color='white'>Kerko sipas Order ID</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kerko me order ID</FormLabel>
                         <Input
                             placeholder='Kerko sipas order Idse'
                             value={searchOrderId}
                             onChange={(e) => setSearchOrderId(e.target.value)}
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='md'
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
                             color='white'
-                            _hover={{ bg: '#242731' }}
+                            _hover={{ border: '1px solid #7A869A' }}
                         />
                     </Box>
                 </SimpleGrid>
@@ -571,29 +459,31 @@ export default function SidebarWithHeader({ children }) {
                     <Box>
                         <Stack direction='row'>
                             <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Minimumi totalit</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Minimumi totalit</FormLabel>
                                 <Input
                                     placeholder='Shkruaj minimumin'
                                     value={searchMinTotal}
                                     onChange={(e) => setSearchMinTotal(e.target.value)}
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='md'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
                                     color='white'
-                                    _hover={{ bg: '#242731' }}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </Box>
                             <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Maksimumi totalit</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Maksimumi totalit</FormLabel>
                                 <Input
                                     placeholder='Shkruaj maksimumin'
                                     value={searchMaxTotal}
                                     onChange={(e) => setSearchMaxTotal(e.target.value)}
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='md'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
                                     color='white'
-                                    _hover={{ bg: '#242731' }}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </Box>
 
@@ -603,31 +493,33 @@ export default function SidebarWithHeader({ children }) {
                     <Box>
                         <Stack direction='row'>
                             <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Nga data</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Nga data</FormLabel>
                                 <Input
                                     placeholder='Nga data'
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
                                     type='date'
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='md'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
                                     color='white'
-                                    _hover={{ bg: '#242731' }}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </Box>
                             <Box w='50%'>
-                                <FormLabel mt={4} color='white'>Deri me daten</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Deri me daten</FormLabel>
                                 <Input
                                     placeholder='Deri me daten'
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
                                     type='date'
-                                    bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='md'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
                                     color='white'
-                                    _hover={{ bg: '#242731' }}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </Box>
 
@@ -635,17 +527,15 @@ export default function SidebarWithHeader({ children }) {
                         </Stack>
                     </Box>
 
-                    <Box>
+                    <Box mt={1}>
                         <Button
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='md'
-                            color='white'
-                            _hover={{ bg: '#242731' }}
+                            bg='#A1BDD914'
+                            color='gray.300'
+                            _hover={{ bg: '#A1BDD914' }}
                             onClick={fetchOrders}
                             direction='row'
-                            mt={12}
-                            w='30%'
+                            mt={10}
+                            size='sm'
                         >
                             Kërko
                         </Button>
@@ -658,121 +548,120 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple" border='0'>
-                        <Thead border='0'>
-                            <Tr border='0'>
-                                <Th border='0'>Porosia ID</Th>
-                                <Th border='0'>Krijuar më</Th>
-                                <Th border='0'>Qmimi total</Th>
-                                <Th border='0'>Nr. Produkteve</Th>
-                                <Th border='0'>Fatura ID</Th>
-                                <Th border='0'>Detajet e Produkteve</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody border='0'>
-                            {orders.map((order) => (
-                                <React.Fragment key={order.id}>
-                                    <Tr border='0'>
-                                        <Td border='0' color='white'>{order.id}</Td>
-                                        <Td border='0' color='white'>{new Date(order.created_at).toLocaleDateString()}</Td>
-                                        <Td border='0' color='white'>{order && typeof order.total_amount === 'number' && order.total_amount != null
-                                            ? order.total_amount.toFixed(2) : '0.00'}€</Td>
-                                        <Td border='0' color='white'>{order.products ? order.products.length : 0}</Td>
-                                        <Td border='0' color='white'>{order.invoice ? order.invoice.id : 'N/A'}</Td>
-                                        <Td border='0' color='white'>
-                                            {/* <IconButton
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Porosia ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Krijuar më</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Qmimi total</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Nr. Produkteve</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Fatura ID</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5} >Detajet e porosise</Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody border='0'>
+                                {orders.map((order) => (
+                                    <React.Fragment key={order.id}>
+                                        <Tr>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{order.id}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{new Date(order.created_at).toLocaleDateString()}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{order && typeof order.total_amount === 'number' && order.total_amount != null
+                                                ? order.total_amount.toFixed(2) : '0.00'}€</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{order.products ? order.products.length : 0}</Td>
+                                            <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{order.invoice ? order.invoice.id : 'N/A'}</Td>
+                                            <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                                {/* <IconButton
                                                 icon={expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
                                                 onClick={() => toggleOrderDetails(order.id)}
                                                 size="sm"
                                             /> */}
-                                            <Button bg='#242731'
-                                                border='1px solid #30393d'
-                                                rounded='2xl'
-                                                color='white'
-                                                _hover={{ bg: '#242731' }} size='sm' ml={2}
-                                                onClick={() => toggleOrderDetails(order.id)}
-                                            >
-                                                Detajet {expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                                            </Button>
-                                        </Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td colSpan={6} p={0} border='0'>
-                                            <Collapse in={expandedOrders[order.id]} animateOpacity>
-                                                <Box p={4} bg='#242731' rounded='lg'>
-                                                    <Text fontWeight="bold" mb={2} color='white'>Produktet e Porosisë:</Text>
-                                                    <Table size="sm" variant="unstyled" border='0'>
-                                                        <Thead border='0'>
-                                                            <Tr border='0'>
-                                                                <Th color='white' border='0'>Product ID</Th>
-                                                                <Th color='white' border='0'>Emri</Th>
-                                                                <Th color='white' border='0'>Barkodi</Th>
-                                                                <Th color='white' border='0'>Qmimi</Th>
-                                                                <Th color='white' border='0'>Partner</Th>
-                                                                <Th color='white' border='0'>Category</Th>
-                                                                <Th color='white' border='0'>Tax</Th>
-                                                                <Th color='white' border='0'>Sasia</Th>
-                                                                <Th color='white' border='0'>Qmimi për Njësi</Th>
-                                                            </Tr>
-                                                        </Thead>
-                                                        <Tbody border='0'>
-                                                            {order.products && order.products.map((product) => (
-                                                                <Tr key={product.id}>
-                                                                    <Td color='white' border='0'>{product.id}</Td>
-                                                                    <Td color='white' border='0'>{product.name}</Td>
-                                                                    <Td color='white' border='0'>{product.barcode}</Td>
-                                                                    <Td color='white' border='0'>{product && typeof product.price === 'number' && product.price != null
-                                                                        ? product.price.toFixed(2) : '0.00'}€</Td>
-                                                                    <Td color='white' border='0'>{product.partner ? product.partner.name : 'N/A'}</Td>
-                                                                    <Td color='white' border='0'>{product.category ? product.category.name : 'N/A'}</Td>
-                                                                    <Td color='white' border='0'>{product.tax ? product.tax.name : 'N/A'}</Td>
-                                                                    <Td color='white' border='0'>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
-                                                                    {/* <Td color='white'>{product.order_details ? product.order_details.unitPrice.toFixed(2) : 'N/A'}</Td> */}
-                                                                    <Td color='white' border='0'>{product.order_details && typeof product.order_details.unitPrice === 'number' && product.order_details.unitPrice != null
-                                                                        ? product.order_details.unitPrice.toFixed(2) : '0.00'}€</Td>
+                                                <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                    size='sm' ml={2}
+                                                    onClick={() => toggleOrderDetails(order.id)}
+                                                >
+                                                    Details {expandedOrders[order.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                                                </Button>
+                                            </Td>
+                                        </Tr>
+                                        <Tr>
+                                            <Td colSpan={6} p={0} border='0'>
+                                                <Collapse in={expandedOrders[order.id]} animateOpacity>
+                                                    <Box p={4} bg='transparent' rounded='lg'>
+                                                        <Text fontWeight="bold" mb={2} color='gray.300'>Produktet e Porosisë:</Text>
+                                                        <Table size="sm" variant="unstyled" border='0'>
+                                                            <Thead border='0'>
+                                                                <Tr border='0'>
+                                                                    <Th color='gray.300' border='0'>Product ID</Th>
+                                                                    <Th color='gray.300' border='0'>Emri</Th>
+                                                                    <Th color='gray.300' border='0'>Barkodi</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi</Th>
+                                                                    <Th color='gray.300' border='0'>Partner</Th>
+                                                                    <Th color='gray.300' border='0'>Category</Th>
+                                                                    <Th color='gray.300' border='0'>Tax</Th>
+                                                                    <Th color='gray.300' border='0'>Sasia</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi për Njësi</Th>
                                                                 </Tr>
-                                                            ))}
-                                                        </Tbody>
+                                                            </Thead>
+                                                            <Tbody border='0'>
+                                                                {order.products && order.products.map((product) => (
+                                                                    <Tr key={product.id}>
+                                                                        <Td color='gray.300' border='0'>{product.id}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.name}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.barcode}</Td>
+                                                                        <Td color='gray.300' border='0'>{product && typeof product.price === 'number' && product.price != null
+                                                                            ? product.price.toFixed(2) : '0.00'}€</Td>
+                                                                        <Td color='gray.300' border='0'>{product.partner ? product.partner.name : 'N/A'}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.category ? product.category.name : 'N/A'}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.tax ? product.tax.name : 'N/A'}</Td>
+                                                                        <Td color='gray.300' border='0'>{product.order_details ? product.order_details.quantity : 'N/A'}</Td>
+                                                                        {/* <Td color='white'>{product.order_details ? product.order_details.unitPrice.toFixed(2) : 'N/A'}</Td> */}
+                                                                        <Td color='gray.300' border='0'>{product.order_details && typeof product.order_details.unitPrice === 'number' && product.order_details.unitPrice != null
+                                                                            ? product.order_details.unitPrice.toFixed(2) : '0.00'}€</Td>
+                                                                    </Tr>
+                                                                ))}
+                                                            </Tbody>
 
-                                                    </Table>
+                                                        </Table>
 
 
-                                                    <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text>
+                                                        <Text fontWeight="bold" mb={2} color='white'>Faturimi</Text>
 
-                                                    <Table size="sm" variant="unstyled">
-                                                        <Thead>
-                                                            <Tr>
-                                                                <Th color='white' border='0'>Porosia ID</Th>
-                                                                <Th color='white' border='0'>Data</Th>
-                                                                <Th color='white' border='0'>Qmimi total</Th>
-                                                                <Th color='white' border='0'>Qmimi TVSH</Th>
-                                                                <Th color='white' border='0'>Fatura ID</Th>
-                                                            </Tr>
-                                                        </Thead>
-                                                        <Tbody>
-                                                            <Tr>
-                                                                <Th color='white' border='0'>{order.id}</Th>
-                                                                <Th color='white' border='0'>{order.created_at}</Th>
-                                                                <Td color='white' border='0'>{order && typeof order.total_amount === 'number' && order.total_amount != null
-                                                                    ? order.total_amount.toFixed(2) : '0.00'}€</Td>
-                                                                <Td color='white' border='0'>{order.invoice && typeof order.invoice.tax_amount === 'number' && order.invoice.tax_amount != null
-                                                                    ? order.invoice.tax_amount.toFixed(2) : '0.00'}€</Td>
-                                                                <Th color='white' border='0'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
-                                                            </Tr>
-                                                        </Tbody>
-                                                        <br />
-                                                        <Text fontWeight="bold" mb={2} color='white'>
-                                                            Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
-                                                        </Text>
-                                                    </Table>
-                                                </Box>
-                                            </Collapse>
-                                        </Td>
-                                    </Tr>
-                                </React.Fragment>
-                            ))}
-                        </Tbody>
-                    </Table>
+                                                        <Table size="sm" variant="unstyled">
+                                                            <Thead>
+                                                                <Tr>
+                                                                    <Th color='gray.300' border='0'>Porosia ID</Th>
+                                                                    <Th color='gray.300' border='0'>Data</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi total</Th>
+                                                                    <Th color='gray.300' border='0'>Qmimi TVSH</Th>
+                                                                    <Th color='gray.300' border='0'>Fatura ID</Th>
+                                                                </Tr>
+                                                            </Thead>
+                                                            <Tbody>
+                                                                <Tr>
+                                                                    <Th color='gray.300' border='0'>{order.id}</Th>
+                                                                    <Th color='gray.300' border='0'>{order.created_at}</Th>
+                                                                    <Td color='gray.300' border='0'>{order && typeof order.total_amount === 'number' && order.total_amount != null
+                                                                        ? order.total_amount.toFixed(2) : '0.00'}€</Td>
+                                                                    <Td color='gray.300' border='0'>{order.invoice && typeof order.invoice.tax_amount === 'number' && order.invoice.tax_amount != null
+                                                                        ? order.invoice.tax_amount.toFixed(2) : '0.00'}€</Td>
+                                                                    <Th color='gray.300' border='0'>{order.invoice ? order.invoice.id : 'N/A'}</Th>
+                                                                </Tr>
+                                                            </Tbody>
+                                                            <br />
+                                                            <Text fontWeight="bold" mb={2} color='gray.300'>
+                                                                Per detaje me te plota mund ta gjeni faturen e gjeneruar me ID: {order.invoice ? order.invoice.id : 'N/A'}
+                                                            </Text>
+                                                        </Table>
+                                                    </Box>
+                                                </Collapse>
+                                            </Td>
+                                        </Tr>
+                                    </React.Fragment>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
                 )}
 
 
@@ -787,7 +676,7 @@ export default function SidebarWithHeader({ children }) {
                     </Button>
                     {Array.from({ length: totalPages }, (_, index) => (
                         <Button
-                            bg={index + 1 === page ? '#242731' : 'white'}
+                            bg={index + 1 === page ? 'black' : 'white'}
                             color={index + 1 === page ? 'white' : 'black'}
                             _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
                             size='sm'
@@ -814,89 +703,120 @@ export default function SidebarWithHeader({ children }) {
 
 
             {/* v3 */}
-            {/* <Modal isOpen={isAddOrderModalOpen} onClose={() => setIsAddOrderModalOpen(false)} size='4xl' rounded='3xl'>
+            <Modal isOpen={isAddOrderModalOpen} onClose={() => setIsAddOrderModalOpen(false)} size='4xl'>
                 <ModalOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
-                <ModalContent bg={'#242731'} rounded='3xl'>
-                    <ModalHeader>Shto një porosi të re</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Shto një porosi të re</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
                         {products.map((product, index) => (
                             <Box key={index} mb={4}>
-                                <FormControl>
-                                    <FormLabel>Kerko produktin</FormLabel>
-                                    <Input
-                                        value={searchKeyword}
-                                        onChange={handleSearchChange}
-                                        placeholder="Kërko produktin..."
-                                        mt={2}
-                                    />
-                                    {searchedProducts.length > 0 && (
-                                        <Box border="1px solid gray" bg="white" mt={1}>
-                                            {searchedProducts.map((searchedProduct) => (
-                                                <Box key={searchedProduct.id} p={2} cursor="pointer" onClick={() => handleSelectProduct(index, searchedProduct)}>
-                                                    {searchedProduct.name} (ID: {searchedProduct.id}) Qmimi: {searchedProduct.price}
-                                                </Box>
-                                            ))}
-                                        </Box>
-                                    )}
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>Produkti</FormLabel>
-                                    <Input
-                                        value={product.productId} // Use productId for the input
-                                        onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
-                                        placeholder="Shkruaj ID-në e produktit"
-                                    />
+                                <SimpleGrid columns={2} spacing='2'>
+                                    <FormControl>
+                                        <FormLabel color='gray.300'>Kerko produktin</FormLabel>
+                                        <Input
+                                            value={searchKeyword}
+                                            onChange={handleSearchChange}
+                                            placeholder="Kërko produktin..."
+                                            bg='#22272B'
+                                            border='1px solid #7A869A'
+                                            rounded='3px'
+                                            _hover={{ border: '1px solid #7A869A' }}
+                                            color='gray.300'
+                                            w='100%'
+                                        />
+                                        {searchedProducts.length > 0 && (
+                                            <Box border="1px solid gray" bg="transparent" mt={1} color='gray.300'>
+                                                {searchedProducts.map((searchedProduct) => (
+                                                    <Box key={searchedProduct.id} p={2} cursor="pointer" onClick={() => handleSelectProduct(index, searchedProduct)}>
+                                                        {searchedProduct.name} (ID: {searchedProduct.id}) Qmimi: {searchedProduct.price}
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        )}
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel color='gray.300'>Produkti</FormLabel>
+                                        <Input
+                                            value={product.productId} // Use productId for the input
+                                            onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
+                                            placeholder="Shkruaj ID-në e produktit"
+                                            bg='#22272B'
+                                            border='1px solid #7A869A'
+                                            rounded='3px'
+                                            _hover={{ border: '1px solid #7A869A' }}
+                                            color='gray.300'
+                                            w='100%'
+                                        />
 
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>Sasia</FormLabel>
-                                    <Input
-                                        type="number"
-                                        value={product.quantity}
-                                        onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                                        placeholder="Shkruaj sasinë"
-                                    />
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>Discount</FormLabel>
-                                    <Input
-                                        type="number"
-                                        value={product.discount}
-                                        onChange={(e) => handleProductChange(index, 'discount', e.target.value)}
-                                        placeholder="Shkruaj discount-in"
-                                    />
-                                </FormControl>
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel color='gray.300'>Sasia</FormLabel>
+                                        <Input
+                                            type="number"
+                                            value={product.quantity}
+                                            onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                                            placeholder="Shkruaj sasinë"
+                                            bg='#22272B'
+                                            border='1px solid #7A869A'
+                                            rounded='3px'
+                                            _hover={{ border: '1px solid #7A869A' }}
+                                            color='gray.300'
+                                            w='100%'
+                                        />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel color='gray.300'>Discount</FormLabel>
+                                        <Input
+                                            type="number"
+                                            value={product.discount}
+                                            onChange={(e) => handleProductChange(index, 'discount', e.target.value)}
+                                            placeholder="Shkruaj discount-in"
+                                            bg='#22272B'
+                                            border='1px solid #7A869A'
+                                            rounded='3px'
+                                            _hover={{ border: '1px solid #7A869A' }}
+                                            color='gray.300'
+                                            w='100%'
+                                        />
+                                    </FormControl>
+                                </SimpleGrid>
                             </Box>
                         ))}
-                        <Button onClick={addProductField} bg='black' color='white' _hover={{ bg: 'black' }} mb={4}>Shto produkt tjetër</Button>
+                        <Button onClick={addProductField} bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} mb={4}>Shto produkt tjetër</Button>
 
                         <FormControl>
-                            <FormLabel>Discount i përgjithshëm</FormLabel>
+                            <FormLabel color='gray.300'>Discount i përgjithshëm</FormLabel>
                             <Input
                                 type="number"
                                 value={overallDiscount}
                                 onChange={(e) => setOverallDiscount(e.target.value)}
                                 placeholder="Shkruaj discount-in e përgjithshëm"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A' }}
+                                color='gray.300'
+                                w='50%'
                             />
                         </FormControl>
 
 
-                        <Text mt={5} fontWeight={'bold'}>
+                        <Text mt={5} fontWeight={'bold'} color='gray.300'>
                             Çmimi total pa zbritje: {' '}
                             {totalBeforeDiscount && typeof totalBeforeDiscount == 'number' && totalBeforeDiscount != null
                                 ? totalBeforeDiscount.toFixed(2) : '0.00'} EUR
                             EUR
                         </Text>
 
-                        <Text mt={5} fontWeight={'bold'}>
+                        <Text mt={5} fontWeight={'bold'} color='gray.300'>
                             Çmimi total me zbritje: {' '}
                             {totalPrice && typeof totalPrice == 'number' && totalPrice != null
                                 ? totalPrice.toFixed(2) : '0.00'} EUR
 
                         </Text>
 
-                        <Text mt={5} fontWeight={'bold'}>
+                        <Text mt={5} fontWeight={'bold'} color='gray.300'>
                             Shuma e kursyer nga zbritjet: {' '}
                             {totalDiscountSaved && typeof totalDiscountSaved == 'number' && totalDiscountSaved != null
                                 ? totalDiscountSaved.toFixed(2) : '0.00'}
@@ -905,14 +825,14 @@ export default function SidebarWithHeader({ children }) {
 
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={createOrder} bg='black' color='white' _hover={{ bg: 'black' }} isLoading={isLoading}>Shto</Button>
-                        <Button onClick={() => setIsAddOrderModalOpen(false)} bg='black' color='white' _hover={{ bg: 'black' }} ml={3}>Anulo</Button>
+                        <Button onClick={createOrder} bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} isLoading={isLoading}>Shto</Button>
+                        <Button onClick={() => setIsAddOrderModalOpen(false)} bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} ml={3}>Anulo</Button>
                     </ModalFooter>
                 </ModalContent>
-            </Modal> */}
+            </Modal>
 
             {/* v4 */}
-            <Drawer
+            {/* <Drawer
                 placement='right'
                 isOpen={isAddOrderModalOpen} onClose={() => setIsAddOrderModalOpen(false)}
                 size='xl'
@@ -1044,7 +964,7 @@ export default function SidebarWithHeader({ children }) {
                         <Button w='50%'onClick={() => setIsAddOrderModalOpen(false)}  bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} ml={3}>Anulo</Button>
                     </DrawerFooter>
                 </DrawerContent>
-            </Drawer>
+            </Drawer> */}
 
 
         </Box >

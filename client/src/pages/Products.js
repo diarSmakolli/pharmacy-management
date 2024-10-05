@@ -45,6 +45,7 @@ import {
     FormControl,
     FormLabel,
     Stack,
+    TableContainer,
 } from '@chakra-ui/react';
 import {
     FiHome,
@@ -56,6 +57,7 @@ import {
     FiBell,
     FiChevronDown,
 } from 'react-icons/fi';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { IconType } from 'react-icons';
 import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
@@ -284,7 +286,7 @@ export default function SidebarWithHeader({ children }) {
             //     isClosable: true,
             // });
 
-            console.log("Taxes: ", response.data.data); 
+            console.log("Taxes: ", response.data.data);
         } catch (error) {
             console.log(error);
             toast({
@@ -373,7 +375,7 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='#95a7bd'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -395,14 +397,15 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Produktet
                 </Text>
 
                 <Button
-                    bg='#0176d3'
-                    color='white'
-                    _hover={{ bg: '#0176d3' }}
+                    size='sm'
+                    bg='#579DFF'
+                    color='black'
+                    _hover={{ bg: '#579DFF' }}
                     onClick={() => setIsAddModalOpen(true)}
                     mt={4}>
                     Shto një produkt
@@ -411,25 +414,36 @@ export default function SidebarWithHeader({ children }) {
 
                 <SimpleGrid columns={4} spacing={5} direction='row'>
                     <Box>
-                        <FormLabel mt={4}>Kërko përmes search të avansuar</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko përmes search të avansuar</FormLabel>
                         <Input
-                            placeholder='Kërko produkte permes search te avansuar'
+                            placeholder='Kërko permes search te avansuar'
                             value={search}
                             onChange={handleSearchChange}
                             mt={0}
                             maxW='400px'
-                            bg='#fff'
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            p={4}
+                            _hover={{ border: '1px solid #7A869A' }}
+                            color='white'
                         />
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4}>Selekto kategorinë</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Selekto kategorinë</FormLabel>
                         <Stack direction='row'>
                             <Select
                                 placeholder="Selekto një kategori"
                                 value={categoryId}
                                 onChange={(e) => setCategoryId(e.target.value)} // Update the selected category
-                                bg='#fff'
+                                bg='transparent'
+                                size='sm'
+                                border='1px solid #7A869A'
+                                rounded={'md'}
+                                color='white'
+                                _hover={{ border: '1px solid #7A869A' }}
                             >
                                 {categories.map((category) => (
                                     <option key={category.id} value={category.id}>
@@ -443,12 +457,16 @@ export default function SidebarWithHeader({ children }) {
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4}>Kërko përmes partnerit</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko përmes partnerit</FormLabel>
                         <Select
                             placeholder="Selekto një partner"
                             value={partnerId}
                             onChange={(e) => setPartnerId(e.target.value)} // Update the selected category
-                            bg='#fff'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A' }}
                         >
                             {partners.map((partner) => (
                                 <option key={partner.id} value={partner.id}>
@@ -459,26 +477,31 @@ export default function SidebarWithHeader({ children }) {
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4}>Filtrime tjera</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Filtrime tjera</FormLabel>
                         <Stack direction='row'>
                             <Select
                                 placeholder="Selekto njërën"
                                 value={priceFilter}
                                 onChange={handlePriceChange}
-                                bg='#fff'
+                                size='sm'
+                                border='1px solid #7A869A'
+                                rounded={'md'}
+                                color='white'
+                                _hover={{ border: '1px solid #7A869A' }}
                             >
                                 <option value="asc">Cmimi: I ulët tek i lartë</option>
                                 <option value="desc">Cmimi: I lartë tek i ulët</option>
                             </Select>
 
                             <Button
-                                bg='#0176d3'
-                                color='white'
-                                _hover={{ bg: '#0176d3' }}
+                                bg='#A1BDD914'
+                                color='gray.300'
+                                _hover={{ bg: '#A1BDD914' }}
                                 onClick={fetchProducts}
                                 direction='row'
+                                size='sm'
                             >
-                                Kërko
+                                Kerko
                             </Button>
                         </Stack>
                     </Box>
@@ -491,66 +514,68 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple" minW={'100%'} size={'sm'} mt={5} p={5} bg='#fff' rounded='md'>
-                        <Thead>
-                            <Tr>
-                                <Th>Produkt ID</Th>
-                                <Th>Emri</Th>
-                                <Th>Barkodi</Th>
-                                <Th>Detajet</Th>
-                                <Th>Cmimi</Th>
-                                <Th>Partner</Th>
-                                <Th>Statusi</Th>
-                                <Th>Tax</Th>
-                                <Th>Kategori</Th>
-                                <Th>Stock / sasi</Th>
-                                <Th>Operacione</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {products.map((product) => (
-                                <Tr key={product.id}>
-                                    <Td>{product.id}</Td>
-                                    <Td>{product.name}</Td>
-                                    <Td>{product.barcode}</Td>
-                                    <Td>{product.description}</Td>
-                                    <Td>{product && typeof product.price === 'number' && product.price != null ?
-                                    product.price.toFixed(2) : 'N/A'}€</Td>
-                                    <Td>{product.partner ? product.partner.name : 'N/A'}</Td>
-                                    <Td>{product.status}</Td>
-                                    <Td>{product.tax ? product.tax.rate + "%" : 'N/A'}</Td>
-                                    <Td>{product.category ? product.category.name : 'N/A'}</Td>
-                                    <Td>{product.stock ? product.stock.quantity : 'N/A'}</Td>
-                                    <Td>
-
-                                        <Stack direction='row'>
-                                            <Button
-                                                bg='#0176d3' color='white' _hover={{ bg: 'black' }}
-                                                size='sm'
-                                                onClick={() => {
-                                                    setSelectedProduct(product);  // Set the selected category
-                                                    setIsUpdateModalOpen(true);     // Open the delete modal
-                                                }}
-                                            >
-                                                Përditëso
-                                            </Button>
-                                            <Button
-                                                bg='#0176d3' color='white' _hover={{ bg: 'black' }}
-                                                size='sm'
-                                                onClick={() => {
-                                                    setSelectedProduct(product);  // Set the selected category
-                                                    setIsDeleteModalOpen(true);     // Open the delete modal
-                                                }}
-                                            >
-                                                Fshij
-                                            </Button>
-                                        </Stack>
-
-                                    </Td>
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                        <Table variant="simple" size="sm" pt={2} >
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Id</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Barkodi</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Detajet</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Cmimi</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Partner</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Statusi</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Tax</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Kategori</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Stock</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+                            <Tbody >
+                                {products.map((product) => (
+                                    <Tr key={product.id}>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.id}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.name}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.barcode}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.description}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product && typeof product.price === 'number' && product.price != null ?
+                                            product.price.toFixed(2) : 'N/A'}€</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.partner ? product.partner.name : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.status}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.tax ? product.tax.rate + "%" : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.category ? product.category.name : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{product.stock ? product.stock.quantity : 'N/A'}</Td>
+                                        <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+
+                                            <Stack direction='row'>
+                                                <Button
+                                                    bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                    size='sm'
+                                                    onClick={() => {
+                                                        setSelectedProduct(product);  // Set the selected category
+                                                        setIsUpdateModalOpen(true);     // Open the delete modal
+                                                    }}
+                                                >
+                                                    <EditIcon />
+                                                </Button>
+                                                <Button
+                                                    bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                    size='sm'
+                                                    onClick={() => {
+                                                        setSelectedProduct(product);  // Set the selected category
+                                                        setIsDeleteModalOpen(true);     // Open the delete modal
+                                                    }}
+                                                >
+                                                    <DeleteIcon />
+                                                </Button>
+                                            </Stack>
+
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
                 )}
 
                 <Stack direction='row' spacing={4} mt={4}>
@@ -564,13 +589,13 @@ export default function SidebarWithHeader({ children }) {
                     </Button>
                     {Array.from({ length: totalPages }, (_, index) => (
                         <Button
-                            bg={index + 1 === page ? 'black' : 'white'} 
+                            bg={index + 1 === page ? 'black' : 'white'}
                             color={index + 1 === page ? 'white' : 'black'}
                             _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
                             size='sm'
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
-                            // variant={index + 1 === page ? 'solid' : 'outline'}
+                        // variant={index + 1 === page ? 'solid' : 'outline'}
                         >
                             {index + 1}
                         </Button>
@@ -588,90 +613,144 @@ export default function SidebarWithHeader({ children }) {
             </Box>
 
             {/* Add Product Modal */}
-            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} size='4xl'>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto një produkt të ri</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Shto një produkt të ri</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
-                        <FormControl>
-                            <FormLabel>Emri i produktit</FormLabel>
-                            <Input
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Shkruaj emrin e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Barkodi</FormLabel>
-                            <Input
-                                value={barcode}
-                                onChange={(e) => setBarcode(e.target.value)}
-                                placeholder="Shkruaj barkodin e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Detaje</FormLabel>
-                            <Input
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Shkruaj detajet e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Qmimi</FormLabel>
-                            <Input
-                                value={price}
-                                onChange={(e) => setPrice(e.target.value)}
-                                placeholder="Shkruaj qmimin e produktit"
-                            />
-                        </FormControl>
 
-                        <FormControl mt={4}>
-                            <Select placeholder='Zgjedh partnerin' name="partnerId" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-                                {partners.map((partner) => (
-                                    <option key={partner.id} value={partner.id}>
-                                        ID: {partner.id} - {partner.name}
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <SimpleGrid columns={2} spacing='2'>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Emri i produktit</FormLabel>
+                                <Input
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Shkruaj emrin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Barkodi</FormLabel>
+                                <Input
+                                    value={barcode}
+                                    onChange={(e) => setBarcode(e.target.value)}
+                                    placeholder="Shkruaj barkodin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Detaje</FormLabel>
+                                <Input
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Shkruaj detajet e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Qmimi</FormLabel>
+                                <Input
+                                    value={price}
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    placeholder="Shkruaj qmimin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
 
-                        <FormControl mt={4}>
-                            <Select placeholder='Zgjedh kategorine' name="categoryId" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.id}>
-                                        ID: {category.id} - {category.name}
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Zgjedh partnerin</FormLabel>
+                                <Select placeholder='Zgjedh partnerin' name="partnerId" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'>
+                                    {partners.map((partner) => (
+                                        <option key={partner.id} value={partner.id}>
+                                            ID: {partner.id} - {partner.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        <FormControl mt={4}>
-                            <Select placeholder='Zgjedh taksen' name="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)}>
-                                {taxes.map((tax) => (
-                                    <option key={tax.id} value={tax.id}>
-                                        ID: {tax.id} - {tax.rate}
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Zgjedh kategorine</FormLabel>
+                                <Select placeholder='Zgjedh kategorine' name="categoryId" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'>
+                                    {categories.map((category) => (
+                                        <option key={category.id} value={category.id}>
+                                            ID: {category.id} - {category.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
 
-                        <FormControl>
-                            <FormLabel>Shkruaj sasine e produkteve</FormLabel>
-                            <Input
-                                value={initialStock}
-                                onChange={(e) => setInitialStock(e.target.value)}
-                                placeholder="Shkruaj sasine e produktit"
-                            />
-                        </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Zgjedh taksen</FormLabel>
+                                <Select placeholder='Zgjedh taksen' name="taxId" value={taxId} onChange={(e) => setTaxId(e.target.value)}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'>
+                                    {taxes.map((tax) => (
+                                        <option key={tax.id} value={tax.id}>
+                                            ID: {tax.id} - {tax.rate}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Shkruaj sasine e produkteve</FormLabel>
+                                <Input
+                                    value={initialStock}
+                                    onChange={(e) => setInitialStock(e.target.value)}
+                                    placeholder="Shkruaj sasine e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                        </SimpleGrid>
 
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addProduct}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={addProduct}>
                             Shto
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -679,20 +758,20 @@ export default function SidebarWithHeader({ children }) {
             </Modal>
 
             {/* Delete Product Modal */}
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} size='2xl'>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij produktin</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Fshij produktin</ModalHeader>
+                    <ModalCloseButton color='white' />
+                    <ModalBody color='gray.300'>
                         A jeni të sigurtë që dëshironi ta fshini këtë produkt{' '}
                         <strong>{selectedProduct?.name} me Barcode: {selectedProduct?.barcode}</strong>?
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deleteProduct}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={deleteProduct}>
                             Fshij
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -700,114 +779,158 @@ export default function SidebarWithHeader({ children }) {
             </Modal>
 
             {/* Update modal */}
-            <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)}>
+            <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)} size='4xl'>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Perditeso Produktin</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Perditeso Produktin</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
-                        <FormControl>
-                            <FormLabel>Emri i produktit</FormLabel>
-                            <Input
-                                value={selectedProduct?.name || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    name: e.target.value
-                                })}
-                                placeholder="Shkruaj emrin e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Barkodi</FormLabel>
-                            <Input
-                                value={selectedProduct?.barcode || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    barcode: e.target.value
-                                })}
-                                placeholder="Shkruaj barkodin e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Detaje</FormLabel>
-                            <Input
-                                value={selectedProduct?.description || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    description: e.target.value
-                                })}
-                                placeholder="Shkruaj detajet e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Cmimi</FormLabel>
-                            <Input
-                                value={selectedProduct?.price || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    price: e.target.value
-                                })}
-                                placeholder="Shkruaj cmimin e produktit"
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Partneri</FormLabel>
-                            <Select
-                                value={selectedProduct?.partnerId || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    partnerId: e.target.value
-                                })}
-                                placeholder="Zgjedh partnerin"
-                            >
-                                {partners.map(partner => (
-                                    <option key={partner.id} value={partner.id}>
-                                        {partner.name}
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Kategoria</FormLabel>
-                            <Select
-                                value={selectedProduct?.categoryId || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    categoryId: e.target.value
-                                })}
-                                placeholder="Zgjedh kategorinë"
-                            >
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel>Tax</FormLabel>
-                            <Select
-                                value={selectedProduct?.taxId || ''}
-                                onChange={(e) => setSelectedProduct({
-                                    ...selectedProduct,
-                                    taxId: e.target.value
-                                })}
-                                placeholder="Zgjedh taksën"
-                            >
-                                {taxes.map(tax => (
-                                    <option key={tax.id} value={tax.id}>
-                                        {tax.rate}%
-                                    </option>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <SimpleGrid columns={2} spacing='2'>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Emri i produktit</FormLabel>
+                                <Input
+                                    value={selectedProduct?.name || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        name: e.target.value
+                                    })}
+                                    placeholder="Shkruaj emrin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Barkodi</FormLabel>
+                                <Input
+                                    value={selectedProduct?.barcode || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        barcode: e.target.value
+                                    })}
+                                    placeholder="Shkruaj barkodin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Detaje</FormLabel>
+                                <Input
+                                    value={selectedProduct?.description || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        description: e.target.value
+                                    })}
+                                    placeholder="Shkruaj detajet e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Cmimi</FormLabel>
+                                <Input
+                                    value={selectedProduct?.price || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        price: e.target.value
+                                    })}
+                                    placeholder="Shkruaj cmimin e produktit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Partneri</FormLabel>
+                                <Select
+                                    value={selectedProduct?.partnerId || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        partnerId: e.target.value
+                                    })}
+                                    placeholder="Zgjedh partnerin"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                >
+                                    {partners.map(partner => (
+                                        <option key={partner.id} value={partner.id}>
+                                            {partner.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Kategoria</FormLabel>
+                                <Select
+                                    value={selectedProduct?.categoryId || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        categoryId: e.target.value
+                                    })}
+                                    placeholder="Zgjedh kategorinë"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                >
+                                    {categories.map(category => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Tax</FormLabel>
+                                <Select
+                                    value={selectedProduct?.taxId || ''}
+                                    onChange={(e) => setSelectedProduct({
+                                        ...selectedProduct,
+                                        taxId: e.target.value
+                                    })}
+                                    placeholder="Zgjedh taksën"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                >
+                                    {taxes.map(tax => (
+                                        <option key={tax.id} value={tax.id}>
+                                            {tax.rate}%
+                                        </option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </SimpleGrid>
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} mr={3} onClick={updateProduct}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} mr={3} onClick={updateProduct}>
                             Perditeso Produktin
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsUpdateModalOpen(false)}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsUpdateModalOpen(false)}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -840,26 +963,27 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
         </Box>
     );
 };
+
 
 const NavItem = ({ icon, href, children, ...rest }) => {
     const { user, loading, logout } = useAuth();
@@ -875,8 +999,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -895,6 +1020,7 @@ const NavItem = ({ icon, href, children, ...rest }) => {
     );
 };
 
+
 const MobileNav = ({ onOpen, ...rest }) => {
     const { user, loading, logout } = useAuth();
     return (
@@ -904,6 +1030,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -921,7 +1048,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -944,8 +1071,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -955,11 +1082,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

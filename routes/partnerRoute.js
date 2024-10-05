@@ -193,7 +193,7 @@ router.put('/:id', async (req, res) => {
             })
         }
 
-        await Partner.update({ name, businessNumber, fiscalNumber, commune, address }, { where: { id } });
+        await Partner.update({ name, businessNumber, fiscalNumber, commune, address , phoneNumber, email }, { where: { id } });
 
         return res.status(200).json({
             status: 'success',

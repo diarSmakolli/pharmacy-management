@@ -61,6 +61,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 // const LinkItems = [
 //     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
@@ -107,6 +108,8 @@ export default function SidebarWithHeader({ children }) {
     const [totalPages, setTotalPages] = useState(0);
     const [idFilter, setIdFilter] = useState('desc');
     const [searchPartnerId, setSearchPartnerId] = useState('');
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
 
     const fetchPartners = async () => {
         setIsLoading(true);
@@ -224,27 +227,6 @@ export default function SidebarWithHeader({ children }) {
         }
     };
 
-    // const deleteCategory = async () => {
-    //     try {
-    //         await axios.delete(`http://localhost:6099/api/categories/${selectedCategory.id}`);
-    //         setCategories(categories.filter((category) => category.id !== selectedCategory.id));
-    //         toast({
-    //             title: 'Kategoria u fshi',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setIsDeleteModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në fshirjen e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
     const deletePartner = async () => {
         try {
             await axios.delete(`http://localhost:6099/api/partners/${selectedPartner.id}`);
@@ -265,7 +247,30 @@ export default function SidebarWithHeader({ children }) {
                 isClosable: true,
             });
         }
-    }
+    };
+
+    const updatePartner = async () => {
+        try {
+            await axios.put(`http://localhost:6099/api/partners/${selectedPartner.id}`, {
+                name: selectedPartner.name,
+                businessNumber: selectedPartner.businessNumber,
+                fiscalNumber: selectedPartner.fiscalNumber,
+                commune: selectedPartner.commune,
+                address: selectedPartner.address,
+                phoneNumber: selectedPartner.phoneNumber,
+                email: selectedPartner.email,
+            });
+            toast({
+                title: 'Partneri u përditësua me sukses',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+            setIsUpdateModalOpen(false);
+        } catch(error) {
+            console.log("err: ", error);
+        }
+    } 
 
 
     useEffect(() => {
@@ -279,7 +284,7 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='#17191e'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -301,21 +306,21 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='white' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Partnerët
                 </Text>
 
-                <Button bg='#242731'
-                    border='1px solid #30393d'
-                    rounded='2xl'
-                    color='white'
-                    _hover={{ bg: '#242731' }}onClick={() => setIsAddModalOpen(true)} mt={4}>
+                <Button  size='sm'
+                    bg='#579DFF'
+                    color='black'
+                    _hover={{ bg: '#579DFF' }}
+                    onClick={() => setIsAddModalOpen(true)} mt={4}>
                     Shto një partner
                 </Button>
 
                 <SimpleGrid columns={4} spacing={5} direction='row'>
                     <Box>
-                        <FormLabel mt={4} color='white'>Kërko përmes search të avansuar</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko përmes search të avansuar</FormLabel>
                         <Input
                             placeholder='Kërko përmes search të avansuar'
                             // value={search}
@@ -323,16 +328,17 @@ export default function SidebarWithHeader({ children }) {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             mt={0}
-                            bg='#242731'
-                                    border='1px solid #30393d'
-                                    rounded='md'
-                                    color='white'
-                                    _hover={{ bg: '#242731' }}
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A'}}
                         />
                     </Box>
 
                     <Box>
-                        <FormLabel mt={4} color='white'>Kërko përmes ID</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kërko përmes ID</FormLabel>
                         <Input
                             placeholder='Kërko përmes ID'
                             // value={search}
@@ -341,77 +347,89 @@ export default function SidebarWithHeader({ children }) {
                             onChange={(e) => setSearchPartnerId(e.target.value)}
                             mt={0}
                             maxW='400px'
-                            bg='#242731'
-                            border='1px solid #30393d'
-                            rounded='md'
-                            color='white'
-                            _hover={{ bg: '#242731' }}
+                            bg='transparent'
+                                size='sm'
+                                border='1px solid #7A869A'
+                                rounded={'md'}
+                                color='white'
+                                _hover={{ border: '1px solid #7A869A'}}
                         />
                     </Box>
 
+                    <Box mt={1}>
                     <Button
-                        mt={12}
-                        bg='#242731'
-                        border='1px solid #30393d'
-                        rounded='md'
-                        color='white'
-                        _hover={{ bg: '#242731' }}
+                        mt={10}
+                        bg='#A1BDD914'
+                        color='gray.300'
+                        _hover={{ bg: '#A1BDD914' }}
                         onClick={fetchPartners}
                         direction='row'
+                        size='sm'
+                        w='40%'
                     >
                         Kërko
                     </Button>
+                    </Box>
                 </SimpleGrid>
 
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple" border='0' minW={'100%'} size={'sm'} mt={5} p={5}>
-                        <Thead border='0' >
-                            <Tr border='0' >
-                                <Th border='0'>Partner ID</Th>
-                                <Th border='0'>Numri i biznesit</Th>
-                                <Th border='0'>Numri fiskal</Th>
-                                <Th border='0'>Komuna</Th>
-                                <Th border='0'>Adresa</Th>
-                                <Th border='0'>Numri i telefonit</Th>
-                                <Th border='0'>Email</Th>
-                                <Th border='0'>Status</Th>
-                                <Th border='0'>Operacione</Th>
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                    <Table variant="simple" size="sm" pt={2}>
+                        <Thead >
+                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Partner ID</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i biznesit</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri fiskal</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Komuna</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Adresa</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i telefonit</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Email</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Status</Th>
+                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {partners.map((partner) => (
                                 <Tr key={partner.id}>
-                                    <Td border='0' color='white'>{partner.id}</Td>
-                                    <Td border='0' color='white'>{partner.name}</Td>
-                                    <Td border='0' color='white'>{partner.fiscalNumber}</Td>
-                                    <Td border='0' color='white'>{partner.commune}</Td>
-                                    <Td border='0' color='white'>{partner.address}</Td>
-                                    <Td border='0' color='white'>{partner.phoneNumber}</Td>
-                                    <Td border='0' color='white'>{partner.email}</Td>
-                                    <Td border='0' color='white'>{partner.status}</Td>
-                                    <Td border='0' color='white'>
-                                        <Button
-                                            bg='#242731'
-                                            border='1px solid #30393d'
-                                            rounded='2xl'
-                                            color='white'
-                                            _hover={{ bg: '#242731' }}
-                                            size='sm'
-                                            ml={2}
-                                            onClick={() => {
-                                                setSelectedPartner(partner);  // Set the selected category
-                                                setIsDeleteModalOpen(true);     // Open the delete modal
-                                            }}
-                                        >
-                                            Fshij
-                                        </Button>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.id}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.name}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.fiscalNumber}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.commune}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.address}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.phoneNumber}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.email}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.status}</Td>
+                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                        <Stack direction='row'>
+                                            <Button
+                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedPartner(partner);  // Set the selected category
+                                                    setIsUpdateModalOpen(true);     // Open the delete modal
+                                                }}
+                                            >
+                                                <EditIcon />
+                                            </Button>
+                                            <Button
+                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedPartner(partner);  // Set the selected category
+                                                    setIsDeleteModalOpen(true);     // Open the delete modal
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </Button>
+                                        </Stack>
                                     </Td>
                                 </Tr>
                             ))}
                         </Tbody>
                     </Table>
+                    </Box>
                 )}
 
                 <Stack direction='row' spacing={4} mt={4}>
@@ -449,101 +467,287 @@ export default function SidebarWithHeader({ children }) {
             </Box>
 
             {/* Add Partner Modal */}
-             <Modal size='3xl' isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} size='4xl'>
                 <ModalOverlay />
-                <ModalContent >
-                    <ModalHeader>Shto një partner të ri</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Shto një partner të ri</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
+                        <SimpleGrid columns={2} spacing={'2'}>
                         <FormControl>
-                            <FormLabel>Emri i partnerit</FormLabel>
+                            <FormLabel color='gray.300'>Emri i partnerit</FormLabel>
                             <Input
                                 value={partnerName}
                                 onChange={(e) => setPartnerName(e.target.value)}
                                 placeholder="Shkruaj emrin e partnerit"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel>Numri i biznesit</FormLabel>
+                        <FormControl>
+                            <FormLabel color='gray.300'>Numri i biznesit</FormLabel>
                             <Input
                                 value={businessNumber}
                                 onChange={(e) => setBusinessNumber(e.target.value)}
                                 placeholder="Shkruaj numrin e biznesit"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         <FormControl mt={4}>
-                            <FormLabel>Numri fiskal</FormLabel>
+                            <FormLabel color='gray.300'>Numri fiskal</FormLabel>
                             <Input
                                 value={fiscalNumber}
                                 onChange={(e) => setFiscalNumber(e.target.value)}
                                 placeholder="Shkruaj numrin fiskal"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         <FormControl mt={4}>
-                            <FormLabel>Komuna</FormLabel>
+                            <FormLabel color='gray.300'>Komuna</FormLabel>
                             <Input
                                 value={commune}
                                 onChange={(e) => setCommune(e.target.value)}
                                 placeholder="Shkruaj komunën"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         <FormControl mt={4}>
-                            <FormLabel>Adresa</FormLabel>
+                            <FormLabel color='gray.300'>Adresa</FormLabel>
                             <Input
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
                                 placeholder="Shkruaj adresën"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         <FormControl mt={4}>
-                            <FormLabel>Numri i telefonit</FormLabel>
+                            <FormLabel color='gray.300'>Numri i telefonit</FormLabel>
                             <Input
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 placeholder="Shkruaj numrin e telefonit"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         <FormControl mt={4}>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel color='gray.300'>Email</FormLabel>
                             <Input
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Shkruaj emailin"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                         
-                    
+                    </SimpleGrid>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addPartner}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={addPartner}>
                             Shto
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
-
+            {/* Delete modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij partnerin</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
+                <ModalOverlay  />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Fshij partnerin</ModalHeader>
+                    <ModalCloseButton color='white' />
+                    <ModalBody color='gray.300'>
                         A jeni të sigurtë që dëshironi ta fshini këtë partner{' '}
                         <strong>{selectedPartner?.partnerName}</strong>?
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deletePartner}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={deletePartner}>
                             Fshij
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal> 
+
+            {/* Update modal */}
+            <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)} size='4xl'>
+                <ModalOverlay />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Perditeso Partnerin</ModalHeader>
+                    <ModalCloseButton color='white' />
+                    <ModalBody>
+                        <SimpleGrid columns={2} spacing='2'>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Emri i partnerit</FormLabel>
+                                <Input
+                                    value={selectedPartner?.name || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        partnerName: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Numri i biznesit</FormLabel>
+                                <Input
+                                    value={selectedPartner?.businessNumber || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        businessNumber: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Numri fiskal</FormLabel>
+                                <Input
+                                    value={selectedPartner?.fiscalNumber || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        fiscalNumber: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Komuna</FormLabel>
+                                <Input
+                                    value={selectedPartner?.commune || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        commune: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Adresa</FormLabel>
+                                <Input
+                                    value={selectedPartner?.address || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        address: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Numri i telefonit</FormLabel>
+                                <Input
+                                    value={selectedPartner?.phoneNumber || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        phoneNumber: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel color='gray.300'>Email</FormLabel>
+                                <Input
+                                    value={selectedPartner?.email || ''}
+                                    onChange={(e) => setSelectedPartner({
+                                        ...selectedPartner,
+                                        email: e.target.value
+                                    })}
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A'}}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+
+                        </SimpleGrid>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} mr={3} onClick={updatePartner}>
+                            Perditeso Partnerin
+                        </Button>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsUpdateModalOpen(false)}>
+                            Anulo
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
 
         </Box>
     );

@@ -65,6 +65,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 // const LinkItems = [
 //     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
@@ -179,7 +180,7 @@ export default function SidebarWithHeader({ children }) {
 
 
     return (
-        <Box minH="100vh" bg='#17191e'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -201,17 +202,17 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4" >
                 {children}
 
-                <Text color='white' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Kategoritë
                 </Text>
 
                 <Button
-                    bg='#242731'
-                    border='1px solid #30393d'
-                    rounded='2xl'
-                    color='white'
-                    _hover={{ bg: '#242731' }}
-                    onClick={() => setIsAddModalOpen(true)} mt={4}>
+                    size='sm'
+                    bg='#579DFF'
+                    color='black'
+                    _hover={{ bg: '#579DFF' }}
+                    onClick={() => setIsAddModalOpen(true)} mt={4}
+                    >
                     Shto një kategori
                 </Button>
 
@@ -220,74 +221,71 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple" border='0'>
-                        <Thead border='0'>
-                            <Tr border='0'>
-                                <Th color='gray.400' border='0'>Kategoria ID</Th>
-                                <Th color='gray.400' border='0'>Emri kategorisë</Th>
-                                <Th color='gray.400' border='0'>Operacione</Th>
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                    <Table variant="simple" size="sm" pt={2}>
+                        <Thead>
+                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Kategoria ID</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri kategorisë</Th>
+                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
                             </Tr>
                         </Thead>
-                        <Tbody border='0'>
+                        <Tbody>
                             {categories.map((category) => (
-                                <Tr key={category.id} border='0'>
-                                    <Td color='gray.400' border='0'>{category.id}</Td>
-                                    <Td color='gray.400' border='0'>{category.name}</Td>
-                                    <Td color='gray.400' border='0'>
+                                <Tr key={category.id}>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.id}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.name}</Td>
+                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
                                         <Button
-                                            bg='#242731'
-                                            border='1px solid #30393d'
-                                            rounded='2xl'
-                                            color='white'
-                                            _hover={{ bg: '#242731' }}
-                                            onClick={() => {
-                                                setSelectedCategory(category);  // Set the selected category
-                                                setIsDeleteModalOpen(true);     // Open the delete modal
+                                             bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                             size='sm'
+                                                onClick={() => {
+                                                setSelectedCategory(category);  
+                                                setIsDeleteModalOpen(true);
                                             }}
                                         >
-                                            Fshij
+                                            <DeleteIcon />
                                         </Button>
                                     </Td>
                                 </Tr>
                             ))}
                         </Tbody>
                     </Table>
+                    </Box>
                 )}
 
             </Box>
-            {/* bg={'#242731'} border='1px solid #30393d' */}
 
             {/* Add Category Modal */}
             <Modal
-                bg={'#242731'}
-                border='1px solid #30393d'
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
-                position='right'
             >
                 <ModalOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
-                <ModalContent bg={'#242731'} rounded='2xl'  border='1px solid #30393d' >
-                    <ModalHeader color='gray.200'>Shto një kategori të re</ModalHeader>
+                <ModalContent bg={'#282E33'}>
+                    <ModalHeader color='gray.300'>Shto një kategori të re</ModalHeader>
                     <ModalCloseButton bg='transparent' color='white' />
                     <ModalBody>
                         <FormControl>
-                            <FormLabel color='gray.200'>Emri i kategorisë</FormLabel>
+                            <FormLabel color='gray.300'>Emri i kategorisë</FormLabel>
                             <Input
                                 value={categoryName}
-                                background='gray.900'
-                                color='gray.50'
-                                border='1px solid #30393d'
-                                _hover={{ border: '1px solid #30393d' }}
                                 onChange={(e) => setCategoryName(e.target.value)}
                                 placeholder="Shkruaj emrin e kategorisë"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A' }}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
+                        <Button bg='#A1BDD914'  rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={addCategory}>
                             Shto
                         </Button>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914'  rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -295,54 +293,26 @@ export default function SidebarWithHeader({ children }) {
             </Modal>
 
 
-
-
-            <Modal bg={'#252529'} border='1px solid #30393d' isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+            <Modal bg={'#282E33'}  isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
                 <ModalOverlay  backdropFilter='blur(10px) hue-rotate(90deg)'/>
-                <ModalContent bg={'#252529'} rounded='2xl'>
-                    <ModalHeader color='gray.200'>Fshij kategorinë</ModalHeader>
-                    <ModalCloseButton bg='transparent' color='white' />
-                    <ModalBody color='gray.200'>
+                <ModalContent bg={'#282E33'}>
+                    <ModalHeader color='gray.300'>Fshij kategorinë</ModalHeader>
+                    <ModalCloseButton color='white' />
+                    <ModalBody color='gray.300'>
                         A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
                         <strong>{selectedCategory?.name}</strong>?
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
+                        <Button bg='#A1BDD914'  color='white' _hover={{ bg: '#A1BDD914' }} onClick={deleteCategory}>
                             Fshij
                         </Button>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
 
-            {/* <Drawer
-                placement='right'
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                size='xl'
-            >
-                <DrawerOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
-                <DrawerContent bg={'#252529'} rounded='2xl'>
-                    <DrawerCloseButton bg='transparent' color='white' />
-                    <DrawerHeader color='gray.200'>Fshij kategorinë</DrawerHeader>
-
-                    <DrawerBody color='gray.200'>
-                        A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
-                        <strong>{selectedCategory?.name}</strong>?
-                    </DrawerBody>
-
-                    <DrawerFooter>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
-                            Fshij
-                        </Button>
-                        <Button bg='#17191e' border='2px solid #21272a' rounded='xl' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer> */}
 
         </Box>
     );

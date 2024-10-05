@@ -60,6 +60,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
 import emonalogo from '../images/emona.png';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 
 export default function SidebarWithHeader({ children }) {
@@ -85,6 +86,9 @@ export default function SidebarWithHeader({ children }) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categoryName, setCategoryName] = useState('');
+    const [selectedTax, setSelectedTax] = useState(null);
+    const [name, setName] = useState('');
+    const [rate, setRate] = useState('');
 
     const fetchTaxes = async () => {
         setIsLoading(true);
@@ -107,67 +111,56 @@ export default function SidebarWithHeader({ children }) {
         }
     };
 
-    // const addCategory = async () => {
-    //     if (!categoryName) {
-    //         toast({
-    //             title: 'Emri i kategorisë nuk mund të jetë bosh',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         return;
-    //     }
+    const deleteTaxes = async() => {
+        try {
+            await axios.delete(`http://localhost:6099/api/taxes/${selectedTax.id}`);
+            setCategories(taxes.filter((tax) => tax.id !== selectedTax.id));
+            toast({
+                title: 'Taksa u fshi',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+            setIsDeleteModalOpen(false);
+        } catch (error) {
+            toast({
+                title: 'Error në fshirjen e takses',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    };
 
-    //     try {
-    //         const response = await axios.post('http://localhost:6099/api/categories', { name: categoryName });
-    //         setCategories([...categories, response.data]);
-    //         toast({
-    //             title: 'Kategoria u shtua me sukses',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setCategoryName('');
-    //         setIsAddModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në shtimin e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
-    // const deleteCategory = async () => {
-    //     try {
-    //         await axios.delete(`http://localhost:6099/api/categories/${selectedCategory.id}`);
-    //         setCategories(categories.filter((category) => category.id !== selectedCategory.id));
-    //         toast({
-    //             title: 'Kategoria u fshi',
-    //             status: 'success',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //         setIsDeleteModalOpen(false);
-    //     } catch (error) {
-    //         toast({
-    //             title: 'Error në fshirjen e kategorisë',
-    //             status: 'error',
-    //             duration: 3000,
-    //             isClosable: true,
-    //         });
-    //     }
-    // };
-
+    const addTax = async () => {
+        try {
+            const response = await axios.post('http://localhost:6099/api/taxes', 
+            { name: name, rate: rate });
+            setTaxes([...taxes, response.data]);
+            toast({
+                title: 'Taksa u shtua me sukses',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+            setName('');
+            setRate('');
+            setIsAddModalOpen(false);
+        } catch (error) {
+            toast({
+                title: 'Error në shtimin e takses',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    };
 
     useEffect(() => {
         fetchTaxes();
     }, []);
-
-
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -189,97 +182,100 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Ratat e taksave (TVSH)
                 </Text>
 
-                <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(true)} mt={4}>Shto një kategori</Button>
+                <Button 
+                 size='sm'
+                 bg='#579DFF'
+                 color='black'
+                 _hover={{ bg: '#579DFF' }}
+                onClick={() => setIsAddModalOpen(true)} 
+                mt={4}
+                >
+                    Shto një taksë të re
+                </Button>
 
 
 
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="simple">
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                    <Table variant="simple" size="sm" pt={2}>
                         <Thead>
-                            <Tr>
-                                <Th>Taksa ID</Th>
-                                <Th>Emri i takses</Th>
-                                <Th>Rata</Th>
-                                <Th>Operacione</Th>
+                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Taksa ID</Th>
+                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri i takses</Th>
+                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Rata</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {taxes.map((tax) => (
                                 <Tr key={tax.id}>
-                                    <Td>{tax.id}</Td>
-                                    <Td>{tax.name}</Td>
-                                    <Td>{tax.rate}</Td>
-                                    <Td>
-                                        <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
-                                            onClick={() => {
-                                                setSelectedCategory(tax);  // Set the selected category
-                                                setIsDeleteModalOpen(true);     // Open the delete modal
-                                            }}
-                                        >
-                                            Fshij
-                                        </Button>
-                                    </Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.id}</Td>
+                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.name}</Td>
+                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.rate}</Td>
                                 </Tr>
                             ))}
                         </Tbody>
                     </Table>
+                    </Box>
                 )}
 
             </Box>
 
-            {/* Add Category Modal */}
-            {/* <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+
+            
+            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} size='4xl'>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto një kategori të re</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Shto një takse të re</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
+                        <SimpleGrid columns={2} spacing={'2'}>
                         <FormControl>
-                            <FormLabel>Emri i kategorisë</FormLabel>
+                            <FormLabel color='gray.300'>Emri i takses. p.sh 18%</FormLabel>
                             <Input
-                                value={categoryName}
-                                onChange={(e) => setCategoryName(e.target.value)}
-                                placeholder="Shkruaj emrin e kategorisë"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Shkruaj emrin e takses"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
+                        <FormControl>
+                            <FormLabel color='gray.300'>Rata p.sh 18</FormLabel>
+                            <Input
+                                value={rate}
+                                onChange={(e) => setRate(e.target.value)}
+                                placeholder="Shkruaj numrin e takses"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A'}}
+                                color='gray.300'
+                                w='100%'
+                            />
+                        </FormControl>
+                    </SimpleGrid>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={addTax}>
                             Shto
                         </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
-
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij kategorinë</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
-                        <strong>{selectedCategory?.name}</strong>?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
-                            Fshij
-                        </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> */}
+           
 
         </Box>
     );
@@ -307,20 +303,20 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
@@ -343,8 +339,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -373,6 +370,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -390,7 +388,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -413,8 +411,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -424,11 +422,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

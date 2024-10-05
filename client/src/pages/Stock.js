@@ -161,7 +161,7 @@ export default function SidebarWithHeader({ children }) {
         fetchStocks();
     };
     return (
-        <Box minH="100vh" bg='gray.100'>
+        <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
                 onClose={() => onClose}
                 display={{ base: 'none', md: 'block' }}
@@ -183,27 +183,37 @@ export default function SidebarWithHeader({ children }) {
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
 
-                <Text color='black' fontSize={'3xl'} fontFamily={'Bricolage Grotesque'}>
+                <Text color='gray.300' fontSize={'3xl'}>
                     Gjendja e stokut
                 </Text>
 
                 <SimpleGrid columns={4} spacing={1} direction='row'>
 
                     <Box>
-                        <FormLabel mt={4}>Kerko sipas Stock Idse</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kerko sipas Stock Idse</FormLabel>
                         <Input
-                            bg='#fff'
                             value={searchStockId}
                             onChange={(e) => setSearchStockId(e.target.value)}
                             placeholder="Shkruaj Stock Id"
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A' }}
                         />
                     </Box>
 
 
                     <Box>
-                        <FormLabel mt={4}>Kerko sipas produktit Idse</FormLabel>
+                        <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Kerko sipas produktit Idse</FormLabel>
                         <Input
-                            bg='#fff'
+                            bg='transparent'
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A' }}
                             value={searchProductId}
                             onChange={(e) => setSearchProductId(e.target.value)}
                             placeholder="Shkruaj produkt Id"
@@ -213,9 +223,14 @@ export default function SidebarWithHeader({ children }) {
                     <Box>
                         <Stack direction='row'>
                             <Box>
-                                <FormLabel mt={4}>Sasia minimale</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Sasia minimale</FormLabel>
                                 <Input
-                                    bg='#fff'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    color='white'
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     value={searchMinQuantity}
                                     onChange={(e) => setSearchMinQuantity(e.target.value)}
                                     placeholder="Shkruaj sasin minimale"
@@ -223,9 +238,14 @@ export default function SidebarWithHeader({ children }) {
                             </Box>
 
                             <Box>
-                                <FormLabel mt={4}>Sasia maksimale</FormLabel>
+                                <FormLabel mt={4} color='gray.300' fontSize={'sm'}>Sasia maksimale</FormLabel>
                                 <Input
-                                    bg='#fff'
+                                    bg='transparent'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    color='white'
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     value={searchMaxQuantity}
                                     onChange={(e) => setSearchMaxQuantity(e.target.value)}
                                     placeholder="Shkruaj sasin maksimale"
@@ -234,15 +254,16 @@ export default function SidebarWithHeader({ children }) {
                         </Stack>
                     </Box>
 
-                    <Box>
+                    <Box mt='1'>
                         <Button
-                            bg='black'
-                            color='white'
-                            _hover={{ bg: 'black' }}
+                            bg='#A1BDD914'
+                            color='gray.300'
+                            _hover={{ bg: '#A1BDD914' }}
                             onClick={fetchStocks}
                             direction='row'
-                            mt={12}
-                            w='100%'
+                            mt={10}
+                            size='sm'
+                            w='40%'
                         >
                             Kërko
                         </Button>
@@ -255,46 +276,48 @@ export default function SidebarWithHeader({ children }) {
                 {isLoading ? (
                     <Spinner />
                 ) : (
-                    <Table variant="striped" minW={'100%'} size={'sm'} mt={5} p={5}>
-                        <Thead>
-                            <Tr>
-                                <Th>Stock ID</Th>
-                                <Th>Sasia</Th>
-                                <Th>Produkt ID</Th>
-                                <Th>Emri i produktit</Th>
-                                <Th>Barkodi</Th>
-                                <Th>Description</Th>
-                                <Th>Qmimi</Th>
-                                <Th>Actions</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {stocks.map((stock) => (
-                                <Tr key={stock.id}>
-                                    <Td>{stock.id}</Td>
-                                    <Td>{stock.quantity}</Td>
-                                    <Td>{stock.productId}</Td>
-                                    <Td>{stock.product ? stock.product.name : 'N/A'}</Td>
-                                    <Td>{stock.product ? stock.product.barcode : 'N/A'}</Td>
-                                    <Td>{stock.product ? stock.product.description : 'N/A'}</Td>
-                                    <Td>{stock.product ? stock.product.price : 'N/A'}</Td>
-                                    <Td>
-                                        <Button
-                                            bg='black' color='white' _hover={{ bg: 'black' }}
-                                            size='sm'
-                                            onClick={() => {
-                                                setSelectedStock(stock);
-                                                setIsUpdateModalOpen(true);
-                                            }}
-                                        >
-                                            Shto sasi
-                                        </Button>
-                                    </Td>
-
+                    <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Sasia</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Produkt ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri i produktit</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Barkodi</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Detaje</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Cmimi</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Actions</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+                            <Tbody >
+                                {stocks.map((stock) => (
+                                    <Tr key={stock.id}>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.id}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.quantity}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.productId}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.product ? stock.product.name : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.product ? stock.product.barcode : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.product ? stock.product.description : 'N/A'}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{stock.product ? stock.product.price : 'N/A'}</Td>
+                                        <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                            <Button
+                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedStock(stock);
+                                                    setIsUpdateModalOpen(true);
+                                                }}
+                                            >
+                                                Shto sasi
+                                            </Button>
+                                        </Td>
+
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </Box>
                 )}
 
                 <Stack direction='row' spacing={4} mt={4}>
@@ -333,76 +356,37 @@ export default function SidebarWithHeader({ children }) {
 
             <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)}>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto sasi per kete stock</ModalHeader>
-                    <ModalCloseButton />
+                <ModalContent bg='#282E33'>
+                    <ModalHeader color='gray.300'>Shto sasi per kete stock</ModalHeader>
+                    <ModalCloseButton color='white' />
                     <ModalBody>
                         <FormControl>
-                            <FormLabel>Sasia aktuale plus sasia e shkruar</FormLabel>
+                            <FormLabel color='gray.300'>Sasia aktuale plus sasia e shkruar</FormLabel>
                             <Input
                                 value={quantityToAdd}
                                 onChange={(e) => setQuantityToAdd(e.target.value)}
                                 placeholder="Shkruaj numrin e sasise"
+                                bg='#22272B'
+                                border='1px solid #7A869A'
+                                rounded='3px'
+                                _hover={{ border: '1px solid #7A869A' }}
+                                color='gray.300'
+                                w='100%'
                             />
                         </FormControl>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg="black" color="white" _hover={{ bg: 'black' }} onClick={updateStock}>
+                        <Button bg="#A1BDD914" color="white" _hover={{ bg: '#A1BDD914' }} onClick={updateStock}>
                             Shto
                         </Button>
-                        <Button bg="black" color="white" _hover={{ bg: 'black' }} onClick={onClose} ml={3}>
+                        <Button bg="#A1BDD914" color="white" _hover={{ bg: '#A1BDD914' }} onClick={onClose} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
 
-            {/* Add Category Modal */}
-            {/* <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Shto një kategori të re</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <FormControl>
-                            <FormLabel>Emri i kategorisë</FormLabel>
-                            <Input
-                                value={categoryName}
-                                onChange={(e) => setCategoryName(e.target.value)}
-                                placeholder="Shkruaj emrin e kategorisë"
-                            />
-                        </FormControl>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={addCategory}>
-                            Shto
-                        </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
 
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Fshij kategorinë</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        A jeni të sigurtë që dëshironi ta fshini këtë kategori{' '}
-                        <strong>{selectedCategory?.name}</strong>?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={deleteCategory}>
-                            Fshij
-                        </Button>
-                        <Button bg='black' color='white' _hover={{ bg: 'black' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>
-                            Anulo
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> */}
 
         </Box>
     );
@@ -430,20 +414,20 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <Box
             transition="3s ease"
             bg={'transparent'}
-            borderRight="1px"
+            border='0'
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold">
+                <Text fontSize="2xl" fontFamily="Bricolage Grotesque" fontWeight="bold" color='gray.300'>
                     Emona 2024
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
             {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon} href={link.href}>
+                <NavItem key={link.name} icon={link.icon} href={link.href} color='gray.200'>
                     {link.name}
                 </NavItem>
             ))}
@@ -466,8 +450,9 @@ const NavItem = ({ icon, href, children, ...rest }) => {
                 fontFamily={'Bricolage Grotesque'}
                 fontSize={'xl'}
                 _hover={{
-                    bg: 'black',
+                    bg: '#242731',
                     color: 'white',
+                    border: '1px solid #30393d'
                 }}
                 {...rest}>
                 {icon && (
@@ -496,6 +481,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             height="20"
             alignItems="center"
             bg={'transparent'}
+            border='0'
             borderBottomWidth="1px"
             borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
             justifyContent={{ base: 'space-between', md: 'flex-end' }}
@@ -513,7 +499,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                CM-DP
+                Emona 2024
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
@@ -536,8 +522,8 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{user && user.name}</Text>
-                                    <Text fontSize="xs" color="gray.600">
+                                    <Text fontSize="sm" color='gray.200'>{user && user.name}</Text>
+                                    <Text fontSize="xs" color="gray.400">
                                         {user && user.role}
                                     </Text>
                                 </VStack>
@@ -547,11 +533,12 @@ const MobileNav = ({ onOpen, ...rest }) => {
                             </HStack>
                         </MenuButton>
                         <MenuList
-                            bg={useColorModeValue('white', 'gray.900')}
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
+                            bg={'#242731'}
+                            border='1px solid #30393d'
+                        >
+                            <MenuItem bg='transparent' color='gray.300'>Profile</MenuItem>
                             <MenuDivider />
-                            <MenuItem onClick={logout}>Sign out</MenuItem>
+                            <MenuItem onClick={logout} bg='transparent' color='gray.300'>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

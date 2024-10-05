@@ -3,7 +3,7 @@ const router = express.Router();
 const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProduct } = require('../models');
 const path = require('path');
 const fs = require('fs');
-
+const { Op } = require('sequelize');
 
 const generateInpContent = (invoice) => {
     let content = '';
@@ -89,9 +89,9 @@ router.get('/', async (req, res) => {
         let orderClause = [];
 
         if (sortByDate === 'asc') {
-            orderClause.push(['createdAt', 'ASC']);
+            orderClause.push(['created_at', 'ASC']);
         } else if (sortByDate === 'desc') {
-            orderClause.push(['createdAt', 'DESC']);
+            orderClause.push(['created_at', 'DESC']);
         }
 
         if (invoiceId) {
@@ -103,7 +103,7 @@ router.get('/', async (req, res) => {
         }
 
         if (startDate && endDate) {
-            whereClause.createdAt = {
+            whereClause.created_at = {
                 [Op.between]: [startDate, endDate]
             }
         }
@@ -165,6 +165,7 @@ router.get('/', async (req, res) => {
             ],
             limit: limit,
             offset: (page - 1) * limit,
+            order: orderClause
         });
 
         if (invoices.length === 0) {
