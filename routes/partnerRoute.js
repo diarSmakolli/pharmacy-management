@@ -2,11 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Partner = require('../models/Partner');
 const { Op } = require('sequelize');
+const logger = require('../logger');
 
 
 // create an partner
 router.post('/', async (req, res) => {
     const { name, businessNumber, fiscalNumber, commune, address, status, phoneNumber, email  } = req.body;
+
+    if(!name || !businessNumber || !fiscalNumber || !commune || !address || !phoneNumber || !email) {
+        logger.error('Please provide all required fields'); 
+        return res.status(400).json({
+            status: 'error',
+            statusCode: 400,
+            message: 'Please provide all required fields'
+        })
+    }
+
     try {
         const existingPartner = await Partner.findOne({ where: { businessNumber } });
 
@@ -47,6 +58,7 @@ router.get('/:id', async (req, res) => {
         })
 
         if (!partner) {
+            logger.error('Partner not found');  
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -55,10 +67,11 @@ router.get('/:id', async (req, res) => {
         }
 
         if (partner.status === 'inactive') {
+            logger.error('Partner not found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
-                message: 'Partner not found'
+                message: 'Partner is inactive'
             })
         }
 
@@ -69,7 +82,7 @@ router.get('/:id', async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
+        logger.error(error.message);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
@@ -121,6 +134,7 @@ router.get('/', async (req, res) => {
         });
 
         if (rows.length === 0) {
+            logger.error('No partner found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -137,7 +151,7 @@ router.get('/', async (req, res) => {
             partners: rows
         })
     } catch (error) {
-        console.log(error);
+        logger.error(error.message);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
@@ -154,6 +168,7 @@ router.delete('/:id', async (req, res) => {
         const partner = await Partner.findOne({ where: { id } });
 
         if (!partner) {
+            logger.error('Partner not found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -169,7 +184,7 @@ router.delete('/:id', async (req, res) => {
             message: 'Partner deleted successfully'
         })
     } catch (error) {
-        console.log(error);
+        logger.error(error.message);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
@@ -182,10 +197,20 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, businessNumber, fiscalNumber, commune, address, phoneNumber, email } = req.body;
+
+    if(!name || !businessNumber || !fiscalNumber || !commune || !address || !phoneNumber || !email) {
+        logger.error('Please provide all required fields');
+        return res.status(400).json({
+            status: 'error',
+            statusCode: 400,
+            message: 'Please provide all required fields'
+        })
+    }
     try {
         const partner = await Partner.findOne({ where: { id } });
 
         if (!partner) {
+            logger.error('Partner not found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -201,7 +226,7 @@ router.put('/:id', async (req, res) => {
             message: 'Partner updated successfully'
         })
     } catch (error) {
-        console.log(error);
+        logger.error(error.message);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,

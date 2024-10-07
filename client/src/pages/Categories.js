@@ -67,15 +67,6 @@ import axios from 'axios';
 import emonalogo from '../images/emona.png';
 import { DeleteIcon } from '@chakra-ui/icons';
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
-
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -108,30 +99,75 @@ export default function SidebarWithHeader({ children }) {
             console.log(response.data);
             setCategories(response.data.data);
         } catch (error) {
-            toast({
-                title: 'Error në marrjen e kategorive',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log(error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
     };
 
     const addCategory = async () => {
-        if (!categoryName) {
-            toast({
-                title: 'Emri i kategorisë nuk mund të jetë bosh',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            return;
-        }
-
         try {
+
+            if(!categoryName) {
+                toast({
+                    title: 'Emri i kategorisë është i detyrueshëm',
+                    status: 'warning',
+                    duration: 3000,
+                    isClosable: true,
+                });
+                return;
+            }
+
             const response = await axios.post('http://localhost:6099/api/categories', { name: categoryName });
             setCategories([...categories, response.data]);
             toast({
@@ -143,12 +179,57 @@ export default function SidebarWithHeader({ children }) {
             setCategoryName('');
             setIsAddModalOpen(false);
         } catch (error) {
-            toast({
-                title: 'Error në shtimin e kategorisë',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
@@ -164,12 +245,57 @@ export default function SidebarWithHeader({ children }) {
             });
             setIsDeleteModalOpen(false);
         } catch (error) {
-            toast({
-                title: 'Error në fshirjen e kategorisë',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
@@ -212,7 +338,7 @@ export default function SidebarWithHeader({ children }) {
                     color='black'
                     _hover={{ bg: '#579DFF' }}
                     onClick={() => setIsAddModalOpen(true)} mt={4}
-                    >
+                >
                     Shto një kategori
                 </Button>
 
@@ -222,35 +348,35 @@ export default function SidebarWithHeader({ children }) {
                     <Spinner />
                 ) : (
                     <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
-                    <Table variant="simple" size="sm" pt={2}>
-                        <Thead>
-                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Kategoria ID</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri kategorisë</Th>
-                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {categories.map((category) => (
-                                <Tr key={category.id}>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.id}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.name}</Td>
-                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
-                                        <Button
-                                             bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
-                                             size='sm'
-                                                onClick={() => {
-                                                setSelectedCategory(category);  
-                                                setIsDeleteModalOpen(true);
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </Button>
-                                    </Td>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Kategoria ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri kategorisë</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+                            <Tbody>
+                                {categories.map((category) => (
+                                    <Tr key={category.id}>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.id}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{category.name}</Td>
+                                        <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                            <Button
+                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                size='sm'
+                                                onClick={() => {
+                                                    setSelectedCategory(category);
+                                                    setIsDeleteModalOpen(true);
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </Button>
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
                     </Box>
                 )}
 
@@ -269,6 +395,7 @@ export default function SidebarWithHeader({ children }) {
                         <FormControl>
                             <FormLabel color='gray.300'>Emri i kategorisë</FormLabel>
                             <Input
+                                required
                                 value={categoryName}
                                 onChange={(e) => setCategoryName(e.target.value)}
                                 placeholder="Shkruaj emrin e kategorisë"
@@ -282,10 +409,10 @@ export default function SidebarWithHeader({ children }) {
                         </FormControl>
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='#A1BDD914'  rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={addCategory}>
+                        <Button bg='#A1BDD914' rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={addCategory}>
                             Shto
                         </Button>
-                        <Button bg='#A1BDD914'  rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
+                        <Button bg='#A1BDD914' rounded='md' color='white' _hover={{ bg: 'A1BDD914' }} onClick={() => setIsAddModalOpen(false)} ml={3}>
                             Anulo
                         </Button>
                     </ModalFooter>
@@ -293,8 +420,8 @@ export default function SidebarWithHeader({ children }) {
             </Modal>
 
 
-            <Modal bg={'#282E33'}  isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay  backdropFilter='blur(10px) hue-rotate(90deg)'/>
+            <Modal bg={'#282E33'} isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <ModalOverlay backdropFilter='blur(10px) hue-rotate(90deg)' />
                 <ModalContent bg={'#282E33'}>
                     <ModalHeader color='gray.300'>Fshij kategorinë</ModalHeader>
                     <ModalCloseButton color='white' />
@@ -303,7 +430,7 @@ export default function SidebarWithHeader({ children }) {
                         <strong>{selectedCategory?.name}</strong>?
                     </ModalBody>
                     <ModalFooter>
-                        <Button bg='#A1BDD914'  color='white' _hover={{ bg: '#A1BDD914' }} onClick={deleteCategory}>
+                        <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={deleteCategory}>
                             Fshij
                         </Button>
                         <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={() => setIsDeleteModalOpen(false)} ml={3}>

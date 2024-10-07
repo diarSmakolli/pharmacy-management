@@ -14,6 +14,8 @@ import Products from './pages/Products';
 import Stocks from './pages/Stock';
 import Taxes from './pages/Tax';
 import Invoices from './pages/Invoices';
+import MostSoldProducts from './pages/MostSoldProducts';
+import LowStock from './pages/LowStock';
 
 function App() {
   return (
@@ -66,6 +68,20 @@ function App() {
             <Route path='/invoices' element={
               <PrivateRoute>
                 <Invoices />
+              </PrivateRoute>
+            } />
+
+            <Route path='/most-sold' 
+            element={
+              <PrivateRoute>
+                <MostSoldProducts />
+              </PrivateRoute>
+            } />
+
+            <Route path='/most-low-stock' 
+            element={
+              <PrivateRoute>
+                <LowStock />
               </PrivateRoute>
             } />
 

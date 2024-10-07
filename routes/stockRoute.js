@@ -2,23 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { Partner, Product, Category, Tax, Stock } = require('../models');
 const { Op } = require('sequelize');
+const logger = require('../logger');
 
-// get stock by id
-router.get('/:id', async (req, res) => {
-    
-    const stockId = req.params.id;
-
-  // get product included the partner
-    const stock = await Stock.findByPk(stockId, {
-        include: [Product]
-    });
-
-    return res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        data: stock
-    });
-});
 
 // get all stocks
 router.get('/', async (req, res) => {
@@ -62,6 +47,7 @@ router.get('/', async (req, res) => {
         });
 
         if(rows.length === 0) {
+            logger.error('No stocks found');    
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -82,68 +68,75 @@ router.get('/', async (req, res) => {
 
 
    } catch(error) {
-    console.log('error: ', error);
+        logger.error(error);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong'
+        });
    }
 });
 
-// create stock
-router.post('/', async (req, res) => {
-    const { productId, quantity } = req.body;
-
-    const product = await Product.findByPk(productId);
-
-    if (!product) {
-        return res.status(404).json({
-            status: 'error',
-            statusCode: 404,
-            message: 'Product not found'
-        });
-    }
-
-    const stock = await Stock.create({
-        productId,
-        quantity
-    });
-
-    return res.status(201).json({
-        status: 'success',
-        statusCode: 201,
-        data: stock
-    });
-});
 
 // update a stock by id
 router.put('/:id', async (req, res) => {
     const stockId = req.params.id;
     const { quantity } = req.body;
 
-    const stock = await Stock.findByPk(stockId);
-
-    if (!stock) {
-        return res.status(404).json({
+    if(!quantity) {
+        logger.error('Quantity is required');
+        return res.status(400).json({
             status: 'error',
-            statusCode: 404,
-            message: 'Stock not found'
+            statusCode: 400,
+            message: 'Quantity is required'
+        });
+    }   
+    try {
+        const stock = await Stock.findByPk(stockId);
+
+        if (!stock) {
+            logger.error('Stock not found');
+            return res.status(404).json({
+                status: 'error',
+                statusCode: 404,
+                message: 'Stock not found'
+            });
+        }
+
+        stock.quantity = quantity;
+        await stock.save();
+
+        return res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            data: stock
+        });
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong'
         });
     }
-
-    stock.quantity = quantity;
-    await stock.save();
-
-    return res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        data: stock
-    });
 });
 
 // add a quantity of a stock
 router.put("/add-stock/:id", async(req, res) => {
-    try {
-        const stockId = req.params.id;
-        const { quantityToAdd } = req.body;
+    const stockId = req.params.id;
+    const { quantityToAdd } = req.body;
 
+    if(!quantityToAdd) {
+        return res.status(400).json({
+            status: 'error',
+            statusCode: 400,
+            message: 'Quantity to add is required'
+        });
+    }
+    try {
+        
         if(!stockId) {
+            logger.error('Stock not found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -154,6 +147,7 @@ router.put("/add-stock/:id", async(req, res) => {
         const stock = await Stock.findByPk(stockId);
 
         if(!stock) {
+            logger.error('Stock not found');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -172,7 +166,12 @@ router.put("/add-stock/:id", async(req, res) => {
         })
 
     } catch(error) {
-        console.log("err: ", error);
+        logger.error(error);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong'
+        });
     }
 })
 
@@ -196,16 +195,6 @@ router.put("/add-stock/:id", async(req, res) => {
 // });
 
 
-
-// total products in stock
-router.get('/reports/total-products-in-stock', async (req, res) => {
-    try {
-        const totalProductsInStock = await Stock.sum('quantity');
-        res.json({ totalProductsInStock });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch total products in stock' });
-    }
-});
 
 
 module.exports = router;

@@ -213,13 +213,57 @@ export default function SidebarWithHeader({ children }) {
                 });
             }
         } catch (error) {
-            toast({
-                title: 'Error',
-                description: 'There was an error printing the invoice.',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 

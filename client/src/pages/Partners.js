@@ -63,15 +63,6 @@ import axios from 'axios';
 import emonalogo from '../images/emona.png';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
-// const LinkItems = [
-//     { name: 'Shtepi', icon: FiHome, href: '/dashboard' },
-//     { name: 'Pajisjet', icon: FiCompass, href: '/devices' },
-//     { name: 'Statistika', icon: FiCompass, href: '/statistics' },
-//     { name: 'Shto punetor', icon: FiCompass, href: '/add-employer'},
-//     { name: 'Shto pajisje', icon: FiCompass, href: '/add-device'},
-//     { name: 'Perditeso passwordin', icon: FiCompass, href: '/dashboard' },
-// ];
-
 export default function SidebarWithHeader({ children }) {
     const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -217,13 +208,57 @@ export default function SidebarWithHeader({ children }) {
             setStatus('');
             setIsAddModalOpen(false);
         } catch (error) {
-            toast({
-                title: 'Error në shtimin e partnerit',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log("err: ", error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
@@ -240,12 +275,57 @@ export default function SidebarWithHeader({ children }) {
             setIsDeleteModalOpen(false);
 
         } catch (error) {
-            toast({
-                title: 'Error në fshirjen e kategorisë',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
@@ -267,10 +347,60 @@ export default function SidebarWithHeader({ children }) {
                 isClosable: true,
             });
             setIsUpdateModalOpen(false);
-        } catch(error) {
-            console.log("err: ", error);
+        } catch (error) {
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
-    } 
+    };
 
 
     useEffect(() => {
@@ -281,8 +411,6 @@ export default function SidebarWithHeader({ children }) {
         setPage(newPage);
         fetchPartners();
     };
-
-
     return (
         <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
@@ -310,7 +438,7 @@ export default function SidebarWithHeader({ children }) {
                     Partnerët
                 </Text>
 
-                <Button  size='sm'
+                <Button size='sm'
                     bg='#579DFF'
                     color='black'
                     _hover={{ bg: '#579DFF' }}
@@ -333,7 +461,7 @@ export default function SidebarWithHeader({ children }) {
                             border='1px solid #7A869A'
                             rounded={'md'}
                             color='white'
-                            _hover={{ border: '1px solid #7A869A'}}
+                            _hover={{ border: '1px solid #7A869A' }}
                         />
                     </Box>
 
@@ -343,32 +471,32 @@ export default function SidebarWithHeader({ children }) {
                             placeholder='Kërko përmes ID'
                             // value={search}
                             // onChange={handleSearchChange}
-                            value={searchPartnerId} 
+                            value={searchPartnerId}
                             onChange={(e) => setSearchPartnerId(e.target.value)}
                             mt={0}
                             maxW='400px'
                             bg='transparent'
-                                size='sm'
-                                border='1px solid #7A869A'
-                                rounded={'md'}
-                                color='white'
-                                _hover={{ border: '1px solid #7A869A'}}
+                            size='sm'
+                            border='1px solid #7A869A'
+                            rounded={'md'}
+                            color='white'
+                            _hover={{ border: '1px solid #7A869A' }}
                         />
                     </Box>
 
                     <Box mt={1}>
-                    <Button
-                        mt={10}
-                        bg='#A1BDD914'
-                        color='gray.300'
-                        _hover={{ bg: '#A1BDD914' }}
-                        onClick={fetchPartners}
-                        direction='row'
-                        size='sm'
-                        w='40%'
-                    >
-                        Kërko
-                    </Button>
+                        <Button
+                            mt={10}
+                            bg='#A1BDD914'
+                            color='gray.300'
+                            _hover={{ bg: '#A1BDD914' }}
+                            onClick={fetchPartners}
+                            direction='row'
+                            size='sm'
+                            w='40%'
+                        >
+                            Kërko
+                        </Button>
                     </Box>
                 </SimpleGrid>
 
@@ -376,59 +504,59 @@ export default function SidebarWithHeader({ children }) {
                     <Spinner />
                 ) : (
                     <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
-                    <Table variant="simple" size="sm" pt={2}>
-                        <Thead >
-                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Partner ID</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i biznesit</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri fiskal</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Komuna</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Adresa</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i telefonit</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Email</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Status</Th>
-                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {partners.map((partner) => (
-                                <Tr key={partner.id}>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.id}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.name}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.fiscalNumber}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.commune}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.address}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.phoneNumber}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.email}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.status}</Td>
-                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
-                                        <Stack direction='row'>
-                                            <Button
-                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
-                                                size='sm'
-                                                onClick={() => {
-                                                    setSelectedPartner(partner);  // Set the selected category
-                                                    setIsUpdateModalOpen(true);     // Open the delete modal
-                                                }}
-                                            >
-                                                <EditIcon />
-                                            </Button>
-                                            <Button
-                                                bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
-                                                size='sm'
-                                                onClick={() => {
-                                                    setSelectedPartner(partner);  // Set the selected category
-                                                    setIsDeleteModalOpen(true);     // Open the delete modal
-                                                }}
-                                            >
-                                                <DeleteIcon />
-                                            </Button>
-                                        </Stack>
-                                    </Td>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead >
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Partner ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i biznesit</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri fiskal</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Komuna</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Adresa</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Numri i telefonit</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Email</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Status</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Operacione</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+                            <Tbody>
+                                {partners.map((partner) => (
+                                    <Tr key={partner.id}>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.id}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.name}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.fiscalNumber}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.commune}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.address}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.phoneNumber}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.email}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{partner.status}</Td>
+                                        <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>
+                                            <Stack direction='row'>
+                                                <Button
+                                                    bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                    size='sm'
+                                                    onClick={() => {
+                                                        setSelectedPartner(partner);  // Set the selected category
+                                                        setIsUpdateModalOpen(true);     // Open the delete modal
+                                                    }}
+                                                >
+                                                    <EditIcon />
+                                                </Button>
+                                                <Button
+                                                    bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }}
+                                                    size='sm'
+                                                    onClick={() => {
+                                                        setSelectedPartner(partner);  // Set the selected category
+                                                        setIsDeleteModalOpen(true);     // Open the delete modal
+                                                    }}
+                                                >
+                                                    <DeleteIcon />
+                                                </Button>
+                                            </Stack>
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
                     </Box>
                 )}
 
@@ -443,13 +571,13 @@ export default function SidebarWithHeader({ children }) {
                     </Button>
                     {Array.from({ length: totalPages }, (_, index) => (
                         <Button
-                            bg={index + 1 === page ? 'black' : 'white'} 
+                            bg={index + 1 === page ? 'black' : 'white'}
                             color={index + 1 === page ? 'white' : 'black'}
                             _hover={index + 1 === page ? { bg: 'black' } : { bg: 'white' }}
                             size='sm'
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
-                            // variant={index + 1 === page ? 'solid' : 'outline'}
+                        // variant={index + 1 === page ? 'solid' : 'outline'}
                         >
                             {index + 1}
                         </Button>
@@ -474,106 +602,106 @@ export default function SidebarWithHeader({ children }) {
                     <ModalCloseButton color='white' />
                     <ModalBody>
                         <SimpleGrid columns={2} spacing={'2'}>
-                        <FormControl>
-                            <FormLabel color='gray.300'>Emri i partnerit</FormLabel>
-                            <Input
-                                value={partnerName}
-                                onChange={(e) => setPartnerName(e.target.value)}
-                                placeholder="Shkruaj emrin e partnerit"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel color='gray.300'>Numri i biznesit</FormLabel>
-                            <Input
-                                value={businessNumber}
-                                onChange={(e) => setBusinessNumber(e.target.value)}
-                                placeholder="Shkruaj numrin e biznesit"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel color='gray.300'>Numri fiskal</FormLabel>
-                            <Input
-                                value={fiscalNumber}
-                                onChange={(e) => setFiscalNumber(e.target.value)}
-                                placeholder="Shkruaj numrin fiskal"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel color='gray.300'>Komuna</FormLabel>
-                            <Input
-                                value={commune}
-                                onChange={(e) => setCommune(e.target.value)}
-                                placeholder="Shkruaj komunën"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel color='gray.300'>Adresa</FormLabel>
-                            <Input
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                placeholder="Shkruaj adresën"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel color='gray.300'>Numri i telefonit</FormLabel>
-                            <Input
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="Shkruaj numrin e telefonit"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl mt={4}>
-                            <FormLabel color='gray.300'>Email</FormLabel>
-                            <Input
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Shkruaj emailin"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        
-                    </SimpleGrid>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Emri i partnerit</FormLabel>
+                                <Input
+                                    value={partnerName}
+                                    onChange={(e) => setPartnerName(e.target.value)}
+                                    placeholder="Shkruaj emrin e partnerit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Numri i biznesit</FormLabel>
+                                <Input
+                                    value={businessNumber}
+                                    onChange={(e) => setBusinessNumber(e.target.value)}
+                                    placeholder="Shkruaj numrin e biznesit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Numri fiskal</FormLabel>
+                                <Input
+                                    value={fiscalNumber}
+                                    onChange={(e) => setFiscalNumber(e.target.value)}
+                                    placeholder="Shkruaj numrin fiskal"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Komuna</FormLabel>
+                                <Input
+                                    value={commune}
+                                    onChange={(e) => setCommune(e.target.value)}
+                                    placeholder="Shkruaj komunën"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Adresa</FormLabel>
+                                <Input
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    placeholder="Shkruaj adresën"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Numri i telefonit</FormLabel>
+                                <Input
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    placeholder="Shkruaj numrin e telefonit"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl mt={4}>
+                                <FormLabel color='gray.300'>Email</FormLabel>
+                                <Input
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Shkruaj emailin"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+
+                        </SimpleGrid>
                     </ModalBody>
                     <ModalFooter>
                         <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={addPartner}>
@@ -587,7 +715,7 @@ export default function SidebarWithHeader({ children }) {
             </Modal>
             {/* Delete modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <ModalOverlay  />
+                <ModalOverlay />
                 <ModalContent bg='#282E33'>
                     <ModalHeader color='gray.300'>Fshij partnerin</ModalHeader>
                     <ModalCloseButton color='white' />
@@ -604,7 +732,7 @@ export default function SidebarWithHeader({ children }) {
                         </Button>
                     </ModalFooter>
                 </ModalContent>
-            </Modal> 
+            </Modal>
 
             {/* Update modal */}
             <Modal isOpen={isUpdateModalOpen} onClose={() => setIsUpdateModalOpen(false)} size='4xl'>
@@ -626,7 +754,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -643,7 +771,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -660,7 +788,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -677,7 +805,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -694,7 +822,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -711,7 +839,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />
@@ -728,7 +856,7 @@ export default function SidebarWithHeader({ children }) {
                                     bg='#22272B'
                                     border='1px solid #7A869A'
                                     rounded='3px'
-                                    _hover={{ border: '1px solid #7A869A'}}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                     color='gray.300'
                                     w='100%'
                                 />

@@ -4,6 +4,7 @@ const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProd
 const path = require('path');
 const fs = require('fs');
 const { Op } = require('sequelize');
+const logger = require('../logger');
 
 const generateInpContent = (invoice) => {
     let content = '';
@@ -25,46 +26,67 @@ const generateInpContent = (invoice) => {
 
 // get invoice by id with products and order
 router.get('/:id', async (req, res) => {
-    const invoice = await Invoice.findOne({
-        where: { id: req.params.id },
-        include: [
-            {
-                model: Product,
-                through: InvoiceProduct
-            },
-            {
-                model: Order
-            },
-        ]
-    });
+    const invoiceId = req.params.id;
 
-    if (!invoice) {
-        return res.status(404).json({ error: 'Invoice not found' });
+    try {
+
+        if (!invoiceId) {
+            logger.error('Invoice ID is required');
+            return res.status(400).json({
+                status: 'error',
+                statusCode: 400,
+                message: 'Invoice ID is required'
+            });
+        }
+
+        const invoice = await Invoice.findOne({
+            where: { id: invoiceId },
+            include: [
+                {
+                    model: Product,
+                    through: InvoiceProduct
+                },
+                {
+                    model: Order
+                },
+            ]
+        });
+
+        if (!invoice) {
+            return res.status(404).json({ error: 'Invoice not found' });
+        }
+
+        // Generate the content
+        const inpContent = generateInpContent(invoice);
+
+        // const filePath = path.join(__dirname, `../invoices/invoice_${invoice.id}.inp`);
+        // fs.writeFileSync(filePath, inpContent);
+        const tempDir = "C:\\Temp";
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir); // Ensure the directory exists
+        }
+
+        const filePath = path.join(tempDir, `invoice_${invoice.id}.inp`);
+
+        // Write the .inp file
+        fs.writeFileSync(filePath, inpContent);
+
+        console.log("File generated in path: ", filePath);
+
+        res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            message: "Invoice generated successfully.",
+            invoice,
+        })
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Internal server error'
+        });
     }
-
-    // Generate the content
-    const inpContent = generateInpContent(invoice);
-
-    // const filePath = path.join(__dirname, `../invoices/invoice_${invoice.id}.inp`);
-    // fs.writeFileSync(filePath, inpContent);
-    const tempDir = "C:\\Temp";
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir); // Ensure the directory exists
-    }
-
-    const filePath = path.join(tempDir, `invoice_${invoice.id}.inp`);
-
-    // Write the .inp file
-    fs.writeFileSync(filePath, inpContent);
-
-    console.log("File generated in path: ", filePath);
-
-    res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        message: "Invoice generated successfully.",
-        invoice,
-    })
 });
 
 // get all invoices
@@ -187,48 +209,53 @@ router.get('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("err: ", error);
-    }
-})
-
-router.get('/print/:id', (req, res) => {
-    const filePath = path.join(__dirname, `../invoices/invoice_${req.params.id}.inp`);
-
-    // Check if the .inp file exists
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'No .inp file found for this invoice' });
-    }
-
-    // Function to send the .inp file via serial port
-    const sendFileToPrinter = (filePath, res) => {
-        fs.readFile(filePath, (err, data) => {
-
-            if (err) {
-                return res.status(500).json({ error: 'Failed to read .inp file' });
-            }
-
-            const port = new SerialPort(COM_PORT, { baudRate: BAUD_RATE });
-
-            port.on('open', () => {
-                port.write(data, (err) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Failed to send file to printer' });
-                    }
-
-                    port.close();
-                    return res.status(200).json({ message: 'File sent to printer successfully' });
-                });
-            });
-
-            port.on('error', (err) => {
-                return res.status(500).json({ error: 'Failed to open serial port', details: err.message });
-            });
-
+        logger.error(error);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Internal server error'
         });
-    };
-
-    // Send the .inp file to the printer
-    sendFileToPrinter(filePath, res);
+    }
 });
+
+// router.get('/print/:id', (req, res) => {
+//     const filePath = path.join(__dirname, `../invoices/invoice_${req.params.id}.inp`);
+
+//     // Check if the .inp file exists
+//     if (!fs.existsSync(filePath)) {
+//         return res.status(404).json({ error: 'No .inp file found for this invoice' });
+//     }
+
+//     // Function to send the .inp file via serial port
+//     const sendFileToPrinter = (filePath, res) => {
+//         fs.readFile(filePath, (err, data) => {
+
+//             if (err) {
+//                 return res.status(500).json({ error: 'Failed to read .inp file' });
+//             }
+
+//             const port = new SerialPort(COM_PORT, { baudRate: BAUD_RATE });
+
+//             port.on('open', () => {
+//                 port.write(data, (err) => {
+//                     if (err) {
+//                         return res.status(500).json({ error: 'Failed to send file to printer' });
+//                     }
+
+//                     port.close();
+//                     return res.status(200).json({ message: 'File sent to printer successfully' });
+//                 });
+//             });
+
+//             port.on('error', (err) => {
+//                 return res.status(500).json({ error: 'Failed to open serial port', details: err.message });
+//             });
+
+//         });
+//     };
+
+//     // Send the .inp file to the printer
+//     sendFileToPrinter(filePath, res);
+// });
 
 module.exports = router;

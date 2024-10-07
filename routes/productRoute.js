@@ -3,33 +3,53 @@ const router = express.Router();
 const { Partner, Product, Category, Tax, Stock, OrderProduct, Order, Invoice } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('sequelize');
+const logger = require('../logger');
+
 
 // create product
 router.post('/', async (req, res) => {
-    const { name, barcode, description, price, discount, partnerId, status, categoryId, taxId, initialStock } = req.body;
+    const { name, barcode, description, price, partnerId, status, categoryId, taxId, initialStock } = req.body;
 
-    const product = await Product.create({
-        name,
-        barcode,
-        description,
-        price,
-        discount,
-        partnerId,
-        categoryId,
-        taxId,
-        status: 'active'
-    });
+    if (!name || !barcode || !description || !price || !partnerId || !categoryId || !taxId || !initialStock) {
+        logger.error('Please provide all required fields');
+        return res.status(400).json({
+            status: 'error',
+            statusCode: 400,
+            message: 'Please provide all required fields'
+        });
+    }
 
-    await Stock.create({
-        productId: product.id,
-        quantity: initialStock
-    });
+    try {
 
-    return res.status(201).json({
-        status: 'success',
-        statusCode: 201,
-        data: product
-    });
+        const product = await Product.create({
+            name,
+            barcode,
+            description,
+            price,
+            partnerId,
+            categoryId,
+            taxId,
+            status: 'active'
+        });
+
+        await Stock.create({
+            productId: product.id,
+            quantity: initialStock
+        });
+
+        return res.status(201).json({
+            status: 'success',
+            statusCode: 201,
+            data: product
+        });
+    } catch (error) {
+        logger.error(error.message);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong!'
+        });
+    }
 });
 
 router.get('/search', async (req, res) => {
@@ -61,57 +81,48 @@ router.get('/search', async (req, res) => {
 
         res.status(200).json(products);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(error.message);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong!'
+        });
     }
 });
 
 // get product by id
 router.get('/:id', async (req, res) => {
-
     const productId = req.params.id;
+    try {
+        // get product included the partner
+        const product = await Product.findByPk(productId, {
+            include: [Partner, Tax, Category, Invoice]
+        });
 
-    // get product included the partner
-    const product = await Product.findByPk(productId, {
-        include: [Partner, Tax, Category, Invoice]
-    });
+        if (product.status === 'inactive') {
+            logger.error('Product not found');
+            return res.status(404).json({
+                status: 'error',
+                statusCode: 404,
+                message: 'Product not found'
+            });
+        }
 
-    if (product.status === 'inactive') {
-        return res.status(404).json({
+
+        return res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            data: product
+        });
+    } catch (error) {
+        logger.error(error.message);
+        return res.status(500).json({
             status: 'error',
-            statusCode: 404,
-            message: 'Product not found'
+            statusCode: 500,
+            message: 'Something went wrong!'
         });
     }
-
-    return res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        data: product
-    });
 });
-
-
-// get all products
-// router.get('/', async (req, res) => {
-//     const products = await Product.findAll({
-//         where: { status: 'active' },
-//         include: [Partner, Tax, Category, Stock]
-//     });
-
-//     if(products.length === 0) {
-//         return res.status(404).json({
-//             status: 'error',
-//             statusCode: 404,
-//             message: 'No products found'
-//         });
-//     }
-
-//     return res.status(200).json({
-//         status: 'success',
-//         statusCode: 200,
-//         data: products
-//     });
-// });
 
 router.get('/', async (req, res) => {
     try {
@@ -121,6 +132,7 @@ router.get('/', async (req, res) => {
 
         // Construct where clause for filtering
         let whereClause = { status: 'active' };
+        
 
         if (categoryId) {
             whereClause.categoryId = categoryId; // Filter by category
@@ -194,7 +206,12 @@ router.get('/', async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(error.message);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong!',
+        });
     }
 });
 
@@ -203,56 +220,81 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, barcode, description, price, partnerId, status, categoryId, taxId } = req.body;
 
-    const product = await Product.findOne({ where: { id } });
-
-    if (!product) {
-        return res.status(404).json({
+    if(!name || !barcode || !description || !price || !partnerId || !status || !categoryId || !taxId) {
+        return res.status(400).json({
             status: 'error',
-            statusCode: 404,
-            message: 'Product not found'
+            statusCode: 400,
+            message: 'Please provide all required fields'
         });
     }
+    try {
+        const product = await Product.findOne({ where: { id } });
 
-    await product.update({
-        name,
-        barcode,
-        description,
-        price,
-        partnerId,
-        status,
-        categoryId,
-        taxId
-    });
+        if (!product) {
+            return res.status(404).json({
+                status: 'error',
+                statusCode: 404,
+                message: 'Product not found'
+            });
+        }
+
+        await product.update({
+            name,
+            barcode,
+            description,
+            price,
+            partnerId,
+            status,
+            categoryId,
+            taxId
+        });
 
 
-    return res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        data: product
-    });
+        return res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            data: product
+        });
+    } catch (error) {
+        logger.error(error.message);
+        return res.status(500).json({
+            status: 'error',
+            statusCode: 500,
+            message: 'Something went wrong!'
+        });
+    }
 });
 
 // delete the product
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
+    try {
+        const product = await Product.findOne({ where: { id } });
 
-    const product = await Product.findOne({ where: { id } });
+        if (!product) {
+            logger.error('Product not found');
+            return res.status(404).json({
+                status: 'error',
+                statusCode: 404,
+                message: 'Product not found'
+            });
+        }
 
-    if (!product) {
-        return res.status(404).json({
+        await product.update({ status: 'inactive' });
+
+        return res.status(200).json({
+            status: 'success',
+            statusCode: 200,
+            message: 'Product deleted successfully'
+        });
+    } catch (error) {
+        logger.error(error.message);
+        return res.status(500).json({
             status: 'error',
-            statusCode: 404,
-            message: 'Product not found'
+            statusCode: 500,
+            message: 'Something went wrong!'
         });
     }
-
-    await product.update({ status: 'inactive' });
-
-    return res.status(200).json({
-        status: 'success',
-        statusCode: 200,
-        message: 'Product deleted successfully'
-    });
 });
 
 

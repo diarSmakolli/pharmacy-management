@@ -192,12 +192,57 @@ export default function SidebarWithHeader({ children }) {
                 });
                 setSearchedProducts(response.data.rows);
             } catch (error) {
-                toast({
-                    title: 'Error fetching products',
-                    status: 'error',
-                    duration: 3000,
-                    isClosable: true,
-                });
+                const { response } = error;
+    
+                switch (response.data.statusCode) {
+                    case 403:
+                        toast({
+                            title: 'Forbidden',
+                            description: response.data.message,
+                            status: 'warning',
+                            duration: 3000,
+                            isClosable: true,
+                        });
+                        break;
+                    case 400:
+                        toast({
+                            title: 'Bad request',
+                            description: response.data.message,
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true,
+                        });
+                        break;
+                    case 401:
+                        toast({
+                            title: 'Unauthorized',
+                            description: response.data.message,
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true,
+                        });
+                        break;
+                    case 404:
+                        toast({
+                            title: 'Not found',
+                            description: response.data.message,
+                            status: 'warning',
+                            duration: 3000,
+                            isClosable: true,
+                        });
+                        break;
+                    default:
+                        toast({
+                            title: 'Internal Server Error',
+                            description:
+                                "An Error has occurred and we're working to fix the problem!",
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true,
+                        });
+                        break;
+                }
+    
             }
         } else {
             setSearchedProducts([]);
@@ -209,6 +254,27 @@ export default function SidebarWithHeader({ children }) {
         setSearchKeyword(value);
         fetchProducts(value);
     };
+
+    const validateProducts = (products) => {
+        for (const product of products) {
+            // Check if productId is valid (not empty and is a number)
+            if (!product.productId || isNaN(product.productId)) {
+                return { valid: false, message: "Product ID must be a valid number." };
+            }
+    
+            // Check if quantity is valid (not empty and is a positive number)
+            if (!product.quantity || isNaN(product.quantity) || product.quantity <= 0) {
+                return { valid: false, message: "Quantity must be a positive number." };
+            }
+    
+            // Check if discount is valid (must be a number, can be zero)
+            if (product.discount !== undefined && isNaN(product.discount)) {
+                return { valid: false, message: "Discount must be a valid number." };
+            }
+        }
+        return { valid: true };
+    };
+    
 
     const addProductField = () => {
         setProducts([...products, { productId: '', quantity: '', discount: '' }]);
@@ -291,11 +357,30 @@ export default function SidebarWithHeader({ children }) {
 
     const createOrder = async () => {
         setIsLoading(true);
+        console.log("products: ", products);
+
+        const validation = validateProducts(products);
+        if (!validation.valid) {
+            toast({
+                title: 'Validation Error',
+                description: validation.message,
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            setIsLoading(false);
+            return; // Stop execution if validation fails
+        }
+
         try {
+            
             const response = await axios.post('http://localhost:6099/api/orders', {
                 products,
                 overallDiscount
             }, { withCredentials: true });
+
+            console.log("body: ", products);
+
 
             toast({
                 title: 'Order created successfully',
@@ -306,12 +391,6 @@ export default function SidebarWithHeader({ children }) {
             setIsAddOrderModalOpen(false);
             // Reset fields or perform any additional actions after creating an order
         } catch (error) {
-            // toast({
-            //     title: 'Error!',
-            //     description: errorData.message,
-            //     status: errorData.status == 400 ? 'warning' : 'error',
-            //     duration: 3000,
-            //     isClosable: true,
             // })
             console.log("error: ", error.response);
 

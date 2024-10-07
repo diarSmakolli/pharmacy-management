@@ -13,6 +13,9 @@ const taxRoute = require('./routes/taxRoute');
 const orderRoute = require('./routes/orderRoute');
 const stockRoute = require('./routes/stockRoute');
 const invoiceRoute = require('./routes/invoiceRoute');
+const reportsRoute = require('./routes/reportsRoute');
+const logger = require('./logger');
+
 
 const app = express();
 dotenv.config();
@@ -37,8 +40,8 @@ const sequelize = new Sequelize({
 });
 
 sequelize.authenticate()
-    .then(() => console.log('Database connected'))
-    .catch(err => console.log('Error: ' + err));
+    .then(() => logger.info('Database connected'))
+    .catch(err => logger.error('Error: ' + err));
 
 // Routes
 app.use('/api/users', userRoute);
@@ -49,10 +52,12 @@ app.use('/api/taxes', taxRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/stocks', stockRoute); 
 app.use('/api/invoices', invoiceRoute);
+app.use('/api/reports', reportsRoute);
 
 // Server
 
 const port = 6099;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });

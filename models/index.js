@@ -42,6 +42,11 @@ Order.hasOne(Invoice, { foreignKey: 'order_id' });
 Invoice.belongsToMany(Product, { through: InvoiceProduct, foreignKey: 'invoice_id' });
 Product.belongsToMany(Invoice, { through: InvoiceProduct, foreignKey: 'product_id' });
 
+OrderProduct.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+OrderProduct.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
+
+// InvoiceProduct.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+// InvoiceProduct.belongsTo(Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
 
 const models = {
     Partner,

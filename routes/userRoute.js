@@ -3,14 +3,26 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { verifyToken } = require('../middleware/auth');
+const logger = require('../logger');
+
 
 router.post('/register', async(req, res) => {
     const { name, username, password, organization, role } = req.body;
     try {
 
+        if(!name || !username || !password || !organization || !role) {
+            logger.error('All fields are required.');   
+            return res.status(400).json({
+                status: 'error',
+                statusCode: 400,
+                message: 'All fields are required.'
+            })
+        }
+
         const existingUser = await User.findOne({ where: { username } });
 
         if(existingUser) {
+            logger.error('User already exists.');
             return res.status(400).json({
                 status: 'error',
                 statusCode: 400,
@@ -28,6 +40,7 @@ router.post('/register', async(req, res) => {
         })
     } catch(error) {
         console.log(error);
+        logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
@@ -39,6 +52,15 @@ router.post('/register', async(req, res) => {
 router.post('/login', async(req, res) => {
     const { username, password } = req.body;
     try {
+
+        if(!username || !password) {
+            logger.error('All fields are required.');
+            return res.status(400).json({
+                status: 'error',
+                statusCode: 400,
+                message: 'All fields are required.'
+            })
+        }
 
         const user = await User.findOne({ where: { username } });
 
@@ -71,7 +93,7 @@ router.post('/login', async(req, res) => {
         })
 
     } catch(error) {
-        console.log("Error: ", error);
+        logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
@@ -153,7 +175,7 @@ router.post('/logout', verifyToken, async(req, res) => {
             message: 'User has been logged out successfully.'
         });
     } catch(error) {
-        console.log(error);
+        logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,

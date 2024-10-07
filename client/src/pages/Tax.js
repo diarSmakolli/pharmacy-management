@@ -99,19 +99,63 @@ export default function SidebarWithHeader({ children }) {
             console.log(response.data);
             setTaxes(response.data.data);
         } catch (error) {
-            toast({
-                title: 'Error në marrjen e taksave',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-            console.log(error);
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         } finally {
             setIsLoading(false);
         }
     };
 
-    const deleteTaxes = async() => {
+    const deleteTaxes = async () => {
         try {
             await axios.delete(`http://localhost:6099/api/taxes/${selectedTax.id}`);
             setCategories(taxes.filter((tax) => tax.id !== selectedTax.id));
@@ -123,19 +167,75 @@ export default function SidebarWithHeader({ children }) {
             });
             setIsDeleteModalOpen(false);
         } catch (error) {
-            toast({
-                title: 'Error në fshirjen e takses',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
     const addTax = async () => {
         try {
-            const response = await axios.post('http://localhost:6099/api/taxes', 
-            { name: name, rate: rate });
+            if (!name || !rate) {
+                toast({
+                    title: 'Error',
+                    description: 'Please fill all the fields',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                });
+                return;
+            }
+
+            const response = await axios.post('http://localhost:6099/api/taxes',
+                { name: name, rate: rate });
             setTaxes([...taxes, response.data]);
             toast({
                 title: 'Taksa u shtua me sukses',
@@ -147,12 +247,57 @@ export default function SidebarWithHeader({ children }) {
             setRate('');
             setIsAddModalOpen(false);
         } catch (error) {
-            toast({
-                title: 'Error në shtimin e takses',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
+            const { response } = error;
+
+            switch (response.data.statusCode) {
+                case 403:
+                    toast({
+                        title: 'Forbidden',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 400:
+                    toast({
+                        title: 'Bad request',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 401:
+                    toast({
+                        title: 'Unauthorized',
+                        description: response.data.message,
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                case 404:
+                    toast({
+                        title: 'Not found',
+                        description: response.data.message,
+                        status: 'warning',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+                default:
+                    toast({
+                        title: 'Internal Server Error',
+                        description:
+                            "An Error has occurred and we're working to fix the problem!",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                    break;
+            }
+
         }
     };
 
@@ -186,13 +331,13 @@ export default function SidebarWithHeader({ children }) {
                     Ratat e taksave (TVSH)
                 </Text>
 
-                <Button 
-                 size='sm'
-                 bg='#579DFF'
-                 color='black'
-                 _hover={{ bg: '#579DFF' }}
-                onClick={() => setIsAddModalOpen(true)} 
-                mt={4}
+                <Button
+                    size='sm'
+                    bg='#579DFF'
+                    color='black'
+                    _hover={{ bg: '#579DFF' }}
+                    onClick={() => setIsAddModalOpen(true)}
+                    mt={4}
                 >
                     Shto një taksë të re
                 </Button>
@@ -203,31 +348,31 @@ export default function SidebarWithHeader({ children }) {
                     <Spinner />
                 ) : (
                     <Box border={'1px solid #A1BDD914'} rounded='lg' mt={6}>
-                    <Table variant="simple" size="sm" pt={2}>
-                        <Thead>
-                            <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Taksa ID</Th>
-                                <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri i takses</Th>
-                                <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Rata</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {taxes.map((tax) => (
-                                <Tr key={tax.id}>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.id}</Td>
-                                    <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.name}</Td>
-                                    <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.rate}</Td>
+                        <Table variant="simple" size="sm" pt={2}>
+                            <Thead>
+                                <Tr borderBottom="1px" borderColor={'#A1BDD914'}>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Taksa ID</Th>
+                                    <Th borderBottom='1px' borderRight={'1px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Emri i takses</Th>
+                                    <Th borderBottom='1px' borderRight={'0px'} borderColor={'#A1BDD914'} color='gray.400' textTransform={'none'} py={5}>Rata</Th>
                                 </Tr>
-                            ))}
-                        </Tbody>
-                    </Table>
+                            </Thead>
+                            <Tbody>
+                                {taxes.map((tax) => (
+                                    <Tr key={tax.id}>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.id}</Td>
+                                        <Td borderRight={'1px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.name}</Td>
+                                        <Td borderRight={'0px'} borderTop='1px' borderBottom={'0px'} borderColor={'#A1BDD914'} color='gray.400' fontWeight={'500'}>{tax.rate}</Td>
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
                     </Box>
                 )}
 
             </Box>
 
 
-            
+
             <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} size='4xl'>
                 <ModalOverlay />
                 <ModalContent bg='#282E33'>
@@ -235,35 +380,35 @@ export default function SidebarWithHeader({ children }) {
                     <ModalCloseButton color='white' />
                     <ModalBody>
                         <SimpleGrid columns={2} spacing={'2'}>
-                        <FormControl>
-                            <FormLabel color='gray.300'>Emri i takses. p.sh 18%</FormLabel>
-                            <Input
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Shkruaj emrin e takses"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                        <FormControl>
-                            <FormLabel color='gray.300'>Rata p.sh 18</FormLabel>
-                            <Input
-                                value={rate}
-                                onChange={(e) => setRate(e.target.value)}
-                                placeholder="Shkruaj numrin e takses"
-                                bg='#22272B'
-                                border='1px solid #7A869A'
-                                rounded='3px'
-                                _hover={{ border: '1px solid #7A869A'}}
-                                color='gray.300'
-                                w='100%'
-                            />
-                        </FormControl>
-                    </SimpleGrid>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Emri i takses. p.sh 18%</FormLabel>
+                                <Input
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Shkruaj emrin e takses"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel color='gray.300'>Rata p.sh 18</FormLabel>
+                                <Input
+                                    value={rate}
+                                    onChange={(e) => setRate(e.target.value)}
+                                    placeholder="Shkruaj numrin e takses"
+                                    bg='#22272B'
+                                    border='1px solid #7A869A'
+                                    rounded='3px'
+                                    _hover={{ border: '1px solid #7A869A' }}
+                                    color='gray.300'
+                                    w='100%'
+                                />
+                            </FormControl>
+                        </SimpleGrid>
                     </ModalBody>
                     <ModalFooter>
                         <Button bg='#A1BDD914' color='white' _hover={{ bg: '#A1BDD914' }} onClick={addTax}>
@@ -275,7 +420,7 @@ export default function SidebarWithHeader({ children }) {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
-           
+
 
         </Box>
     );

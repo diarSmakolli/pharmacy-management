@@ -2,20 +2,54 @@ const express = require('express');
 const router = express.Router();
 const { Order, Product, OrderProduct, Tax, Category, Stock, Invoice, InvoiceProduct, Partner } = require('../models');
 const { Op } = require('sequelize');
+const logger = require('../logger');
 
 router.post('/', async (req, res) => {
     const { products, overallDiscount } = req.body;
+
+    logger.info("Request body: ", req.body);
+
+    if(!products || products.length === 0) {
+        logger.error('Nuk ka produkte në porosi!');
+        return res.status(400).json({
+            status: 'error',
+            statusCode: 400,
+            message: 'Nuk ka produkte në porosi!'
+        });
+    } 
+
     try {
+
         let total_amount = 0;
         let total_taxAmount = 0;
         const orderProducts = [];
 
         for (const product of products) {
+
+            if(!product.productId || !product.quantity) {
+                logger.error('Produkti duhet të ketë ID dhe sasi!');
+                return res.status(400).json({
+                    status: 'error',
+                    statusCode: 400,
+                    message: 'Produkti duhet të ketë ID dhe sasi!'
+                });
+            }
+
+            if(isNaN(product.productId) || isNaN(product.quantity)) {
+                logger.error('ID dhe sasia duhet të jenë numra!');
+                return res.status(400).json({
+                    status: 'error',
+                    statusCode: 400,
+                    message: 'ID dhe sasia duhet të jenë numra!'
+                });
+            }
+
             const productDetails = await Product.findByPk(product.productId, {
                 include: [Tax, Category, Stock]
             });
 
             if (!productDetails) {
+                logger.error(`Produkti me ID ${product.productId} nuk u gjet!`);
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -27,6 +61,7 @@ router.post('/', async (req, res) => {
             let productDiscountPercentage = product.discount || 0;
 
             if (productDiscountPercentage > 100) {
+                logger.error('Ulja nuk mund te jete me e madhe se 100%!');
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -59,6 +94,7 @@ router.post('/', async (req, res) => {
             });
 
             if (!stock) {
+                logger.error(`Stoku nuk u gjet për produktin me ID ${product.productId}`);
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -67,6 +103,7 @@ router.post('/', async (req, res) => {
             }
 
             if (parseInt(stock.quantity) < parseInt(product.quantity)) {
+                logger.error(`Nuk ka stock për produktin me ID ${product.productId}`);
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -75,6 +112,7 @@ router.post('/', async (req, res) => {
             }
 
             if (stock.quantity <= 0) {
+                logger.error(`Nuk ka stock për produktin me ID ${product.productId}`);
                 return res.status(400).json({
                     status: 'error',
                     statusCode: 400,
@@ -84,6 +122,8 @@ router.post('/', async (req, res) => {
 
             stock.quantity -= product.quantity;
             await stock.save();
+
+            logger.info(`Stoku u azhurnua me sukses për produktin me ID ${product.productId}`);
 
             orderProducts.push({
                 productId: product.productId,
@@ -155,11 +195,13 @@ router.post('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
+        logger.error('error: ', error);
+        console.log("ERRRRRRRR");
+        console.log("ERR: ", error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
-            message: error.message
+            message: 'Something went wrong!'    
         });
     }
 });
@@ -171,6 +213,7 @@ router.get('/:id', async (req, res) => {
         });
 
         if (!order) {
+            logger.error('Porosia nuk u gjet!');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -185,11 +228,11 @@ router.get('/:id', async (req, res) => {
             data: order,
         });
     } catch (error) {
-        console.error(error);
+        logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
-            message: error.message
+            message: 'Something went wrong!'
         });
     }
 });
@@ -308,6 +351,7 @@ router.get('/', async (req, res) => {
         const totalPages = Math.ceil(totalOrders / limit);
 
         if (page > totalPages) {
+            logger.error(`Faqja ${page} nuk ekziston. Totali i faqeve është ${totalPages}.`);
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -342,6 +386,7 @@ router.get('/', async (req, res) => {
         });
 
         if (orders.length === 0) {
+            logger.error('Nuk u gjet asnjë porosi');
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -362,23 +407,15 @@ router.get('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
+        logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
             statusCode: 500,
-            message: error.message
+            message: 'Something went wrong!'
         });
     }
 });
 
-router.get('/reports/total-revenue', async (req, res) => {
-    try {
-        const totalRevenue = await Order.sum('total_amount');
-        res.json({ totalRevenue });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch total revenue' });
-    }
-});
 
 
 module.exports = router;
