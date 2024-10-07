@@ -108,10 +108,10 @@ export default function SidebarWithHeader({ children }) {
                     await axios.get('http://localhost:6099/api/reports/total-products', { withCredentials: true }),
                     await axios.get('http://localhost:6099/api/reports/total-partners', { withCredentials: true }),
                     await axios.get('http://localhost:6099/api/reports/total-orders', { withCredentials: true }),
-                    await axios.get('http://localhost:6099/api/reports/dailysales', { withCredentials: true }), 
+                    await axios.get('http://localhost:6099/api/reports/dailysales', { withCredentials: true }),
                     await axios.get('http://localhost:6099/api/reports/metrics/sales-monthly-growth', { withCredentials: true }),
                     await axios.get('http://localhost:6099/api/reports/metrics/sales-weekly-growth', { withCredentials: true }),
-                    
+
                 ]);
 
                 setData({
@@ -157,7 +157,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    };
 
     const invoicesBarData = {
         labels: ['Total Invoices'],
@@ -168,9 +168,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
-
-    // productsold, totaltaxes, totalproducstinstock, totalprod, total part, total order,
+    };
 
     const productsSoldData = {
         labels: ['Total Products sold'],
@@ -181,7 +179,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    };
 
     const totalTaxesData = {
         labels: ['Total Taxes'],
@@ -192,7 +190,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    }; 
 
     const totalProductsInStock = {
         labels: ['Total Products in Stock'],
@@ -203,7 +201,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    };
 
     const totalProductsData = {
         labels: ['Total Products'],
@@ -214,7 +212,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    };
 
     const totalPartnersData = {
         labels: ['Total Partners'],
@@ -225,7 +223,7 @@ export default function SidebarWithHeader({ children }) {
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
-    }
+    };
 
     const totalOrdersData = {
         labels: ['Total Orders'],
@@ -248,7 +246,7 @@ export default function SidebarWithHeader({ children }) {
             fill: true,
             tension: 0.4
         }]
-    }
+    };
 
     const monthlyGrowthSalesLineData = {
         labels: data.monthlySalesGrowth.map(entry => {
@@ -263,7 +261,7 @@ export default function SidebarWithHeader({ children }) {
             fill: true,
             tension: 0.4
         }]
-    }
+    };
 
     const weeklyGrowthSalesLineData = {
         labels: data.weeklyGrowthSales.map(entry => entry.date),
@@ -275,17 +273,11 @@ export default function SidebarWithHeader({ children }) {
             fill: true,
             tension: 0.4
         }]
-    }
-
-
-
-
+    };
 
     console.log("bar data: ", barData);
-
     console.log(data.totalInvoices);
-
-
+    
     return (
         <Box minH="100vh" bg='#1c2124'>
             <SidebarContent
@@ -323,7 +315,7 @@ export default function SidebarWithHeader({ children }) {
                     mt={4}>
                     Produktet me te shitura
                 </Button>
-                
+
 
                 <SimpleGrid columns={4} spacing={5}>
 
@@ -384,14 +376,14 @@ export default function SidebarWithHeader({ children }) {
                         <Heading size='md' color='gray.300'>Weekly sales</Heading>
                         <Line data={weeklyGrowthSalesLineData} color='white' options={chartOptions} />
                     </Box>
-                </SimpleGrid> 
+                </SimpleGrid>
 
 
 
             </Box>
         </Box>
     );
-}
+};
 
 
 const SidebarContent = ({ onClose, ...rest }) => {

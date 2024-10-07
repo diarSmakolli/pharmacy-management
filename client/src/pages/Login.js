@@ -150,29 +150,39 @@ export default function Login() {
             minH={'100vh'}
             align={'center'}
             justify={'center'}
-            bg={useColorModeValue('gray.100', 'gray.800')}>
+            bg={'#1C2124'}>
             <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
                 <Stack align={'center'}>
-
-                    <Heading fontSize={'4xl'}>Emona 2024</Heading>
 
                     <Heading fontSize={'2xl'}>Kycu ne llogarine tende</Heading>
 
                 </Stack>
                 <form onSubmit={handleSubmit}>
                     <Box
-                        rounded={'lg'}
-                        bg={useColorModeValue('white', 'gray.700')}
-                        boxShadow={'lg'}
-                        p={8}>
+                        rounded={'2xl'}
+                        border='1px solid gray.400'
+                        bg={'#161A1D'}
+                        // boxShadow={'lg'}
+                        // p={8}
+                        width='100%'
+                        p='10'
+                        pl={10}
+                        pr={10}
+                        width='400px'
+                        >
                         <Stack spacing={4}>
                             <FormControl id="username">
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel color='gray.300'>Username</FormLabel>
                                 <Input
                                     type="text"
                                     name="username"
                                     value={formData.username}
                                     onChange={handleChange}
+                                    color='gray.300'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </FormControl>
 
@@ -183,11 +193,16 @@ export default function Login() {
                             )}
 
                             <FormControl id="password">
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel color='gray.300'>Password</FormLabel>
                                 <Input type="password"
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
+                                    color='gray.300'
+                                    size='sm'
+                                    border='1px solid #7A869A'
+                                    rounded={'md'}
+                                    _hover={{ border: '1px solid #7A869A' }}
                                 />
                             </FormControl>
 
@@ -200,15 +215,20 @@ export default function Login() {
                             <Stack spacing={10}>
 
                                 <Button
-                                    bg={'red.500'}
+                                    bg='#579DFF'
                                     color={'white'}
+                                    size='sm'
                                     _hover={{
-                                        bg: 'red.700',
+                                        bg: '#579DFF',
                                     }}
                                     type='submit'
                                 >
                                     Kycu
                                 </Button>
+
+                                
+                                
+
                             </Stack>
                         </Stack>
                     </Box>
