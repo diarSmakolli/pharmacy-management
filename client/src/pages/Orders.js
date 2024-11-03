@@ -103,7 +103,7 @@ export default function SidebarWithHeader({ children }) {
     const [searchOrderId, setSearchOrderId] = useState('');
     const [searchMinTotal, setSearchMinTotal] = useState('');
     const [searchMaxTotal, setSearchMaxTotal] = useState('');
-
+    const [activeSearchIndex, setActiveSearchIndex] = useState(null);
 
     const fetchOrders = async () => {
         setIsLoading(true);
@@ -249,9 +249,10 @@ export default function SidebarWithHeader({ children }) {
         }
     };
 
-    const handleSearchChange = (e) => {
+    const handleSearchChange = (index, e) => {
         const value = e.target.value;
         setSearchKeyword(value);
+        setActiveSearchIndex(index);
         fetchProducts(value);
     };
 
@@ -275,7 +276,6 @@ export default function SidebarWithHeader({ children }) {
         return { valid: true };
     };
     
-
     const addProductField = () => {
         setProducts([...products, { productId: '', quantity: '', discount: '' }]);
     };
@@ -331,21 +331,38 @@ export default function SidebarWithHeader({ children }) {
         // console.log("total price: ", totalPrice);
     };
 
+    // const handleSelectProduct = (index, product) => {
+    //     const newProducts = [...products];
+
+    //     // Store productId and price when selecting a product
+    //     newProducts[index] = {
+    //         ...newProducts[index],
+    //         productId: product.id,
+    //         price: product.price,
+    //         quantity: '',
+    //         discount: '',
+    //     };
+
+    //     setProducts(newProducts);
+    //     setSearchedProducts([]); // Clear search results after selection
+    //     setSearchKeyword(''); // Clear search input
+    // };
+
     const handleSelectProduct = (index, product) => {
         const newProducts = [...products];
-
-        // Store productId and price when selecting a product
+    
         newProducts[index] = {
             ...newProducts[index],
             productId: product.id,
+            productName: product.name,
             price: product.price,
             quantity: '',
             discount: '',
         };
-
+    
         setProducts(newProducts);
-        setSearchedProducts([]); // Clear search results after selection
-        setSearchKeyword(''); // Clear search input
+        setSearchedProducts([]); 
+        setSearchKeyword('');
     };
 
     const toggleOrderDetails = (orderId) => {
@@ -488,7 +505,7 @@ export default function SidebarWithHeader({ children }) {
                 {children}
 
                 <Text color='gray.300' fontSize={'3xl'}>
-                    Porositë
+                    Shitjet
                 </Text>
 
                 <Button
@@ -620,8 +637,6 @@ export default function SidebarWithHeader({ children }) {
                         </Button>
                     </Box>
                 </SimpleGrid>
-
-
 
                 <br /><br />
                 {isLoading ? (
@@ -790,12 +805,12 @@ export default function SidebarWithHeader({ children }) {
                     <ModalBody>
                         {products.map((product, index) => (
                             <Box key={index} mb={4}>
-                                <SimpleGrid columns={2} spacing='2'>
+                                <SimpleGrid columns={2} spacing='2' borderTop={'2px'} borderColor={'bisque'} borderRadius={'2px'}>
                                     <FormControl>
                                         <FormLabel color='gray.300'>Kerko produktin</FormLabel>
                                         <Input
                                             value={searchKeyword}
-                                            onChange={handleSearchChange}
+                                            onChange={(e) => handleSearchChange(index, e)}
                                             placeholder="Kërko produktin..."
                                             bg='#22272B'
                                             border='1px solid #7A869A'
@@ -804,10 +819,24 @@ export default function SidebarWithHeader({ children }) {
                                             color='gray.300'
                                             w='100%'
                                         />
-                                        {searchedProducts.length > 0 && (
+                                        {/* {searchedProducts.length > 0 && (
                                             <Box border="1px solid gray" bg="transparent" mt={1} color='gray.300'>
                                                 {searchedProducts.map((searchedProduct) => (
                                                     <Box key={searchedProduct.id} p={2} cursor="pointer" onClick={() => handleSelectProduct(index, searchedProduct)}>
+                                                        {searchedProduct.name} (ID: {searchedProduct.id}) Qmimi: {searchedProduct.price}
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        )} */}
+                                        {activeSearchIndex === index && searchedProducts.length > 0 && (
+                                            <Box border="1px solid gray" bg="transparent" mt={1} color='gray.300'>
+                                                {searchedProducts.map((searchedProduct) => (
+                                                    <Box
+                                                        key={searchedProduct.id}
+                                                        p={2}
+                                                        cursor="pointer"
+                                                        onClick={() => handleSelectProduct(index, searchedProduct)}
+                                                    >
                                                         {searchedProduct.name} (ID: {searchedProduct.id}) Qmimi: {searchedProduct.price}
                                                     </Box>
                                                 ))}
@@ -817,8 +846,9 @@ export default function SidebarWithHeader({ children }) {
                                     <FormControl>
                                         <FormLabel color='gray.300'>Produkti</FormLabel>
                                         <Input
-                                            value={product.productId} // Use productId for the input
-                                            onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
+                                            value={product.productName || ''} // Use productId for the input
+                                            // onChange={(e) => handleProductChange(index, 'productId', e.target.value)}
+                                            readOnly
                                             placeholder="Shkruaj ID-në e produktit"
                                             bg='#22272B'
                                             border='1px solid #7A869A'
@@ -827,7 +857,6 @@ export default function SidebarWithHeader({ children }) {
                                             color='gray.300'
                                             w='100%'
                                         />
-
                                     </FormControl>
                                     <FormControl>
                                         <FormLabel color='gray.300'>Sasia</FormLabel>
@@ -891,7 +920,7 @@ export default function SidebarWithHeader({ children }) {
                         <Text mt={5} fontWeight={'bold'} color='gray.300'>
                             Çmimi total me zbritje: {' '}
                             {totalPrice && typeof totalPrice == 'number' && totalPrice != null
-                                ? totalPrice.toFixed(2) : '0.00'} EUR
+                                ? totalPrice.toFixed(2) : '0.00'} EUR 🎉
 
                         </Text>
 
@@ -899,7 +928,7 @@ export default function SidebarWithHeader({ children }) {
                             Shuma e kursyer nga zbritjet: {' '}
                             {totalDiscountSaved && typeof totalDiscountSaved == 'number' && totalDiscountSaved != null
                                 ? totalDiscountSaved.toFixed(2) : '0.00'}
-                            EUR
+                            EUR 🎉
                         </Text>
 
                     </ModalBody>

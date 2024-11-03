@@ -220,7 +220,7 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, barcode, description, price, partnerId, status, categoryId, taxId } = req.body;
 
-    if(!name || !barcode || !description || !price || !partnerId || !status || !categoryId || !taxId) {
+    if(!name || !barcode || !description || !price || !partnerId || !categoryId || !taxId) {
         return res.status(400).json({
             status: 'error',
             statusCode: 400,

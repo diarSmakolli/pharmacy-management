@@ -6,12 +6,12 @@ const { verifyToken } = require('../middleware/auth');
 const logger = require('../logger');
 
 
-router.post('/register', async(req, res) => {
+router.post('/register', async (req, res) => {
     const { name, username, password, organization, role } = req.body;
     try {
 
-        if(!name || !username || !password || !organization || !role) {
-            logger.error('All fields are required.');   
+        if (!name || !username || !password || !organization || !role) {
+            logger.error('All fields are required.');
             return res.status(400).json({
                 status: 'error',
                 statusCode: 400,
@@ -21,7 +21,7 @@ router.post('/register', async(req, res) => {
 
         const existingUser = await User.findOne({ where: { username } });
 
-        if(existingUser) {
+        if (existingUser) {
             logger.error('User already exists.');
             return res.status(400).json({
                 status: 'error',
@@ -38,7 +38,7 @@ router.post('/register', async(req, res) => {
             message: 'User created successfully',
             data: user
         })
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         logger.error('error: ', error);
         return res.status(500).json({
@@ -49,11 +49,11 @@ router.post('/register', async(req, res) => {
     }
 });
 
-router.post('/login', async(req, res) => {
+router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
 
-        if(!username || !password) {
+        if (!username || !password) {
             logger.error('All fields are required.');
             return res.status(400).json({
                 status: 'error',
@@ -64,7 +64,7 @@ router.post('/login', async(req, res) => {
 
         const user = await User.findOne({ where: { username } });
 
-        if(!user) {
+        if (!user) {
             return res.status(400).json({
                 status: 'error',
                 statusCode: 400,
@@ -72,7 +72,7 @@ router.post('/login', async(req, res) => {
             })
         }
 
-        if(user.password !== password) {
+        if (user.password !== password) {
             return res.status(400).json({
                 status: 'error',
                 statusCode: 400,
@@ -92,7 +92,7 @@ router.post('/login', async(req, res) => {
             user
         })
 
-    } catch(error) {
+    } catch (error) {
         logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',
@@ -102,12 +102,12 @@ router.post('/login', async(req, res) => {
     }
 });
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', async (req, res) => {
     const userId = req.params.id;
     try {
         const user = await User.findByPk(userId);
 
-        if(!user) {
+        if (!user) {
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -121,7 +121,7 @@ router.get('/:id', async(req, res) => {
             message: 'Perdoruesi u gjet.',
             user
         });
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'error',
@@ -131,7 +131,7 @@ router.get('/:id', async(req, res) => {
     }
 });
 
-router.get('/getall', verifyToken, async(req, res) => {
+router.get('/getall', verifyToken, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 5;
     try {
@@ -141,7 +141,7 @@ router.get('/getall', verifyToken, async(req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        if(users.length === 0) {
+        if (users.length === 0) {
             return res.status(404).json({
                 status: 'error',
                 statusCode: 404,
@@ -155,7 +155,7 @@ router.get('/getall', verifyToken, async(req, res) => {
             message: 'Users retrieved successfully.',
             users
         })
-    } catch(error) {
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             status: 'error',
@@ -165,7 +165,7 @@ router.get('/getall', verifyToken, async(req, res) => {
     }
 });
 
-router.post('/logout', verifyToken, async(req, res) => {
+router.post('/logout', verifyToken, async (req, res) => {
     try {
         res.clearCookie('token');
 
@@ -174,7 +174,7 @@ router.post('/logout', verifyToken, async(req, res) => {
             statusCode: 200,
             message: 'User has been logged out successfully.'
         });
-    } catch(error) {
+    } catch (error) {
         logger.error('error: ', error);
         return res.status(500).json({
             status: 'error',

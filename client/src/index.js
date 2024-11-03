@@ -8,9 +8,9 @@ const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 
 root.render(
-  <StrictMode>
+  // <StrictMode>
     <ChakraProvider>
       <App />
     </ChakraProvider>
-  </StrictMode>
+  // </StrictMode>
 );

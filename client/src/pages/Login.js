@@ -154,7 +154,7 @@ export default function Login() {
             <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
                 <Stack align={'center'}>
 
-                    <Heading fontSize={'2xl'}>Kycu ne llogarine tende</Heading>
+                    <Heading fontSize={'2xl'} color='gray.300'>Hyr ne llogarine tende</Heading>
 
                 </Stack>
                 <form onSubmit={handleSubmit}>
@@ -164,12 +164,11 @@ export default function Login() {
                         bg={'#161A1D'}
                         // boxShadow={'lg'}
                         // p={8}
-                        width='100%'
                         p='10'
                         pl={10}
                         pr={10}
                         width='400px'
-                        >
+                    >
                         <Stack spacing={4}>
                             <FormControl id="username">
                                 <FormLabel color='gray.300'>Username</FormLabel>
@@ -225,10 +224,6 @@ export default function Login() {
                                 >
                                     Kycu
                                 </Button>
-
-                                
-                                
-
                             </Stack>
                         </Stack>
                     </Box>
