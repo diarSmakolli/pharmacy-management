@@ -25,23 +25,41 @@ This application is built using Node.js, React and PostgreSQL and incorporates b
 ##### - Generate fiscal receipts for sales based on country regulations.
 ##### - Integrated with fiscal printers for legal compliance.
 
-#### Installation
+## Installation
 
-#### Prerequisites
+## Prerequisites
 ##### - Node.js and npm installed.
 ##### - PostgreSQL installed and configured.
 
 #### Steps:
-1. Clone the repository
 
-##### git clone https://github.com/diarSmakolli/pharmacy-management.git
-##### cd pharmacy-management
-##### npm install
-##### cd client && npm install
-##### update the .env file with your configurations on your device.
-##### database migration or setup manually if want to migrate npx sequelize-cli db:migrate
-##### start the server using npm run dev and in client side /client - npm start
+```
+  git clone https://github.com/diarSmakolli/pharmacy-management.git
+  cd pharmacy-management
+  npm install
+  cd client && npm install
 
+  # update the .env file with your configurations on your device
+  DB_DIALECT=
+  DB_HOST=
+  DB_USERNAME=
+  DB_PASSWORD=
+  DB_DATABASE=
+  DB_PORT=
+  JWT_SECRET=
+
+  # databse migration or setup manually if you want
+  npx sequelize-cli db:migrate
+
+  # start the server
+  npm run dev
+
+  # start the client in path: pharmacy-management/client
+  npm start
+
+```
+
+## Screenshoots
 
 
 
