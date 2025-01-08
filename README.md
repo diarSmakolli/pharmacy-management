@@ -61,10 +61,18 @@ This application is built using Node.js, React and PostgreSQL and incorporates b
 
 ## Screenshoots
 
+<img width="672" alt="Screenshot 2025-01-08 at 6 52 38 PM" src="https://github.com/user-attachments/assets/d194565e-cf2a-4adc-a2f0-a1a4af73f5f1" />
 
+<img width="668" alt="Screenshot 2025-01-08 at 6 53 07 PM" src="https://github.com/user-attachments/assets/04201835-8f5e-425b-9a7c-66ff5e079258" />
 
+<img width="640" alt="Screenshot 2025-01-08 at 6 53 27 PM" src="https://github.com/user-attachments/assets/c0f46e0d-7417-4b67-bf33-d6a8386ff108" />
 
+<img width="671" alt="Screenshot 2025-01-08 at 6 53 41 PM" src="https://github.com/user-attachments/assets/69ca10ab-8257-46c8-8dee-23aeb8ad5050" />
 
+<img width="669" alt="Screenshot 2025-01-08 at 6 53 54 PM" src="https://github.com/user-attachments/assets/24d31e31-b6af-40e9-93ec-f7ca85c09b20" />
 
+<img width="673" alt="Screenshot 2025-01-08 at 6 54 05 PM" src="https://github.com/user-attachments/assets/9e4add5f-fc82-4a24-86a2-9effa19c69f0" />
 
+<img width="673" alt="Screenshot 2025-01-08 at 6 54 17 PM" src="https://github.com/user-attachments/assets/ec0a2c5d-95a3-41b9-a5aa-122c75cfe166" />
 
+<img width="674" alt="Screenshot 2025-01-08 at 6 54 30 PM" src="https://github.com/user-attachments/assets/67c89ae9-8b81-454c-8e58-fc839ca21bc7" />
